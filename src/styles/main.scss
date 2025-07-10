@@ -631,6 +631,27 @@ body {
     color: var(--primary-color);
   }
   
+  .policy-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  .policy-category {
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    
+    h4 {
+      margin: 0 0 var(--spacing-sm) 0;
+      color: var(--primary-color);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  }
+  
   .policy-buttons {
     display: flex;
     flex-wrap: wrap;

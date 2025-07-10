@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+env:
+  NODE_VERSION: '22.x'
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -33,6 +36,16 @@ jobs:
     - name: Run unit tests
       run: npm run test
       
+    - name: Generate test coverage
+      run: npm run test -- --coverage --watchAll=false
+      
+    - name: Upload coverage to codecov
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: ./coverage/lcov.info
+        fail_ci_if_error: false
+      
     - name: Run build
       run: npm run build
       
@@ -50,9 +63,10 @@ jobs:
         path: |
           test-results/
           playwright-report/
+          coverage/
         retention-days: 5
 
-  build-and-deploy:
+  build-production:
     needs: lint-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -64,7 +78,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         
     - name: Install dependencies
@@ -72,21 +86,122 @@ jobs:
       
     - name: Build for production
       run: npm run build
-      
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: ${{ secrets.DEV_TOKEN }}
-        publish_dir: ./dist
-        cname: sp-sim.mcpolitics.com # Optional: if using custom domain
+      env:
+        NODE_ENV: production
+        VITE_BUILD_MODE: production
         
-    - name: Upload build artifacts
+    - name: Upload production build
       uses: actions/upload-artifact@v4
       with:
         name: production-build
         path: dist/
         retention-days: 30
+
+  build-development:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build for development
+      run: npm run build
+      env:
+        NODE_ENV: development
+        VITE_BUILD_MODE: development
+        VITE_ENABLE_DEBUG: true
+        VITE_ENABLE_TESTING_FEATURES: true
+        
+    - name: Upload development build
+      uses: actions/upload-artifact@v4
+      with:
+        name: development-build
+        path: dist/
+        retention-days: 14
+
+  deploy-production:
+    needs: [lint-and-test, build-production]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download production build
+      uses: actions/download-artifact@v4
+      with:
+        name: production-build
+        path: dist
+        
+    - name: Deploy to GitHub Pages (Production)
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        publish_branch: gh-pages
+        cname: sp-sim.mcpolitics.com
+        commit_message: 'Deploy production build ${{ github.sha }}'
+        
+    - name: Create deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: '${{ github.sha }}',
+            state: 'success',
+            environment_url: 'https://sp-sim.mcpolitics.com',
+            description: 'Production deployment successful'
+          });
+
+  deploy-development:
+    needs: [lint-and-test, build-development]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download development build
+      uses: actions/download-artifact@v4
+      with:
+        name: development-build
+        path: dist
+        
+    - name: Deploy to GitHub Pages (Development)
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        publish_branch: gh-pages-dev
+        commit_message: 'Deploy development build ${{ github.sha }}'
+        
+    - name: Create deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: '${{ github.sha }}',
+            state: 'success',
+            environment_url: 'https://mcpolitics.github.io/SP_Sim/dev',
+            description: 'Development deployment successful'
+          });
 
   security-scan:
     runs-on: ubuntu-latest
@@ -98,7 +213,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         
     - name: Install dependencies
@@ -109,6 +224,14 @@ jobs:
       
     - name: Run dependency check
       run: npx audit-ci --moderate
+      
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript
+        
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
 
   code-quality:
     runs-on: ubuntu-latest
@@ -120,7 +243,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         
     - name: Install dependencies
@@ -132,3 +255,126 @@ jobs:
     - name: Analyze bundle size
       run: npm run analyze
       if: github.event_name == 'pull_request'
+      
+    - name: Generate performance report
+      run: |
+        npm run build
+        npx lighthouse-ci autorun --config=./lighthouse.config.js || true
+      if: github.event_name == 'pull_request'
+
+  feature-testing:
+    needs: [deploy-development]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright
+      run: npx playwright install --with-deps
+      
+    - name: Run feature tests against development deployment
+      run: |
+        export PLAYWRIGHT_BASE_URL=https://mcpolitics.github.io/SP_Sim/dev
+        npm run test:e2e:development
+      env:
+        PLAYWRIGHT_BASE_URL: https://mcpolitics.github.io/SP_Sim/dev
+        
+    - name: Upload feature test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: feature-test-results
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 7
+
+  pr-preview:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build PR preview
+      run: npm run build
+      env:
+        VITE_BUILD_MODE: preview
+        VITE_PR_NUMBER: ${{ github.event.number }}
+        VITE_ENABLE_DEBUG: true
+        
+    - name: Deploy PR preview
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        destination_dir: pr-${{ github.event.number }}
+        publish_branch: gh-pages-pr
+        commit_message: 'Deploy PR #${{ github.event.number }} preview'
+        
+    - name: Comment PR with preview link
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const prNumber = context.payload.pull_request.number;
+          const previewUrl = `https://mcpolitics.github.io/SP_Sim/pr-${prNumber}`;
+          
+          github.rest.issues.createComment({
+            issue_number: prNumber,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `🚀 **Preview deployment ready!**
+            
+            View this PR's changes at: ${previewUrl}
+            
+            This preview includes:
+            - Latest changes from this PR
+            - Debug features enabled
+            - Performance monitoring
+            - Full economic simulation features (Week 8 complete)
+            
+            The preview will be updated automatically with new commits.`
+          });
+
+  cleanup-pr-previews:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    
+    steps:
+    - name: Checkout gh-pages-pr branch
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages-pr
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Remove PR preview directory
+      run: |
+        rm -rf pr-${{ github.event.number }}
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Remove preview for PR #${{ github.event.number }}" || exit 0
+        git push
+      continue-on-error: true

@@ -298,12 +298,49 @@ export class EconomicSimulation {
         this.metrics.confidence += 3;
         this.metrics.consumerSpending += policy.amount || 0.01;
         break;
+      case 'tax_increase':
+        this.metrics.confidence -= 4;
+        this.metrics.consumerSpending -= policy.amount || 0.015;
+        break;
       case 'interest_rate_change':
         this.metrics.interestRate += policy.change || 0;
         break;
       case 'infrastructure_investment':
         this.metrics.productivity += policy.amount || 0.05;
         this.sectors.manufacturing.growth += policy.amount || 0.5;
+        break;
+      case 'education_investment':
+        this.metrics.productivity += policy.amount || 0.03;
+        this.sectors.services.growth += policy.amount || 0.3;
+        break;
+      case 'healthcare_investment':
+        this.metrics.productivity += policy.amount || 0.02;
+        this.metrics.confidence += 3;
+        break;
+      case 'green_energy_investment':
+        this.sectors.manufacturing.growth += policy.amount || 0.4;
+        this.metrics.productivity += policy.amount || 0.04;
+        break;
+      case 'trade_promotion':
+        this.metrics.netExports += policy.amount || 0.01;
+        this.sectors.manufacturing.growth += policy.amount || 0.3;
+        break;
+      case 'regulation_increase':
+        this.sectors.services.growth -= policy.amount || 0.2;
+        this.metrics.confidence -= 2;
+        break;
+      case 'regulation_decrease':
+        this.sectors.services.growth += policy.amount || 0.3;
+        this.metrics.confidence += 2;
+        break;
+      case 'agricultural_subsidies':
+        this.sectors.agriculture.growth += policy.amount || 0.5;
+        this.metrics.governmentSpending += policy.amount || 0.005;
+        break;
+      case 'minimum_wage_increase':
+        this.metrics.consumerSpending += policy.amount || 0.008;
+        this.metrics.confidence += 2;
+        this.metrics.inflation += policy.amount || 0.3;
         break;
       default:
         break;
@@ -361,6 +398,35 @@ export class EconomicSimulation {
         this.metrics.unemployment += shock.magnitude || 3.0;
         this.sectors.services.growth -= shock.magnitude || 3.0;
         break;
+      case 'supply_chain_disruption':
+        this.sectors.manufacturing.growth -= shock.magnitude;
+        this.sectors.services.growth -= shock.magnitude * 0.5;
+        this.metrics.inflation += shock.magnitude * 0.3;
+        break;
+      case 'commodity_price_spike':
+        this.metrics.inflation += shock.magnitude;
+        this.sectors.agriculture.growth -= shock.magnitude * 0.8;
+        this.metrics.confidence -= shock.magnitude * 3;
+        break;
+      case 'currency_fluctuation':
+        this.metrics.netExports += (Math.random() - 0.5) * shock.magnitude * 0.02;
+        this.metrics.inflation += shock.magnitude * 0.2;
+        break;
+      case 'tech_innovation':
+        this.metrics.productivity += shock.magnitude * 0.1;
+        this.sectors.services.growth += shock.magnitude;
+        this.metrics.confidence += shock.magnitude * 5;
+        break;
+      case 'natural_disaster':
+        this.metrics.gdpGrowth -= shock.magnitude;
+        this.sectors.agriculture.growth -= shock.magnitude * 1.5;
+        this.metrics.confidence -= shock.magnitude * 8;
+        break;
+      case 'geopolitical_tension':
+        this.metrics.confidence -= shock.magnitude * 6;
+        this.metrics.netExports -= shock.magnitude * 0.01;
+        this.metrics.investment -= shock.magnitude * 0.01;
+        break;
       default:
         break;
     }
@@ -404,10 +470,147 @@ export class EconomicSimulation {
       });
     }
 
+    // Economic boom detection
+    if (this.metrics.gdpGrowth > 4.0 && this.metrics.unemployment < 5.0 && Math.random() < 0.08) {
+      events.push({
+        type: 'economic_boom',
+        message: `Economic boom detected! GDP growth at ${this.metrics.gdpGrowth.toFixed(1)}% with low unemployment.`,
+        severity: 'success',
+      });
+    }
+
+    // Deflation warning
+    if (this.metrics.inflation < 0.5 && Math.random() < 0.06) {
+      events.push({
+        type: 'deflation_risk',
+        message: `Deflation risk: Inflation is only ${this.metrics.inflation.toFixed(1)}%. Consider stimulus measures.`,
+        severity: 'warning',
+      });
+    }
+
+    // Stagflation detection
+    if (this.metrics.inflation > 3.5 && this.metrics.unemployment > 7.0
+        && this.metrics.gdpGrowth < 1.0 && Math.random() < 0.1) {
+      events.push({
+        type: 'stagflation',
+        message: 'Stagflation detected: High inflation and unemployment with low growth. '
+          + 'Difficult policy choices ahead.',
+        severity: 'danger',
+      });
+    }
+
+    // Interest rate milestones
+    if (this.metrics.interestRate <= 0.5 && Math.random() < 0.05) {
+      events.push({
+        type: 'zero_interest_rate',
+        message: 'Interest rates near zero. Traditional monetary policy effectiveness limited.',
+        severity: 'warning',
+      });
+    }
+
+    // Sector-specific events
+    Object.keys(this.sectors).forEach((sectorName) => {
+      const sector = this.sectors[sectorName];
+
+      // Sector boom
+      if (sector.currentGrowth > 5.0 && Math.random() < 0.04) {
+        events.push({
+          type: 'sector_boom',
+          message: `${sectorName.charAt(0).toUpperCase() + sectorName.slice(1)} sector `
+            + `experiencing rapid growth at ${sector.currentGrowth.toFixed(1)}%.`,
+          severity: 'success',
+        });
+      }
+
+      // Sector decline
+      if (sector.currentGrowth < -2.0 && Math.random() < 0.06) {
+        events.push({
+          type: 'sector_decline',
+          message: `${sectorName.charAt(0).toUpperCase() + sectorName.slice(1)} sector `
+            + `declining at ${sector.currentGrowth.toFixed(1)}%. May need targeted support.`,
+          severity: 'warning',
+        });
+      }
+    });
+
+    // Random economic shocks (Week 8 feature)
+    if (Math.random() < 0.02) { // 2% chance per week
+      const shockType = this.generateRandomShock();
+      if (shockType) {
+        events.push(shockType);
+        this.applyShock(shockType);
+      }
+    }
+
+    // Confidence milestones
+    if (this.metrics.confidence > 85 && Math.random() < 0.03) {
+      events.push({
+        type: 'high_confidence',
+        message: `Consumer confidence at ${this.metrics.confidence.toFixed(0)}%. `
+          + 'Strong economic sentiment boosting spending.',
+        severity: 'success',
+      });
+    }
+
+    if (this.metrics.confidence < 30 && Math.random() < 0.05) {
+      events.push({
+        type: 'confidence_crisis',
+        message: `Consumer confidence plummeted to ${this.metrics.confidence.toFixed(0)}%. `
+          + 'Economic uncertainty affecting all sectors.',
+        severity: 'danger',
+      });
+    }
+
     // Emit events
     events.forEach((event) => {
       eventSystem.emit('economic:event', event);
     });
+  }
+
+  /**
+   * Generate random economic shock (Week 8 feature)
+   */
+  generateRandomShock() {
+    const shocks = [
+      {
+        type: 'supply_chain_disruption',
+        message: 'Global supply chain disruption affecting manufacturing and services.',
+        severity: 'warning',
+        magnitude: 0.5 + Math.random() * 1.0,
+      },
+      {
+        type: 'commodity_price_spike',
+        message: 'Commodity prices surge affecting production costs and inflation.',
+        severity: 'warning',
+        magnitude: 0.3 + Math.random() * 0.7,
+      },
+      {
+        type: 'currency_fluctuation',
+        message: 'Major currency fluctuation impacting trade balance and imports.',
+        severity: 'info',
+        magnitude: 0.2 + Math.random() * 0.5,
+      },
+      {
+        type: 'tech_innovation',
+        message: 'Technological breakthrough boosting productivity in key sectors.',
+        severity: 'success',
+        magnitude: 0.3 + Math.random() * 0.4,
+      },
+      {
+        type: 'natural_disaster',
+        message: 'Natural disaster affecting regional economic activity.',
+        severity: 'danger',
+        magnitude: 0.4 + Math.random() * 0.8,
+      },
+      {
+        type: 'geopolitical_tension',
+        message: 'Geopolitical tensions affecting trade and investor confidence.',
+        severity: 'warning',
+        magnitude: 0.3 + Math.random() * 0.6,
+      },
+    ];
+
+    return shocks[Math.floor(Math.random() * shocks.length)];
   }
 
   /**

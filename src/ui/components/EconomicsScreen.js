@@ -123,12 +123,45 @@ export class EconomicsScreen extends BaseComponent {
           <!-- Policy Tools -->
           <div class="policy-section">
             <h3>Economic Policy Tools</h3>
-            <div class="policy-buttons">
-              <button class="btn btn--primary" id="fiscal-stimulus-btn">Fiscal Stimulus</button>
-              <button class="btn btn--primary" id="tax-cut-btn">Tax Cuts</button>
-              <button class="btn btn--primary" id="infrastructure-btn">Infrastructure Investment</button>
-              <button class="btn btn--secondary" id="interest-rate-btn">Adjust Interest Rates</button>
+            <div class="policy-categories">
+              <div class="policy-category fiscal-policies">
+                <h4>Fiscal Policies</h4>
+                <div class="policy-buttons">
+                  <button class="btn btn--primary" id="fiscal-stimulus-btn">Fiscal Stimulus</button>
+                  <button class="btn btn--primary" id="tax-cut-btn">Tax Cuts</button>
+                  <button class="btn btn--secondary" id="tax-increase-btn">Tax Increase</button>
+                  <button class="btn btn--primary" id="infrastructure-btn">Infrastructure Investment</button>
+                </div>
+              </div>
+              
+              <div class="policy-category monetary-policies">
+                <h4>Monetary Policies</h4>
+                <div class="policy-buttons">
+                  <button class="btn btn--secondary" id="interest-rate-btn">Adjust Interest Rates</button>
+                </div>
+              </div>
+
+              <div class="policy-category sector-policies">
+                <h4>Sector-Specific Policies</h4>
+                <div class="policy-buttons">
+                  <button class="btn btn--primary" id="education-investment-btn">Education Investment</button>
+                  <button class="btn btn--primary" id="healthcare-investment-btn">Healthcare Investment</button>
+                  <button class="btn btn--primary" id="green-energy-btn">Green Energy Initiative</button>
+                  <button class="btn btn--primary" id="agricultural-subsidies-btn">Agricultural Subsidies</button>
+                </div>
+              </div>
+
+              <div class="policy-category trade-regulation">
+                <h4>Trade & Regulation</h4>
+                <div class="policy-buttons">
+                  <button class="btn btn--primary" id="trade-promotion-btn">Trade Promotion</button>
+                  <button class="btn btn--secondary" id="regulation-increase-btn">Increase Regulation</button>
+                  <button class="btn btn--primary" id="regulation-decrease-btn">Decrease Regulation</button>
+                  <button class="btn btn--primary" id="minimum-wage-btn">Minimum Wage Increase</button>
+                </div>
+              </div>
             </div>
+            
             <div class="active-policies">
               <h4>Active Policies</h4>
               <ul id="active-policies-list">
@@ -199,11 +232,28 @@ export class EconomicsScreen extends BaseComponent {
    * Setup policy button event handlers
    */
   setupPolicyButtons() {
+    // Fiscal Policies
     const fiscalBtn = document.getElementById('fiscal-stimulus-btn');
     const taxBtn = document.getElementById('tax-cut-btn');
+    const taxIncreaseBtn = document.getElementById('tax-increase-btn');
     const infraBtn = document.getElementById('infrastructure-btn');
+
+    // Monetary Policies
     const interestBtn = document.getElementById('interest-rate-btn');
 
+    // Sector Policies
+    const educationBtn = document.getElementById('education-investment-btn');
+    const healthcareBtn = document.getElementById('healthcare-investment-btn');
+    const greenEnergyBtn = document.getElementById('green-energy-btn');
+    const agriSubsidiesBtn = document.getElementById('agricultural-subsidies-btn');
+
+    // Trade & Regulation
+    const tradePromotionBtn = document.getElementById('trade-promotion-btn');
+    const regIncreaseBtn = document.getElementById('regulation-increase-btn');
+    const regDecreaseBtn = document.getElementById('regulation-decrease-btn');
+    const minWageBtn = document.getElementById('minimum-wage-btn');
+
+    // Fiscal Policy Handlers
     if (fiscalBtn) {
       this.addEventListener(fiscalBtn, 'click', () => {
         this.implementPolicy('fiscal_stimulus', {
@@ -224,6 +274,16 @@ export class EconomicsScreen extends BaseComponent {
       });
     }
 
+    if (taxIncreaseBtn) {
+      this.addEventListener(taxIncreaseBtn, 'click', () => {
+        this.implementPolicy('tax_increase', {
+          name: 'Tax Increase',
+          amount: 0.02,
+          duration: 52,
+        });
+      });
+    }
+
     if (infraBtn) {
       this.addEventListener(infraBtn, 'click', () => {
         this.implementPolicy('infrastructure_investment', {
@@ -234,6 +294,7 @@ export class EconomicsScreen extends BaseComponent {
       });
     }
 
+    // Monetary Policy Handlers
     if (interestBtn) {
       this.addEventListener(interestBtn, 'click', () => {
         const change = prompt('Enter interest rate change (e.g., -0.5 for 0.5% decrease):');
@@ -244,6 +305,88 @@ export class EconomicsScreen extends BaseComponent {
             duration: 1,
           });
         }
+      });
+    }
+
+    // Sector Policy Handlers
+    if (educationBtn) {
+      this.addEventListener(educationBtn, 'click', () => {
+        this.implementPolicy('education_investment', {
+          name: 'Education Investment',
+          amount: 0.03,
+          duration: 78,
+        });
+      });
+    }
+
+    if (healthcareBtn) {
+      this.addEventListener(healthcareBtn, 'click', () => {
+        this.implementPolicy('healthcare_investment', {
+          name: 'Healthcare Investment',
+          amount: 0.025,
+          duration: 104,
+        });
+      });
+    }
+
+    if (greenEnergyBtn) {
+      this.addEventListener(greenEnergyBtn, 'click', () => {
+        this.implementPolicy('green_energy_investment', {
+          name: 'Green Energy Initiative',
+          amount: 0.04,
+          duration: 156,
+        });
+      });
+    }
+
+    if (agriSubsidiesBtn) {
+      this.addEventListener(agriSubsidiesBtn, 'click', () => {
+        this.implementPolicy('agricultural_subsidies', {
+          name: 'Agricultural Subsidies',
+          amount: 0.006,
+          duration: 52,
+        });
+      });
+    }
+
+    // Trade & Regulation Handlers
+    if (tradePromotionBtn) {
+      this.addEventListener(tradePromotionBtn, 'click', () => {
+        this.implementPolicy('trade_promotion', {
+          name: 'Trade Promotion Initiative',
+          amount: 0.012,
+          duration: 39,
+        });
+      });
+    }
+
+    if (regIncreaseBtn) {
+      this.addEventListener(regIncreaseBtn, 'click', () => {
+        this.implementPolicy('regulation_increase', {
+          name: 'Increase Regulations',
+          amount: 0.015,
+          duration: 26,
+        });
+      });
+    }
+
+    if (regDecreaseBtn) {
+      this.addEventListener(regDecreaseBtn, 'click', () => {
+        this.implementPolicy('regulation_decrease', {
+          name: 'Decrease Regulations',
+          amount: 0.02,
+          duration: 26,
+        });
+      });
+    }
+
+    if (minWageBtn) {
+      this.addEventListener(minWageBtn, 'click', () => {
+        this.implementPolicy('minimum_wage_increase', {
+          name: 'Minimum Wage Increase',
+          amount: 0.008,
+          duration: 26,
+        });
       });
     }
   }
