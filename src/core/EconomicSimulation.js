@@ -399,7 +399,7 @@ export class EconomicSimulation {
     if (this.metrics.unemployment < 4.0 && Math.random() < 0.05) {
       events.push({
         type: 'low_unemployment',
-        message: `Unemployment has dropped to ${this.metrics.unemployment.toFixed(1)}%. Economic conditions are favorable.`,
+        message: `Unemployment has dropped to ${this.metrics.unemployment.toFixed(1)}%. Conditions are favorable.`,
         severity: 'success',
       });
     }
