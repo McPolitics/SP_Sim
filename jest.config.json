@@ -1,0 +1,19 @@
+{
+  "testEnvironment": "jsdom",
+  "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+  "moduleDirectories": ["node_modules", "src"],
+  "collectCoverageFrom": [
+    "src/**/*.js",
+    "!src/**/*.test.js",
+    "!src/main.js"
+  ],
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "lcov", "html"],
+  "testMatch": [
+    "<rootDir>/tests/unit/**/*.test.js",
+    "<rootDir>/src/**/*.test.js"
+  ],
+  "transform": {
+    "^.+\\.js$": "babel-jest"
+  }
+}

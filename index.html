@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP_Sim - Political Economy Simulation</title>
+    <meta name="description" content="A single-player political economy simulation game where you manage a nation through complex challenges.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/src/styles/main.scss">
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <h1 class="header__title">SP_Sim</h1>
+            <div class="header__info">
+                <span id="game-time">Week 1, Year 1</span>
+                <span id="approval-rating">Approval: --</span>
+                <span id="next-election">Next Election: --</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="dashboard">
+                <div class="dashboard__panels">
+                    <div class="panel economic-panel">
+                        <h2 class="panel__title">Economic Indicators</h2>
+                        <div class="panel__content">
+                            <div class="metric">
+                                <label>GDP Growth:</label>
+                                <span id="gdp-growth">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Unemployment:</label>
+                                <span id="unemployment">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Inflation:</label>
+                                <span id="inflation">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>National Debt:</label>
+                                <span id="national-debt">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel political-panel">
+                        <h2 class="panel__title">Political Status</h2>
+                        <div class="panel__content">
+                            <div class="metric">
+                                <label>Coalition Support:</label>
+                                <span id="coalition-support">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Opposition:</label>
+                                <span id="opposition">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Independents:</label>
+                                <span id="independents">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Next Vote:</label>
+                                <span id="next-vote">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel global-panel">
+                        <h2 class="panel__title">Global Relations</h2>
+                        <div class="panel__content">
+                            <div class="metric">
+                                <label>Int'l Standing:</label>
+                                <span id="intl-standing">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Trade Balance:</label>
+                                <span id="trade-balance">--</span>
+                            </div>
+                            <div class="metric">
+                                <label>Diplomatic Relations:</label>
+                                <span id="diplomatic-relations">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="events-section">
+                    <div class="panel events-panel">
+                        <h2 class="panel__title">Recent Events</h2>
+                        <div class="panel__content">
+                            <ul id="recent-events" class="events-list">
+                                <li>Game initialized - Welcome to SP_Sim!</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="panel decisions-panel">
+                        <h2 class="panel__title">Pending Decisions</h2>
+                        <div class="panel__content">
+                            <ul id="pending-decisions" class="decisions-list">
+                                <li>No pending decisions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="game-controls">
+                <button id="pause-btn" class="btn btn--secondary">Pause</button>
+                <button id="next-turn-btn" class="btn btn--primary">Next Turn</button>
+                <button id="save-btn" class="btn btn--secondary">Save Game</button>
+                <button id="load-btn" class="btn btn--secondary">Load Game</button>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
