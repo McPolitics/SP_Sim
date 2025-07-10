@@ -148,7 +148,7 @@ jobs:
     - name: Deploy to GitHub Pages (Production)
       uses: peaceiris/actions-gh-pages@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.DEV_TOKEN }}
         publish_dir: ./dist
         publish_branch: gh-pages
         cname: sp-sim.mcpolitics.com
@@ -185,7 +185,7 @@ jobs:
     - name: Deploy to GitHub Pages (Development)
       uses: peaceiris/actions-gh-pages@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.DEV_TOKEN }}
         publish_dir: ./dist
         publish_branch: gh-pages-dev
         commit_message: 'Deploy development build ${{ github.sha }}'
@@ -328,7 +328,7 @@ jobs:
     - name: Deploy PR preview
       uses: peaceiris/actions-gh-pages@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.DEV_TOKEN }}
         publish_dir: ./dist
         destination_dir: pr-${{ github.event.number }}
         publish_branch: gh-pages-pr
@@ -367,7 +367,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: gh-pages-pr
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.DEV_TOKEN }}
         
     - name: Remove PR preview directory
       run: |
