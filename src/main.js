@@ -6,6 +6,8 @@
 import { gameEngine } from './core/GameEngine';
 import { eventSystem, EVENTS } from './core/EventSystem';
 import { Dashboard } from './ui/components/Dashboard';
+import { Navigation } from './ui/components/Navigation';
+import { Modal } from './ui/components/Modal';
 
 /**
  * Main application class
@@ -15,6 +17,8 @@ class SPSimApp {
     this.gameEngine = gameEngine;
     this.eventSystem = eventSystem;
     this.dashboard = null;
+    this.navigation = null;
+    this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
 
@@ -55,10 +59,94 @@ class SPSimApp {
    * Initialize UI components
    */
   initializeUI() {
+    // Initialize navigation
+    this.navigation = new Navigation();
+
     // Initialize dashboard
     this.dashboard = new Dashboard();
 
+    // Setup screen management
+    this.setupScreenManagement();
+
     console.log('✅ UI components initialized');
+  }
+
+  /**
+   * Setup screen management
+   */
+  setupScreenManagement() {
+    // Listen for navigation events
+    this.eventSystem.on(EVENTS.UI_UPDATE, (event) => {
+      if (event.data.type === 'navigation') {
+        this.switchToScreen(event.data.to);
+      }
+    });
+
+    // Setup URL-based routing
+    window.addEventListener('popstate', (event) => {
+      const screen = event.state?.screen || 'dashboard';
+      this.switchToScreen(screen, false);
+    });
+
+    // Handle initial URL
+    const hash = window.location.hash.replace('#', '');
+    if (hash && this.navigation.screens[hash]) {
+      this.switchToScreen(hash, false);
+    }
+  }
+
+  /**
+   * Switch to a different screen
+   */
+  switchToScreen(screenId, _updateHistory = true) {
+    if (this.currentScreen === screenId) return;
+
+    // Hide all screens first
+    document.querySelectorAll('.screen').forEach((screen) => {
+      screen.classList.remove('screen--active');
+    });
+
+    // Show target screen
+    const targetScreen = document.querySelector(`#screen-${screenId}`);
+    if (targetScreen) {
+      targetScreen.classList.add('screen--active');
+    } else {
+      // Create screen placeholder if it doesn't exist
+      this.createScreenPlaceholder(screenId);
+    }
+
+    this.currentScreen = screenId;
+
+    // Update navigation state
+    if (this.navigation) {
+      this.navigation.currentScreen = screenId;
+    }
+
+    console.log(`Switched to screen: ${screenId}`);
+  }
+
+  /**
+   * Create a placeholder screen for future implementation
+   */
+  createScreenPlaceholder(screenId) {
+    const screenName = this.navigation?.screens[screenId] || screenId;
+    const placeholder = document.createElement('div');
+    placeholder.id = `screen-${screenId}`;
+    placeholder.className = 'screen screen--active';
+    placeholder.innerHTML = `
+      <div class="panel">
+        <h2 class="panel__title">${screenName}</h2>
+        <div class="panel__content">
+          <p>This screen is under development and will be available in a future update.</p>
+          <p>Screen: <strong>${screenName}</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.appendChild(placeholder);
+    }
   }
 
   /**
@@ -239,53 +327,122 @@ class SPSimApp {
   }
 
   /**
-   * Show load game dialog (simplified)
+   * Show load game dialog
    */
   showLoadGameDialog() {
-    // This is a simplified implementation
-    // In a full implementation, you'd create a proper modal dialog
     const saves = this.gameEngine.saveSystem.getAllSaves();
 
     if (saves.length === 0) {
-      this.showNotification('No saved games found.', 'info');
+      Modal.alert('No Saves Found', 'No saved games were found.', () => {
+        this.showNotification('No saved games found.', 'info');
+      });
       return;
     }
 
-    let message = 'Select a save to load:\n\n';
-    saves.forEach((save, index) => {
-      message += `${index + 1}. ${save.name} (${new Date(save.timestamp).toLocaleString()})\n`;
+    // Create save list HTML
+    let saveListHtml = '<div class="save-list">';
+    saves.forEach((save, _index) => {
+      const date = new Date(save.timestamp).toLocaleString();
+      saveListHtml += `
+        <div class="save-item" data-save-id="${save.id}">
+          <div class="save-name">${save.name}</div>
+          <div class="save-date">${date}</div>
+        </div>
+      `;
+    });
+    saveListHtml += '</div>';
+
+    const modal = new Modal({
+      title: 'Load Game',
+      content: `
+        <p>Select a save to load:</p>
+        ${saveListHtml}
+        <style>
+          .save-list { max-height: 300px; overflow-y: auto; }
+          .save-item { 
+            padding: 10px; 
+            border: 1px solid var(--border-color); 
+            margin-bottom: 5px; 
+            cursor: pointer; 
+            border-radius: 4px;
+            transition: background-color 0.2s;
+          }
+          .save-item:hover { background-color: var(--background-color); }
+          .save-item.selected { background-color: var(--secondary-color); color: white; }
+          .save-name { font-weight: bold; }
+          .save-date { font-size: 0.9em; color: var(--text-light); }
+        </style>
+      `,
+      confirmText: 'Load',
+      cancelText: 'Cancel',
+      showCancel: true,
+      onConfirm: () => {
+        const selected = document.querySelector('.save-item.selected');
+        if (!selected) {
+          this.showNotification('Please select a save to load.', 'warning');
+          return false;
+        }
+
+        const saveId = selected.getAttribute('data-save-id');
+        const success = this.gameEngine.loadGame(saveId);
+        if (success) {
+          this.showNotification('Game loaded successfully!', 'success');
+          this.updateUI();
+        } else {
+          this.showError('Failed to load game.');
+        }
+        return true;
+      },
     });
 
-    const choice = window.prompt(`${message}\nEnter the number of the save to load:`); // eslint-disable-line no-alert
-    const saveIndex = Number.parseInt(choice, 10) - 1;
-
-    if (!Number.isNaN(saveIndex) && saveIndex >= 0 && saveIndex < saves.length) {
-      const success = this.gameEngine.loadGame(saves[saveIndex].id);
-      if (success) {
-        this.showNotification('Game loaded successfully!', 'success');
-        this.updateUI();
-      } else {
-        this.showError('Failed to load game.');
-      }
-    }
+    // Add click handlers for save items
+    modal.show();
+    setTimeout(() => {
+      const saveItems = document.querySelectorAll('.save-item');
+      saveItems.forEach((item) => {
+        item.addEventListener('click', () => {
+          saveItems.forEach((i) => i.classList.remove('selected'));
+          item.classList.add('selected');
+        });
+      });
+    }, 100);
   }
 
   /**
-   * Show decision dialog (simplified)
+   * Show decision dialog
    */
   showDecisionDialog(decision) {
-    // This is a simplified implementation
-    // In a full implementation, you'd create a proper modal dialog
-    const message = `Decision: ${decision.description || decision}\n\nChoose your response:`;
-    const response = window.confirm(message); // eslint-disable-line no-alert
-
-    // Emit decision response event
-    this.eventSystem.emit('decision:response', {
-      decision,
-      response,
+    const modal = new Modal({
+      title: 'Political Decision',
+      content: `
+        <div class="decision-content">
+          <p><strong>Decision:</strong> ${decision.description || decision}</p>
+          <div class="decision-options">
+            <p>How would you like to respond?</p>
+          </div>
+        </div>
+      `,
+      confirmText: 'Approve',
+      cancelText: 'Reject',
+      showCancel: true,
+      onConfirm: () => {
+        this.eventSystem.emit('decision:response', {
+          decision,
+          response: 'approve',
+        });
+        this.showNotification('Decision approved.', 'success');
+        return true;
+      },
+      onCancel: () => {
+        this.eventSystem.emit('decision:response', {
+          decision,
+          response: 'reject',
+        });
+        this.showNotification('Decision rejected.', 'info');
+      },
     });
 
-    this.showNotification('Decision recorded.', 'info');
+    modal.show();
   }
 
   /**
