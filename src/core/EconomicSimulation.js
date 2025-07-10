@@ -210,6 +210,9 @@ export class EconomicSimulation {
       case 'peak':
         cycleAdjustment = -0.1;
         break;
+      default:
+        cycleAdjustment = 0;
+        break;
     }
 
     const adjustedTarget = Math.max(3.0, Math.min(12.0, targetUnemployment + cycleAdjustment));
