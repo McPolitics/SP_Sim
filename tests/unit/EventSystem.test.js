@@ -93,12 +93,17 @@ describe('EventSystem', () => {
     });
     const normalCallback = jest.fn();
 
+    // Mock console.error to suppress output during this test
+    const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => { });
+
     eventSystem.on('test', errorCallback);
     eventSystem.on('test', normalCallback);
 
-    // Should not throw error
     expect(() => eventSystem.emit('test')).not.toThrow();
     expect(normalCallback).toHaveBeenCalled();
+
+    // Restore the original console.error
+    consoleErrorMock.mockRestore();
   });
 
   test('should clear all listeners and queue', () => {
