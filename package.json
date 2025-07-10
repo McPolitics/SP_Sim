@@ -37,6 +37,7 @@
     "@babel/preset-env": "^7.28.0",
     "@playwright/test": "^1.54.0",
     "@vitejs/plugin-legacy": "^7.0.0",
+    "audit-ci": "^7.1.0",
     "babel-jest": "^30.0.4",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",

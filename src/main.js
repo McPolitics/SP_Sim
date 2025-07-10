@@ -192,7 +192,9 @@ class SPSimApp {
     }
 
     // Update page title with current game info
-    document.title = `SP_Sim - Week ${gameState.time.week}, Year ${gameState.time.year} (${gameState.politics.approval}% approval)`;
+    const title = `SP_Sim - Week ${gameState.time.week}, Year ${gameState.time.year}`;
+    const approval = `(${gameState.politics.approval}% approval)`;
+    document.title = `${title} ${approval}`;
   }
 
   /**
@@ -305,12 +307,21 @@ class SPSimApp {
     const notification = document.createElement('div');
     notification.className = `notification notification--${type}`;
     notification.textContent = message;
+    let backgroundColor;
+    if (type === 'error') {
+      backgroundColor = '#e74c3c';
+    } else if (type === 'success') {
+      backgroundColor = '#27ae60';
+    } else {
+      backgroundColor = '#3498db';
+    }
+
     notification.style.cssText = `
       position: fixed;
       top: 20px;
       right: 20px;
       padding: 12px 16px;
-      background: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#27ae60' : '#3498db'};
+      background: ${backgroundColor};
       color: white;
       border-radius: 4px;
       z-index: 10000;
