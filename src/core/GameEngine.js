@@ -1,5 +1,6 @@
 import { EVENTS, eventSystem } from './EventSystem';
 import { saveSystem } from './SaveSystem';
+import { economicSimulation } from './EconomicSimulation';
 
 /**
  * GameEngine - Core game loop and state management for SP_Sim
@@ -9,6 +10,7 @@ export class GameEngine {
   constructor() {
     this.eventSystem = eventSystem;
     this.saveSystem = saveSystem;
+    this.economicSimulation = economicSimulation;
 
     // Game state
     this.gameState = this.createInitialGameState();
@@ -355,6 +357,32 @@ export class GameEngine {
 
     this.eventSystem.on(EVENTS.APPROVAL_CHANGE, (event) => {
       this.gameState.politics.approval = Math.max(0, Math.min(100, event.data.newApproval));
+    });
+
+    // Listen for economic events
+    this.eventSystem.on('economic:update', (event) => {
+      // Update game state with economic data
+      const economicData = event.data;
+      this.gameState.economy = {
+        ...this.gameState.economy,
+        ...economicData.metrics,
+        sectors: economicData.sectors,
+        cycle: economicData.cycle,
+      };
+    });
+
+    this.eventSystem.on('economic:event', (event) => {
+      // Add economic events to game events
+      this.gameState.events.recent.push({
+        type: 'economic',
+        ...event.data,
+        timestamp: Date.now(),
+      });
+
+      // Keep only last 10 events
+      if (this.gameState.events.recent.length > 10) {
+        this.gameState.events.recent = this.gameState.events.recent.slice(-10);
+      }
     });
   }
 

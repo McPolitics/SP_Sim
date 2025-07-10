@@ -450,6 +450,249 @@ body {
   animation: slideUp 0.3s ease;
 }
 
+// Economics Screen
+.economics-screen {
+  padding: var(--spacing-lg);
+}
+
+.economics-header {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+  
+  h1 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+  }
+}
+
+.economic-phase {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  font-size: 0.9rem;
+  
+  .phase-indicator {
+    color: var(--text-light);
+  }
+  
+  .phase-duration {
+    color: var(--text-light);
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.metric-card {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+  text-align: center;
+  
+  h3 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .metric-trend {
+    font-size: 0.8rem;
+    color: var(--success-color);
+  }
+}
+
+.gdp-card .metric-value { color: var(--secondary-color); }
+.unemployment-card .metric-value { color: var(--accent-color); }
+.inflation-card .metric-value { color: var(--warning-color); }
+.confidence-card .metric-value { color: var(--success-color); }
+
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.chart-container {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-light);
+  
+  h3 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-color);
+    font-size: 1rem;
+  }
+  
+  .chart {
+    width: 100%;
+    min-height: 200px;
+  }
+}
+
+.forecast-section {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+  margin-bottom: var(--spacing-xl);
+  
+  h3 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-color);
+  }
+  
+  .forecast-summary {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    
+    p {
+      margin: 0;
+      color: var(--text-color);
+      font-style: italic;
+    }
+  }
+}
+
+.sectors-section {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+  margin-bottom: var(--spacing-xl);
+  
+  h3 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-color);
+  }
+}
+
+.sectors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.sector-card {
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  text-align: center;
+  
+  h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+  
+  .sector-share {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .sector-growth {
+    font-size: 0.9rem;
+    color: var(--success-color);
+  }
+}
+
+.agriculture-sector .sector-share { color: var(--success-color); }
+.manufacturing-sector .sector-share { color: var(--secondary-color); }
+.services-sector .sector-share { color: var(--warning-color); }
+
+.policy-section {
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+  margin-bottom: var(--spacing-xl);
+  
+  h3 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--primary-color);
+  }
+  
+  .policy-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .active-policies {
+    h4 {
+      margin: 0 0 var(--spacing-sm) 0;
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+    
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      
+      li {
+        padding: var(--spacing-xs) 0;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Event severity styles
+.event-info { color: var(--secondary-color); }
+.event-warning { color: var(--warning-color); }
+.event-danger { color: var(--accent-color); }
+.event-success { color: var(--success-color); }
+
+// Responsive design for economics screen
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .sectors-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .economic-phase {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .policy-buttons {
+    flex-direction: column;
+    
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
 // Utility classes
 .text-center { text-align: center; }
 .text-success { color: var(--success-color); }

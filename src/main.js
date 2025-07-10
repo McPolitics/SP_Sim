@@ -8,6 +8,7 @@ import { eventSystem, EVENTS } from './core/EventSystem';
 import { Dashboard } from './ui/components/Dashboard';
 import { Navigation } from './ui/components/Navigation';
 import { Modal } from './ui/components/Modal';
+import { EconomicsScreen } from './ui/components/EconomicsScreen';
 
 /**
  * Main application class
@@ -18,6 +19,7 @@ class SPSimApp {
     this.eventSystem = eventSystem;
     this.dashboard = null;
     this.navigation = null;
+    this.economicsScreen = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -65,6 +67,9 @@ class SPSimApp {
     // Initialize dashboard
     this.dashboard = new Dashboard();
 
+    // Initialize economics screen
+    this.economicsScreen = new EconomicsScreen();
+
     // Setup screen management
     this.setupScreenManagement();
 
@@ -110,6 +115,11 @@ class SPSimApp {
     const targetScreen = document.querySelector(`#screen-${screenId}`);
     if (targetScreen) {
       targetScreen.classList.add('screen--active');
+
+      // Initialize specific screens
+      if (screenId === 'economy' && this.economicsScreen) {
+        this.economicsScreen.show();
+      }
     } else {
       // Create screen placeholder if it doesn't exist
       this.createScreenPlaceholder(screenId);
