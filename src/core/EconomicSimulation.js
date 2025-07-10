@@ -268,6 +268,8 @@ export class EconomicSimulation {
       case 'trough':
         confidenceChange += 0.5; // Recovery hope
         break;
+      default:
+        break;
     }
 
     // Random events
@@ -302,6 +304,8 @@ export class EconomicSimulation {
       case 'infrastructure_investment':
         this.metrics.productivity += policy.amount || 0.05;
         this.sectors.manufacturing.growth += policy.amount || 0.5;
+        break;
+      default:
         break;
     }
 
@@ -357,6 +361,8 @@ export class EconomicSimulation {
         this.metrics.unemployment += shock.magnitude || 3.0;
         this.sectors.services.growth -= shock.magnitude || 3.0;
         break;
+      default:
+        break;
     }
 
     eventSystem.emit('economic:shock_applied', {
@@ -384,7 +390,7 @@ export class EconomicSimulation {
     if (this.metrics.gdpGrowth < -1.0 && this.cycle.phase !== 'recession') {
       events.push({
         type: 'recession_warning',
-        message: 'Economic indicators suggest a potential recession. GDP growth is negative.',
+        message: 'Economic indicators suggest a recession. GDP growth is negative.',
         severity: 'danger',
       });
     }
