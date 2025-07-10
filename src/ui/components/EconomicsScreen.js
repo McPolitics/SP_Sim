@@ -261,7 +261,7 @@ export class EconomicsScreen extends BaseComponent {
       this.addEconomicEvent(event.data);
     });
 
-    eventSystem.on('economic:policy_applied', (event) => {
+    eventSystem.on('economic:policy_applied', (_event) => {
       this.updateActivePolicies();
     });
   }
