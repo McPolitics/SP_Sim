@@ -1,0 +1,52 @@
+{
+  "name": "sp-sim",
+  "version": "1.0.0",
+  "description": "A single-player web-based political economy simulation game where players take on the role of a political leader managing a nation through complex economic, political, and global challenges.",
+  "type": "module",
+  "main": "src/main.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix",
+    "format": "prettier --write \"src/**/*.{js,css,scss,html}\"",
+    "analyze": "vite-bundle-analyzer"
+  },
+  "keywords": [
+    "game",
+    "simulation",
+    "politics",
+    "economy",
+    "strategy",
+    "education"
+  ],
+  "author": "McPolitics",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@playwright/test": "^1.54.0",
+    "@vitejs/plugin-legacy": "^7.0.0",
+    "babel-jest": "^30.0.4",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "jest": "^30.0.4",
+    "jest-environment-jsdom": "^30.0.4",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "sass": "^1.89.2",
+    "vite": "^7.0.4",
+    "vite-bundle-analyzer": "^1.1.0"
+  }
+}
