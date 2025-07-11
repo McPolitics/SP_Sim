@@ -10,6 +10,8 @@ import { Navigation } from './ui/components/Navigation';
 import { Modal } from './ui/components/Modal';
 import { EconomicsScreen } from './ui/components/EconomicsScreen';
 import { DebugPanel } from './ui/components/DebugPanel';
+import { Timeline } from './ui/components/Timeline';
+import { PlayerGuide } from './ui/components/PlayerGuide';
 
 /**
  * Main application class
@@ -22,6 +24,8 @@ class SPSimApp {
     this.navigation = null;
     this.economicsScreen = null;
     this.debugPanel = null;
+    this.timeline = null;
+    this.playerGuide = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -72,6 +76,12 @@ class SPSimApp {
     // Initialize economics screen
     this.economicsScreen = new EconomicsScreen();
 
+    // Initialize timeline component
+    this.timeline = new Timeline();
+
+    // Initialize player guide
+    this.playerGuide = new PlayerGuide();
+
     // Initialize debug panel (only in debug mode)
     // eslint-disable-next-line no-undef
     if (typeof __ENABLE_DEBUG__ !== 'undefined' && __ENABLE_DEBUG__) {
@@ -82,7 +92,24 @@ class SPSimApp {
     // Setup screen management
     this.setupScreenManagement();
 
+    // Add timeline to dashboard
+    this.addTimelineToDashboard();
+
     console.log('✅ UI components initialized');
+  }
+
+  /**
+   * Add timeline to dashboard
+   */
+  addTimelineToDashboard() {
+    const dashboardScreen = document.querySelector('#screen-dashboard');
+    if (dashboardScreen && this.timeline) {
+      // Add timeline after the main dashboard content
+      const dashboard = dashboardScreen.querySelector('.dashboard');
+      if (dashboard) {
+        dashboard.appendChild(this.timeline.show());
+      }
+    }
   }
 
   /**
@@ -115,6 +142,12 @@ class SPSimApp {
   switchToScreen(screenId, _updateHistory = true) {
     if (this.currentScreen === screenId) return;
 
+    // Handle help screen specially
+    if (screenId === 'help') {
+      this.showPlayerGuide();
+      return;
+    }
+
     // Hide all screens first
     document.querySelectorAll('.screen').forEach((screen) => {
       screen.classList.remove('screen--active');
@@ -142,6 +175,15 @@ class SPSimApp {
     }
 
     console.log(`Switched to screen: ${screenId}`);
+  }
+
+  /**
+   * Show player guide
+   */
+  showPlayerGuide() {
+    if (this.playerGuide) {
+      this.playerGuide.showModal();
+    }
   }
 
   /**
@@ -231,6 +273,46 @@ class SPSimApp {
         // this.gameEngine.pause();
       }
     });
+
+    // Setup game control button event listeners
+    this.setupGameControlButtons();
+  }
+
+  /**
+   * Setup game control button event listeners
+   */
+  setupGameControlButtons() {
+    // Pause button
+    const pauseBtn = document.getElementById('pause-btn');
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        this.handlePauseToggle();
+      });
+    }
+
+    // Next turn button
+    const nextTurnBtn = document.getElementById('next-turn-btn');
+    if (nextTurnBtn) {
+      nextTurnBtn.addEventListener('click', () => {
+        this.gameEngine.nextTurn();
+      });
+    }
+
+    // Save game button
+    const saveBtn = document.getElementById('save-btn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        this.handleSaveGame();
+      });
+    }
+
+    // Load game button
+    const loadBtn = document.getElementById('load-btn');
+    if (loadBtn) {
+      loadBtn.addEventListener('click', () => {
+        this.showLoadGameDialog();
+      });
+    }
   }
 
   /**
@@ -328,15 +410,141 @@ class SPSimApp {
   }
 
   /**
-   * Handle save game
+   * Handle save game with enhanced mobile UX
    */
   handleSaveGame(requestedSaveName = null) {
     let saveName = requestedSaveName;
+    
     if (!saveName) {
-      saveName = window.prompt('Enter a name for your save:'); // eslint-disable-line no-alert
-      if (saveName === null) return; // User cancelled
+      // Use a proper modal instead of window.prompt for better mobile UX
+      const modal = new Modal({
+        title: 'Save Game',
+        content: `
+          <div class="save-game-form">
+            <p>Enter a name for your save:</p>
+            <div class="form-group">
+              <label for="save-name-input">Save Name:</label>
+              <input type="text" id="save-name-input" class="form-input" 
+                     placeholder="e.g., Pre-Election 2024" 
+                     value="Save ${new Date().toLocaleDateString()}" />
+            </div>
+            <div class="save-suggestions">
+              <p>Suggestions:</p>
+              <div class="suggestion-buttons">
+                <button type="button" class="suggestion-btn" data-name="Pre-Election Save">Pre-Election</button>
+                <button type="button" class="suggestion-btn" data-name="Economic Crisis Start">Economic Crisis</button>
+                <button type="button" class="suggestion-btn" data-name="Policy Reform Checkpoint">Policy Reform</button>
+                <button type="button" class="suggestion-btn" data-name="Coalition Change">Coalition Change</button>
+              </div>
+            </div>
+          </div>
+          <style>
+            .save-game-form {
+              min-width: 300px;
+            }
+            .form-group {
+              margin-bottom: var(--spacing-md);
+            }
+            .form-group label {
+              display: block;
+              margin-bottom: var(--spacing-xs);
+              font-weight: 500;
+              color: var(--text-color);
+            }
+            .form-input {
+              width: 100%;
+              padding: var(--spacing-sm);
+              border: 1px solid var(--border-color);
+              border-radius: var(--border-radius);
+              font-size: 1rem;
+              transition: border-color var(--transition-base);
+            }
+            .form-input:focus {
+              outline: none;
+              border-color: var(--secondary-color);
+              box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+            }
+            .save-suggestions {
+              margin-top: var(--spacing-md);
+            }
+            .save-suggestions p {
+              margin-bottom: var(--spacing-sm);
+              font-size: 0.875rem;
+              color: var(--text-light);
+            }
+            .suggestion-buttons {
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--spacing-xs);
+            }
+            .suggestion-btn {
+              padding: var(--spacing-xs) var(--spacing-sm);
+              border: 1px solid var(--border-color);
+              background: var(--surface-color);
+              color: var(--text-color);
+              border-radius: var(--border-radius);
+              cursor: pointer;
+              font-size: 0.8rem;
+              transition: all var(--transition-fast);
+            }
+            .suggestion-btn:hover {
+              background: var(--secondary-color);
+              color: white;
+              border-color: var(--secondary-color);
+            }
+          </style>
+        `,
+        confirmText: 'Save Game',
+        cancelText: 'Cancel',
+        showCancel: true,
+        onConfirm: () => {
+          const input = document.getElementById('save-name-input');
+          saveName = input.value.trim();
+          
+          if (!saveName) {
+            this.showNotification('Please enter a save name.', 'warning');
+            return false;
+          }
+
+          const success = this.gameEngine.saveGame(saveName);
+          if (success) {
+            this.showNotification('Game saved successfully!', 'success');
+          } else {
+            this.showError('Failed to save game.');
+          }
+          return true;
+        },
+      });
+
+      modal.show();
+      
+      // Setup suggestion button handlers and auto-focus
+      setTimeout(() => {
+        const input = document.getElementById('save-name-input');
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+        
+        // Auto-focus and select text for mobile
+        if (input) {
+          input.focus();
+          input.select();
+        }
+        
+        // Handle suggestion buttons
+        suggestionBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const suggestedName = btn.getAttribute('data-name');
+            const gameState = this.gameEngine.getGameState();
+            const fullName = `${suggestedName} - Week ${gameState.time.week}, Year ${gameState.time.year}`;
+            input.value = fullName;
+            input.focus();
+          });
+        });
+      }, 100);
+      
+      return; // Exit early since we're using modal
     }
 
+    // Direct save if name was provided
     const success = this.gameEngine.saveGame(saveName);
     if (success) {
       this.showNotification('Game saved successfully!', 'success');
@@ -350,6 +558,7 @@ class SPSimApp {
    */
   showLoadGameDialog() {
     const saves = this.gameEngine.saveSystem.getAllSaves();
+    const storageStats = this.gameEngine.saveSystem.getStorageStats();
 
     if (saves.length === 0) {
       Modal.alert('No Saves Found', 'No saved games were found.', () => {
@@ -358,38 +567,180 @@ class SPSimApp {
       return;
     }
 
-    // Create save list HTML
+    // Create save list HTML with enhanced mobile-friendly design
     let saveListHtml = '<div class="save-list">';
-    saves.forEach((save, _index) => {
+    saves.forEach((save, index) => {
       const date = new Date(save.timestamp).toLocaleString();
+      const gameTime = save.gameTime ? `Week ${save.gameTime.week}, Year ${save.gameTime.year}` : 'Unknown';
+      const isImported = save.imported ? '<span class="save-badge imported">Imported</span>' : '';
+      
       saveListHtml += `
         <div class="save-item" data-save-id="${save.id}">
-          <div class="save-name">${save.name}</div>
-          <div class="save-date">${date}</div>
+          <div class="save-header">
+            <div class="save-name">${save.name} ${isImported}</div>
+            <div class="save-time">${gameTime}</div>
+          </div>
+          <div class="save-meta">
+            <span class="save-date">${date}</span>
+            <span class="save-version">v${save.version}</span>
+          </div>
+          <div class="save-actions">
+            <button class="save-action-btn export-btn" data-save-id="${save.id}" type="button">Export</button>
+            <button class="save-action-btn delete-btn" data-save-id="${save.id}" type="button">Delete</button>
+          </div>
         </div>
       `;
     });
     saveListHtml += '</div>';
 
+    // Add storage stats and import option
+    const statsHtml = `
+      <div class="save-management">
+        <div class="storage-stats">
+          <div class="stats-item">
+            <strong>Save Count:</strong> ${storageStats.saveCount}/${storageStats.maxSaves}
+          </div>
+          <div class="stats-item">
+            <strong>Storage Used:</strong> ${storageStats.totalSizeKB} KB
+          </div>
+          <div class="stats-item">
+            <strong>Auto-save:</strong> ${storageStats.hasAutoSave ? 'Available' : 'None'}
+          </div>
+        </div>
+        <div class="import-section">
+          <input type="file" id="import-save-file" accept=".json" style="display: none;">
+          <button class="btn btn--secondary" type="button" onclick="document.getElementById('import-save-file').click()">
+            Import Save File
+          </button>
+        </div>
+      </div>
+    `;
+
     const modal = new Modal({
       title: 'Load Game',
       content: `
-        <p>Select a save to load:</p>
-        ${saveListHtml}
+        <div class="load-game-dialog">
+          <p>Select a save to load:</p>
+          ${saveListHtml}
+          ${statsHtml}
+        </div>
         <style>
-          .save-list { max-height: 300px; overflow-y: auto; }
-          .save-item { 
-            padding: 10px; 
-            border: 1px solid var(--border-color); 
-            margin-bottom: 5px; 
-            cursor: pointer; 
-            border-radius: 4px;
-            transition: background-color 0.2s;
+          .load-game-dialog {
+            max-width: 100%;
           }
-          .save-item:hover { background-color: var(--background-color); }
-          .save-item.selected { background-color: var(--secondary-color); color: white; }
-          .save-name { font-weight: bold; }
-          .save-date { font-size: 0.9em; color: var(--text-light); }
+          .save-list { 
+            max-height: 400px; 
+            overflow-y: auto; 
+            margin: var(--spacing-md) 0;
+          }
+          .save-item { 
+            padding: var(--spacing-md); 
+            border: 1px solid var(--border-color); 
+            margin-bottom: var(--spacing-sm); 
+            cursor: pointer; 
+            border-radius: var(--border-radius);
+            transition: all var(--transition-base);
+            background: var(--surface-color);
+          }
+          .save-item:hover { 
+            background: var(--background-alt); 
+            border-color: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+          }
+          .save-item.selected { 
+            background: var(--secondary-color); 
+            color: white; 
+            border-color: var(--secondary-color);
+          }
+          .save-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xs);
+          }
+          .save-name { 
+            font-weight: bold; 
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+          }
+          .save-time {
+            font-size: 0.875rem;
+            opacity: 0.8;
+          }
+          .save-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: var(--spacing-sm);
+          }
+          .save-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            opacity: 0.8;
+            transition: opacity var(--transition-base);
+          }
+          .save-item:hover .save-actions {
+            opacity: 1;
+          }
+          .save-action-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid currentColor;
+            background: transparent;
+            color: inherit;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all var(--transition-fast);
+          }
+          .save-action-btn:hover {
+            background: currentColor;
+            color: var(--surface-color);
+          }
+          .save-badge {
+            background: var(--warning-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: var(--border-radius);
+            font-size: 0.7rem;
+            font-weight: normal;
+          }
+          .save-management {
+            border-top: 1px solid var(--border-color);
+            padding-top: var(--spacing-md);
+            margin-top: var(--spacing-md);
+          }
+          .storage-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            font-size: 0.875rem;
+          }
+          .stats-item {
+            color: var(--text-light);
+          }
+          .import-section {
+            text-align: center;
+          }
+          
+          @media (max-width: 768px) {
+            .save-header {
+              flex-direction: column;
+              gap: var(--spacing-xs);
+            }
+            .save-meta {
+              flex-direction: column;
+              gap: var(--spacing-xs);
+            }
+            .storage-stats {
+              flex-direction: column;
+              gap: var(--spacing-xs);
+            }
+          }
         </style>
       `,
       confirmText: 'Load',
@@ -414,16 +765,75 @@ class SPSimApp {
       },
     });
 
-    // Add click handlers for save items
+    // Add click handlers for save items and actions
     modal.show();
+    
     setTimeout(() => {
+      // Save item selection
       const saveItems = document.querySelectorAll('.save-item');
       saveItems.forEach((item) => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+          // Don't select if clicking on action buttons
+          if (e.target.classList.contains('save-action-btn')) return;
+          
           saveItems.forEach((i) => i.classList.remove('selected'));
           item.classList.add('selected');
         });
       });
+
+      // Export buttons
+      const exportBtns = document.querySelectorAll('.export-btn');
+      exportBtns.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const saveId = btn.getAttribute('data-save-id');
+          const success = this.gameEngine.saveSystem.exportSave(saveId);
+          if (success) {
+            this.showNotification('Save exported successfully!', 'success');
+          } else {
+            this.showError('Failed to export save.');
+          }
+        });
+      });
+
+      // Delete buttons
+      const deleteBtns = document.querySelectorAll('.delete-btn');
+      deleteBtns.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const saveId = btn.getAttribute('data-save-id');
+          const saveName = btn.closest('.save-item').querySelector('.save-name').textContent;
+          
+          if (confirm(`Are you sure you want to delete "${saveName}"?`)) {
+            const success = this.gameEngine.saveSystem.deleteSave(saveId);
+            if (success) {
+              btn.closest('.save-item').remove();
+              this.showNotification('Save deleted successfully!', 'success');
+            } else {
+              this.showError('Failed to delete save.');
+            }
+          }
+        });
+      });
+
+      // Import file handler
+      const importFile = document.getElementById('import-save-file');
+      if (importFile) {
+        importFile.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const success = await this.gameEngine.saveSystem.importSave(file);
+            if (success) {
+              this.showNotification('Save imported successfully!', 'success');
+              // Refresh the dialog
+              modal.hide();
+              setTimeout(() => this.showLoadGameDialog(), 100);
+            } else {
+              this.showError('Failed to import save. Please check the file format.');
+            }
+          }
+        });
+      }
     }, 100);
   }
 
@@ -479,6 +889,14 @@ class SPSimApp {
   showNotification(message, type = 'info') {
     console.log(`${type.toUpperCase()}: ${message}`);
 
+    // Prevent duplicate notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    for (const existing of existingNotifications) {
+      if (existing.textContent === message) {
+        return; // Don't show duplicate
+      }
+    }
+
     // Create a simple notification element
     const notification = document.createElement('div');
     notification.className = `notification notification--${type}`;
@@ -492,9 +910,13 @@ class SPSimApp {
       backgroundColor = '#3498db';
     }
 
+    // Calculate notification position (stack them)
+    const notificationCount = document.querySelectorAll('.notification').length;
+    const topOffset = 20 + (notificationCount * 60);
+
     notification.style.cssText = `
       position: fixed;
-      top: 20px;
+      top: ${topOffset}px;
       right: 20px;
       padding: 12px 16px;
       background: ${backgroundColor};
@@ -502,6 +924,9 @@ class SPSimApp {
       border-radius: 4px;
       z-index: 10000;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      animation: slideInRight 0.3s ease-out;
+      max-width: 300px;
+      word-wrap: break-word;
     `;
 
     document.body.appendChild(notification);
@@ -509,7 +934,12 @@ class SPSimApp {
     // Remove notification after 3 seconds
     setTimeout(() => {
       if (notification.parentNode) {
-        notification.parentNode.removeChild(notification);
+        notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
       }
     }, 3000);
   }
