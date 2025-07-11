@@ -37,7 +37,7 @@ export class EventSystem {
     if (!this.listeners.has(eventType)) return;
 
     const listeners = this.listeners.get(eventType);
-    const index = listeners.findIndex((listener) => listener.callback === callback);
+    const index = listeners.findIndex(listener => listener.callback === callback);
 
     if (index !== -1) {
       listeners.splice(index, 1);
@@ -66,7 +66,7 @@ export class EventSystem {
     const listeners = this.listeners.get(eventType);
 
     // Create a copy to avoid issues if listeners are modified during iteration
-    [...listeners].forEach((listener) => {
+    [...listeners].forEach(listener => {
       try {
         if (listener.context) {
           listener.callback.call(listener.context, event);

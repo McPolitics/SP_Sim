@@ -395,16 +395,16 @@ export class EconomicsScreen extends BaseComponent {
    * Setup event listeners
    */
   setupEventListeners() {
-    eventSystem.on('economic:update', (event) => {
+    eventSystem.on('economic:update', event => {
       this.economicData = event.data;
       this.updateDisplay();
     });
 
-    eventSystem.on('economic:event', (event) => {
+    eventSystem.on('economic:event', event => {
       this.addEconomicEvent(event.data);
     });
 
-    eventSystem.on('economic:policy_applied', (_event) => {
+    eventSystem.on('economic:policy_applied', _event => {
       this.updateActivePolicies();
     });
   }
@@ -428,7 +428,7 @@ export class EconomicsScreen extends BaseComponent {
     this.updateElement('phase-duration', `${cycle.duration} weeks`);
 
     // Update sector information
-    Object.keys(sectors).forEach((sectorName) => {
+    Object.keys(sectors).forEach(sectorName => {
       const sector = sectors[sectorName];
       this.updateElement(`${sectorName}-share`, `${(sector.share * 100).toFixed(0)}%`);
       this.updateElement(`${sectorName}-growth`, `${sector.currentGrowth?.toFixed(1) || sector.growth.toFixed(1)}%`);
@@ -463,7 +463,7 @@ export class EconomicsScreen extends BaseComponent {
    * Update sector chart
    */
   updateSectorChart(sectors) {
-    const sectorData = Object.keys(sectors).map((name) => ({
+    const sectorData = Object.keys(sectors).map(name => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       value: sectors[name].share * 100,
     }));

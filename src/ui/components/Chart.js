@@ -150,8 +150,9 @@ export class Chart extends BaseComponent {
     const stepX = area.width / Math.max(1, pointCount - 1);
 
     // Determine Y-axis range
-    const allValues = data.flatMap((series) => (series.values ? series.values : [series]))
-      .filter((v) => typeof v === 'number');
+    const allValues = data
+      .flatMap(series => (series.values ? series.values : [series]))
+      .filter(v => typeof v === 'number');
 
     const minY = Math.min(...allValues);
     const maxY = Math.max(...allValues);
@@ -208,7 +209,7 @@ export class Chart extends BaseComponent {
     const { data } = this.options;
     if (!data.length) return;
 
-    const values = data.map((item) => item.value || item);
+    const values = data.map(item => item.value || item);
     const maxValue = Math.max(...values);
     const barWidth = (area.width / data.length) * 0.8;
     const barSpacing = (area.width / data.length) * 0.2;
@@ -228,11 +229,7 @@ export class Chart extends BaseComponent {
       // Draw value label
       this.ctx.fillStyle = '#2c3e50';
       this.ctx.textAlign = 'center';
-      this.ctx.fillText(
-        this.formatNumber(value),
-        x + barWidth / 2,
-        y - 10,
-      );
+      this.ctx.fillText(this.formatNumber(value), x + barWidth / 2, y - 10);
       this.ctx.restore();
     });
   }
@@ -244,7 +241,7 @@ export class Chart extends BaseComponent {
     const { data } = this.options;
     if (!data.length) return;
 
-    const values = data.map((item) => item.value || item);
+    const values = data.map(item => item.value || item);
     const total = values.reduce((sum, value) => sum + value, 0);
     const centerX = area.x + area.width / 2;
     const centerY = area.y + area.height / 2;
@@ -299,8 +296,9 @@ export class Chart extends BaseComponent {
     const pointCount = data[0].values ? data[0].values.length : data.length;
     const stepX = area.width / Math.max(1, pointCount - 1);
 
-    const allValues = data.flatMap((series) => (series.values ? series.values : [series]))
-      .filter((v) => typeof v === 'number');
+    const allValues = data
+      .flatMap(series => (series.values ? series.values : [series]))
+      .filter(v => typeof v === 'number');
 
     const minY = Math.min(0, ...allValues);
     const maxY = Math.max(...allValues);
@@ -414,7 +412,7 @@ export class Chart extends BaseComponent {
    * Draw legend
    */
   drawLegend(area) {
-    if (!this.options.data.some((item) => item.name)) return;
+    if (!this.options.data.some(item => item.name)) return;
 
     const legendY = area.y + area.height + 30;
     let legendX = area.x;

@@ -48,7 +48,7 @@ export class SaveSystem {
   loadGame(saveId) {
     try {
       const saves = this.getAllSaves();
-      const saveData = saves.find((save) => save.id === saveId);
+      const saveData = saves.find(save => save.id === saveId);
 
       if (!saveData) {
         console.error(`Save not found: ${saveId}`);
@@ -119,7 +119,7 @@ export class SaveSystem {
   deleteSave(saveId) {
     try {
       const saves = this.getAllSaves();
-      const filteredSaves = saves.filter((save) => save.id !== saveId);
+      const filteredSaves = saves.filter(save => save.id !== saveId);
 
       localStorage.setItem(this.storageKey, JSON.stringify(filteredSaves));
       console.log(`Save deleted: ${saveId}`);
@@ -154,7 +154,7 @@ export class SaveSystem {
   exportSave(saveId) {
     try {
       const saves = this.getAllSaves();
-      const saveData = saves.find((save) => save.id === saveId);
+      const saveData = saves.find(save => save.id === saveId);
 
       if (!saveData) {
         console.error(`Save not found for export: ${saveId}`);
@@ -303,12 +303,7 @@ export class SaveSystem {
    */
   validateSaveData(saveData) {
     return (
-      saveData
-      && typeof saveData === 'object'
-      && saveData.id
-      && saveData.name
-      && saveData.timestamp
-      && saveData.data
+      saveData && typeof saveData === 'object' && saveData.id && saveData.name && saveData.timestamp && saveData.data
     );
   }
 }

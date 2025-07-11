@@ -253,17 +253,26 @@ export class DebugPanel extends BaseComponent {
     this.addEventListener(document.getElementById('debug-all-policies'), 'click', () => {
       const policies = [
         {
-          type: 'fiscal_stimulus', name: 'Debug Stimulus', amount: 0.03, duration: 12,
+          type: 'fiscal_stimulus',
+          name: 'Debug Stimulus',
+          amount: 0.03,
+          duration: 12,
         },
         {
-          type: 'education_investment', name: 'Debug Education', amount: 0.04, duration: 24,
+          type: 'education_investment',
+          name: 'Debug Education',
+          amount: 0.04,
+          duration: 24,
         },
         {
-          type: 'infrastructure_investment', name: 'Debug Infrastructure', amount: 0.06, duration: 36,
+          type: 'infrastructure_investment',
+          name: 'Debug Infrastructure',
+          amount: 0.06,
+          duration: 36,
         },
       ];
 
-      policies.forEach((policy) => economicSimulation.applyPolicy(policy));
+      policies.forEach(policy => economicSimulation.applyPolicy(policy));
       this.updateDebugInfo();
     });
 

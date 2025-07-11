@@ -54,11 +54,11 @@ export class Dashboard extends BaseComponent {
    */
   setupEventListeners() {
     // Listen for game state updates
-    eventSystem.on(EVENTS.UI_UPDATE, (event) => {
+    eventSystem.on(EVENTS.UI_UPDATE, event => {
       this.update(event.data.gameState);
     });
 
-    eventSystem.on(EVENTS.TURN_END, (event) => {
+    eventSystem.on(EVENTS.TURN_END, event => {
       this.update(event.data.gameState);
     });
 
@@ -187,8 +187,10 @@ export class Dashboard extends BaseComponent {
     }
 
     if (this.independentsElement) {
-      const totalSupport = [...politics.coalition, ...politics.opposition]
-        .reduce((sum, party) => sum + party.support, 0);
+      const totalSupport = [...politics.coalition, ...politics.opposition].reduce(
+        (sum, party) => sum + party.support,
+        0,
+      );
       const independents = Math.max(0, 100 - totalSupport);
       this.independentsElement.textContent = this.formatPercentage(independents);
     }
@@ -215,8 +217,8 @@ export class Dashboard extends BaseComponent {
     }
 
     if (this.diplomaticRelationsElement) {
-      const avgRelation = Object.values(global.relations).reduce((sum, val) => sum + val, 0)
-                          / Object.values(global.relations).length;
+      const avgRelation =
+        Object.values(global.relations).reduce((sum, val) => sum + val, 0) / Object.values(global.relations).length;
       this.diplomaticRelationsElement.textContent = this.formatNumber(avgRelation);
     }
   }
@@ -234,7 +236,7 @@ export class Dashboard extends BaseComponent {
         const li = this.createElement('li', '', 'No recent events');
         this.recentEventsElement.appendChild(li);
       } else {
-        events.forEach((event) => {
+        events.forEach(event => {
           const li = this.createElement('li', '', event.description || event);
           this.recentEventsElement.appendChild(li);
         });
@@ -250,7 +252,7 @@ export class Dashboard extends BaseComponent {
         const li = this.createElement('li', '', 'No pending decisions');
         this.pendingDecisionsElement.appendChild(li);
       } else {
-        decisions.forEach((decision) => {
+        decisions.forEach(decision => {
           const li = this.createElement('li', 'decision-item', decision.description || decision);
           this.addEventListener(li, 'click', () => {
             this.handleDecisionClick(decision);

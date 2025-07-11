@@ -15,16 +15,16 @@ export class WinConditions {
    * Setup event listeners
    */
   setupEventListeners() {
-    this.eventSystem.on(EVENTS.TURN_END, (event) => {
+    this.eventSystem.on(EVENTS.TURN_END, event => {
       this.checkWinConditions(event.data.gameState);
       this.checkAchievements(event.data.gameState);
     });
 
-    this.eventSystem.on('political:election', (event) => {
+    this.eventSystem.on('political:election', event => {
       this.handleElectionResult(event.data);
     });
 
-    this.eventSystem.on('political:approval_change', (event) => {
+    this.eventSystem.on('political:approval_change', event => {
       this.checkApprovalMilestones(event.data);
     });
   }
@@ -41,7 +41,7 @@ export class WinConditions {
         icon: '⭐',
         type: 'approval',
         requirement: { threshold: 70, duration: 12 },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'economic_miracle',
@@ -50,7 +50,7 @@ export class WinConditions {
         icon: '📈',
         type: 'economic',
         requirement: { gdpGrowth: 5, unemployment: 4 },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'crisis_manager',
@@ -60,7 +60,7 @@ export class WinConditions {
         type: 'crisis',
         requirement: { crises: 3, maxApprovalLoss: 5 },
         progress: { handledCrises: 0, totalApprovalLoss: 0 },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'diplomatic_master',
@@ -69,7 +69,7 @@ export class WinConditions {
         icon: '🌍',
         type: 'diplomatic',
         requirement: { standing: 'Excellent' },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'first_term_success',
@@ -78,7 +78,7 @@ export class WinConditions {
         icon: '🏆',
         type: 'milestone',
         requirement: { term: 1, approval: 60 },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'landslide_victory',
@@ -87,7 +87,7 @@ export class WinConditions {
         icon: '🎯',
         type: 'election',
         requirement: { approval: 65 },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'balanced_budget',
@@ -96,7 +96,7 @@ export class WinConditions {
         icon: '💰',
         type: 'economic',
         requirement: { debtRatio: 50 },
-        unlocked: false
+        unlocked: false,
       },
       {
         id: 'policy_master',
@@ -106,8 +106,8 @@ export class WinConditions {
         type: 'policy',
         requirement: { policies: 10 },
         progress: { passedPolicies: 0 },
-        unlocked: false
-      }
+        unlocked: false,
+      },
     ];
 
     achievements.forEach(achievement => {
@@ -132,9 +132,7 @@ export class WinConditions {
    * Check for loss conditions
    */
   checkLossConditions(gameState) {
-    const approval = gameState.politics.approval;
-    const currentWeek = gameState.time.week;
-    const currentYear = gameState.time.year;
+    const { approval } = gameState.politics;
 
     // Approval too low for too long
     if (approval < 15) {
@@ -143,7 +141,7 @@ export class WinConditions {
         reason: 'approval_collapse',
         title: 'Government Collapse',
         description: `Your approval rating has collapsed to ${approval.toFixed(1)}%. The government has lost all confidence and you have been forced to resign.`,
-        finalStats: this.getFinalStats(gameState)
+        finalStats: this.getFinalStats(gameState),
       });
       return true;
     }
@@ -154,8 +152,10 @@ export class WinConditions {
         type: 'defeat',
         reason: 'economic_collapse',
         title: 'Economic Collapse',
-        description: `The economy has collapsed with ${gameState.economy.unemployment}% unemployment and ${gameState.economy.gdpGrowth}% GDP contraction. The country is in crisis and you have been removed from office.`,
-        finalStats: this.getFinalStats(gameState)
+        description: `The economy has collapsed with ${gameState.economy.unemployment}% unemployment and ${
+          gameState.economy.gdpGrowth
+        }% GDP contraction. The country is in crisis and you have been removed from office.`,
+        finalStats: this.getFinalStats(gameState),
       });
       return true;
     }
@@ -168,8 +168,9 @@ export class WinConditions {
           type: 'defeat',
           reason: 'scandal_overload',
           title: 'Political Scandals',
-          description: 'Multiple major scandals have overwhelmed your administration. Parliament has voted no confidence and you must resign.',
-          finalStats: this.getFinalStats(gameState)
+          description:
+            'Multiple major scandals have overwhelmed your administration. Parliament has voted no confidence and you must resign.',
+          finalStats: this.getFinalStats(gameState),
         });
         return true;
       }
@@ -182,7 +183,7 @@ export class WinConditions {
    * Check for victory conditions
    */
   checkVictoryConditions(gameState) {
-    const approval = gameState.politics.approval;
+    const { approval } = gameState.politics;
     const currentYear = gameState.time.year;
 
     // Successful completion of multiple terms
@@ -192,7 +193,7 @@ export class WinConditions {
         reason: 'successful_leadership',
         title: 'Successful Leadership',
         description: `Congratulations! You have successfully led the country for ${currentYear} years with a final approval rating of ${approval.toFixed(1)}%. Your legacy is secure.`,
-        finalStats: this.getFinalStats(gameState)
+        finalStats: this.getFinalStats(gameState),
       });
       return true;
     }
@@ -204,7 +205,7 @@ export class WinConditions {
         reason: 'beloved_leader',
         title: 'Beloved Leader',
         description: `You are universally beloved with an exceptional ${approval.toFixed(1)}% approval rating. You have achieved legendary status as a leader.`,
-        finalStats: this.getFinalStats(gameState)
+        finalStats: this.getFinalStats(gameState),
       });
       return true;
     }
@@ -229,8 +230,8 @@ export class WinConditions {
    * Check if an achievement requirement is met
    */
   isAchievementMet(achievement, gameState) {
-    const approval = gameState.politics.approval;
-    const economy = gameState.economy;
+    const { approval } = gameState.politics;
+    const { economy } = gameState;
 
     switch (achievement.type) {
       case 'approval':
@@ -238,19 +239,21 @@ export class WinConditions {
         if (!achievement.progress) {
           achievement.progress = { consecutiveWeeks: 0 };
         }
-        
+
         if (approval >= achievement.requirement.threshold) {
-          achievement.progress.consecutiveWeeks++;
+          achievement.progress.consecutiveWeeks += 1;
         } else {
           achievement.progress.consecutiveWeeks = 0;
         }
-        
+
         return achievement.progress.consecutiveWeeks >= achievement.requirement.duration;
 
       case 'economic':
         if (achievement.id === 'economic_miracle') {
-          return economy.gdpGrowth >= achievement.requirement.gdpGrowth && 
-                 economy.unemployment <= achievement.requirement.unemployment;
+          return (
+            economy.gdpGrowth >= achievement.requirement.gdpGrowth &&
+            economy.unemployment <= achievement.requirement.unemployment
+          );
         }
         if (achievement.id === 'balanced_budget') {
           const debtRatio = (gameState.country.debt / gameState.country.gdp) * 100;
@@ -272,14 +275,19 @@ export class WinConditions {
         if (!achievement.progress) {
           achievement.progress = { handledCrises: 0, totalApprovalLoss: 0 };
         }
-        return achievement.progress.handledCrises >= achievement.requirement.crises &&
-               achievement.progress.totalApprovalLoss <= achievement.requirement.maxApprovalLoss;
+        return (
+          achievement.progress.handledCrises >= achievement.requirement.crises &&
+          achievement.progress.totalApprovalLoss <= achievement.requirement.maxApprovalLoss
+        );
 
       case 'policy':
         if (!achievement.progress) {
           achievement.progress = { passedPolicies: 0 };
         }
         return achievement.progress.passedPolicies >= achievement.requirement.policies;
+
+      default:
+        return false;
     }
 
     return false;
@@ -295,12 +303,12 @@ export class WinConditions {
       achievement.unlockedAt = {
         week: gameState.time.week,
         year: gameState.time.year,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       this.eventSystem.emit('achievement:unlocked', {
         achievement,
-        gameState
+        gameState,
       });
 
       // Add to events
@@ -313,7 +321,7 @@ export class WinConditions {
         icon: achievement.icon,
         week: gameState.time.week,
         year: gameState.time.year,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   }
@@ -336,7 +344,7 @@ export class WinConditions {
         reason: 'election_loss',
         title: 'Election Defeat',
         description: `You lost the election with ${approval.toFixed(1)}% approval. The people have chosen new leadership.`,
-        finalStats: this.getFinalStats(gameState)
+        finalStats: this.getFinalStats(gameState),
       });
     }
   }
@@ -355,8 +363,8 @@ export class WinConditions {
           title: 'Confidence Crisis',
           description: 'Your low approval rating has triggered a confidence crisis.',
           approvalImpact: 2,
-          requiresVote: false
-        }
+          requiresVote: false,
+        },
       });
     }
   }
@@ -370,7 +378,7 @@ export class WinConditions {
 
     this.eventSystem.emit('game:end', {
       gameState,
-      endCondition
+      endCondition,
     });
   }
 
@@ -379,8 +387,7 @@ export class WinConditions {
    */
   getFinalStats(gameState) {
     const timeInOffice = `${gameState.time.year} years, ${gameState.time.week} weeks`;
-    const unlockedAchievements = Array.from(this.achievements.values())
-      .filter(a => a.unlocked);
+    const unlockedAchievements = Array.from(this.achievements.values()).filter(a => a.unlocked);
 
     return {
       timeInOffice,
@@ -390,7 +397,7 @@ export class WinConditions {
       finalInflation: gameState.economy.inflation,
       achievementsUnlocked: unlockedAchievements.length,
       achievements: unlockedAchievements,
-      internationalStanding: gameState.global.internationalStanding
+      internationalStanding: gameState.global.internationalStanding,
     };
   }
 
@@ -414,10 +421,16 @@ export class WinConditions {
   resetAchievements() {
     this.achievements.forEach(achievement => {
       achievement.unlocked = false;
-      achievement.progress = achievement.type === 'crisis' ? { handledCrises: 0, totalApprovalLoss: 0 } :
-                            achievement.type === 'policy' ? { passedPolicies: 0 } :
-                            achievement.type === 'approval' ? { consecutiveWeeks: 0 } :
-                            undefined;
+
+      if (achievement.type === 'crisis') {
+        achievement.progress = { handledCrises: 0, totalApprovalLoss: 0 };
+      } else if (achievement.type === 'policy') {
+        achievement.progress = { passedPolicies: 0 };
+      } else if (achievement.type === 'approval') {
+        achievement.progress = { consecutiveWeeks: 0 };
+      } else {
+        achievement.progress = undefined;
+      }
       delete achievement.unlockedAt;
     });
   }

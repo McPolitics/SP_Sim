@@ -115,7 +115,7 @@ export class Modal extends BaseComponent {
 
     // Backdrop click
     if (this.options.backdrop && this.options.closeable) {
-      this.addEventListener(this.backdrop, 'click', (e) => {
+      this.addEventListener(this.backdrop, 'click', e => {
         if (e.target === this.backdrop) {
           this.close();
         }
@@ -123,7 +123,7 @@ export class Modal extends BaseComponent {
     }
 
     // Escape key
-    this.addEventListener(document, 'keydown', (e) => {
+    this.addEventListener(document, 'keydown', e => {
       if (e.key === 'Escape' && this.isOpen && this.options.closeable) {
         this.close();
       }
@@ -247,7 +247,7 @@ export class Modal extends BaseComponent {
     const formData = {};
     const inputs = this.modalBody.querySelectorAll('input, textarea, select');
 
-    inputs.forEach((input) => {
+    inputs.forEach(input => {
       const name = input.name || input.id;
       if (name) {
         if (input.type === 'checkbox') {
@@ -310,7 +310,7 @@ export class Modal extends BaseComponent {
       confirmText: 'OK',
       cancelText: 'Cancel',
       showCancel: true,
-      onConfirm: (formData) => {
+      onConfirm: formData => {
         if (onConfirm) {
           onConfirm(formData.value);
         }

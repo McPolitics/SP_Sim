@@ -642,7 +642,9 @@ export class PlayerGuide extends BaseComponent {
     // Setup basic navigation
     const basicNav = this.element.querySelector('#guide-nav-basic');
     const basicSections = Object.keys(this.guideData.basic);
-    basicNav.innerHTML = basicSections.map((section) => `
+    basicNav.innerHTML = basicSections
+      .map(
+        section => `
       <button class="guide-nav-item ${section === 'overview' ? 'active' : ''}" 
               data-section="${section}" 
               data-mode="basic" 
@@ -650,12 +652,16 @@ export class PlayerGuide extends BaseComponent {
         <span class="nav-icon">${this.guideData.basic[section].icon}</span>
         <span class="nav-title">${this.guideData.basic[section].title}</span>
       </button>
-    `).join('');
+    `,
+      )
+      .join('');
 
     // Setup advanced navigation
     const advancedNav = this.element.querySelector('#guide-nav-advanced');
     const advancedSections = Object.keys(this.guideData.advanced);
-    advancedNav.innerHTML = advancedSections.map((section) => `
+    advancedNav.innerHTML = advancedSections
+      .map(
+        section => `
       <button class="guide-nav-item" 
               data-section="${section}" 
               data-mode="advanced" 
@@ -663,7 +669,9 @@ export class PlayerGuide extends BaseComponent {
         <span class="nav-icon">${this.guideData.advanced[section].icon}</span>
         <span class="nav-title">${this.guideData.advanced[section].title}</span>
       </button>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   /**
@@ -671,14 +679,14 @@ export class PlayerGuide extends BaseComponent {
    */
   setupEventListeners() {
     // Mode switching
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       if (e.target.classList.contains('mode-btn')) {
         this.switchMode(e.target.dataset.mode);
       }
     });
 
     // Navigation
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       if (e.target.closest('.guide-nav-item')) {
         const navItem = e.target.closest('.guide-nav-item');
         this.showSection(navItem.dataset.section, navItem.dataset.mode);
@@ -686,7 +694,7 @@ export class PlayerGuide extends BaseComponent {
     });
 
     // Guide actions
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       if (e.target.classList.contains('guide-prev')) {
         this.navigatePrevious();
       } else if (e.target.classList.contains('guide-next')) {
@@ -697,7 +705,7 @@ export class PlayerGuide extends BaseComponent {
     });
 
     // Keyboard navigation
-    this.addEventListener(document, 'keydown', (e) => {
+    this.addEventListener(document, 'keydown', e => {
       if (!this.element.classList.contains('guide-visible')) return;
 
       if (e.key === 'ArrowLeft' && !e.target.closest('input, textarea')) {
@@ -720,12 +728,12 @@ export class PlayerGuide extends BaseComponent {
     this.currentMode = mode;
 
     // Update mode buttons
-    this.element.querySelectorAll('.mode-btn').forEach((btn) => {
+    this.element.querySelectorAll('.mode-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.mode === mode);
     });
 
     // Show appropriate navigation
-    this.element.querySelectorAll('.guide-nav').forEach((nav) => {
+    this.element.querySelectorAll('.guide-nav').forEach(nav => {
       nav.classList.toggle('hidden', !nav.id.includes(mode));
     });
 
@@ -742,11 +750,8 @@ export class PlayerGuide extends BaseComponent {
     this.currentMode = mode;
 
     // Update navigation
-    this.element.querySelectorAll('.guide-nav-item').forEach((item) => {
-      item.classList.toggle(
-        'active',
-        item.dataset.section === section && item.dataset.mode === mode,
-      );
+    this.element.querySelectorAll('.guide-nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.section === section && item.dataset.mode === mode);
     });
 
     // Update content
@@ -801,10 +806,7 @@ export class PlayerGuide extends BaseComponent {
    * Update progress indicator
    */
   updateProgress() {
-    const allSections = [
-      ...Object.keys(this.guideData.basic),
-      ...Object.keys(this.guideData.advanced),
-    ];
+    const allSections = [...Object.keys(this.guideData.basic), ...Object.keys(this.guideData.advanced)];
 
     const currentSections = Object.keys(this.guideData[this.currentMode]);
     const currentIndex = currentSections.indexOf(this.currentSection);

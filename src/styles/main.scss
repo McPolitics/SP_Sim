@@ -154,7 +154,7 @@ body {
     font-size: 1.1rem;
     font-weight: 600;
     position: relative;
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -225,21 +225,21 @@ body {
     font-weight: 700;
     font-size: 1.1rem;
     color: var(--text-color);
-    
+
     // Dynamic coloring based on content
-    &[id*="gdp"] {
+    &[id*='gdp'] {
       color: var(--success-color);
     }
-    
-    &[id*="unemployment"] {
+
+    &[id*='unemployment'] {
       color: var(--accent-color);
     }
-    
-    &[id*="approval"] {
+
+    &[id*='approval'] {
       color: var(--secondary-color);
     }
-    
-    &[id*="debt"] {
+
+    &[id*='debt'] {
       color: var(--warning-color);
     }
   }
@@ -311,7 +311,7 @@ body {
 
   @media (max-width: 768px) {
     gap: var(--spacing-sm);
-    
+
     .btn {
       flex: 1;
       min-width: 0;
@@ -552,7 +552,7 @@ body {
       scrollbar-width: none;
       -ms-overflow-style: none;
       padding: 0 var(--spacing-sm);
-      
+
       &::-webkit-scrollbar {
         display: none;
       }
@@ -719,13 +719,23 @@ body {
 
 // Animations
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {
@@ -744,7 +754,7 @@ body {
 .economics-header {
   margin-bottom: var(--spacing-xl);
   text-align: center;
-  
+
   h1 {
     color: var(--primary-color);
     margin-bottom: var(--spacing-sm);
@@ -756,11 +766,11 @@ body {
   justify-content: center;
   gap: var(--spacing-lg);
   font-size: 0.9rem;
-  
+
   .phase-indicator {
     color: var(--text-light);
   }
-  
+
   .phase-duration {
     color: var(--text-light);
   }
@@ -779,7 +789,7 @@ body {
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-light);
   text-align: center;
-  
+
   h3 {
     margin: 0 0 var(--spacing-sm) 0;
     color: var(--text-light);
@@ -787,24 +797,32 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
   .metric-value {
     font-size: 2rem;
     font-weight: bold;
     color: var(--primary-color);
     margin-bottom: var(--spacing-xs);
   }
-  
+
   .metric-trend {
     font-size: 0.8rem;
     color: var(--success-color);
   }
 }
 
-.gdp-card .metric-value { color: var(--secondary-color); }
-.unemployment-card .metric-value { color: var(--accent-color); }
-.inflation-card .metric-value { color: var(--warning-color); }
-.confidence-card .metric-value { color: var(--success-color); }
+.gdp-card .metric-value {
+  color: var(--secondary-color);
+}
+.unemployment-card .metric-value {
+  color: var(--accent-color);
+}
+.inflation-card .metric-value {
+  color: var(--warning-color);
+}
+.confidence-card .metric-value {
+  color: var(--success-color);
+}
 
 .charts-section {
   display: grid;
@@ -818,13 +836,13 @@ body {
   border-radius: var(--border-radius);
   padding: var(--spacing-md);
   box-shadow: var(--shadow-light);
-  
+
   h3 {
     margin: 0 0 var(--spacing-md) 0;
     color: var(--primary-color);
     font-size: 1rem;
   }
-  
+
   .chart {
     width: 100%;
     min-height: 200px;
@@ -837,18 +855,18 @@ body {
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-light);
   margin-bottom: var(--spacing-xl);
-  
+
   h3 {
     margin: 0 0 var(--spacing-md) 0;
     color: var(--primary-color);
   }
-  
+
   .forecast-summary {
     margin-top: var(--spacing-md);
     padding: var(--spacing-md);
     background: var(--background-color);
     border-radius: var(--border-radius);
-    
+
     p {
       margin: 0;
       color: var(--text-color);
@@ -863,7 +881,7 @@ body {
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-light);
   margin-bottom: var(--spacing-xl);
-  
+
   h3 {
     margin: 0 0 var(--spacing-md) 0;
     color: var(--primary-color);
@@ -881,29 +899,35 @@ body {
   border-radius: var(--border-radius);
   padding: var(--spacing-md);
   text-align: center;
-  
+
   h4 {
     margin: 0 0 var(--spacing-sm) 0;
     color: var(--text-color);
     font-size: 0.9rem;
   }
-  
+
   .sector-share {
     font-size: 1.5rem;
     font-weight: bold;
     color: var(--secondary-color);
     margin-bottom: var(--spacing-xs);
   }
-  
+
   .sector-growth {
     font-size: 0.9rem;
     color: var(--success-color);
   }
 }
 
-.agriculture-sector .sector-share { color: var(--success-color); }
-.manufacturing-sector .sector-share { color: var(--secondary-color); }
-.services-sector .sector-share { color: var(--warning-color); }
+.agriculture-sector .sector-share {
+  color: var(--success-color);
+}
+.manufacturing-sector .sector-share {
+  color: var(--secondary-color);
+}
+.services-sector .sector-share {
+  color: var(--warning-color);
+}
 
 .policy-section {
   background: var(--surface-color);
@@ -911,25 +935,25 @@ body {
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-light);
   margin-bottom: var(--spacing-xl);
-  
+
   h3 {
     margin: 0 0 var(--spacing-md) 0;
     color: var(--primary-color);
   }
-  
+
   .policy-categories {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
   }
-  
+
   .policy-category {
     background: var(--background-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
     border: 1px solid var(--border-color);
-    
+
     h4 {
       margin: 0 0 var(--spacing-sm) 0;
       color: var(--primary-color);
@@ -937,26 +961,26 @@ body {
       font-weight: 600;
     }
   }
-  
+
   .policy-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-lg);
   }
-  
+
   .active-policies {
     h4 {
       margin: 0 0 var(--spacing-sm) 0;
       color: var(--text-color);
       font-size: 0.9rem;
     }
-    
+
     ul {
       list-style: none;
       margin: 0;
       padding: 0;
-      
+
       li {
         padding: var(--spacing-xs) 0;
         color: var(--text-light);
@@ -967,33 +991,41 @@ body {
 }
 
 // Event severity styles
-.event-info { color: var(--secondary-color); }
-.event-warning { color: var(--warning-color); }
-.event-danger { color: var(--accent-color); }
-.event-success { color: var(--success-color); }
+.event-info {
+  color: var(--secondary-color);
+}
+.event-warning {
+  color: var(--warning-color);
+}
+.event-danger {
+  color: var(--accent-color);
+}
+.event-success {
+  color: var(--success-color);
+}
 
 // Responsive design for economics screen
 @media (max-width: 768px) {
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .charts-section {
     grid-template-columns: 1fr;
   }
-  
+
   .sectors-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .economic-phase {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
-  
+
   .policy-buttons {
     flex-direction: column;
-    
+
     .btn {
       width: 100%;
     }
@@ -1001,27 +1033,61 @@ body {
 }
 
 // Utility classes
-.text-center { text-align: center; }
-.text-success { color: var(--success-color); }
-.text-warning { color: var(--warning-color); }
-.text-danger { color: var(--accent-color); }
-.hidden { display: none; }
-.loading { opacity: 0.6; pointer-events: none; }
-.flex { display: flex; }
-.flex-column { flex-direction: column; }
-.flex-center { align-items: center; justify-content: center; }
-.gap-sm { gap: var(--spacing-sm); }
-.gap-md { gap: var(--spacing-md); }
-.gap-lg { gap: var(--spacing-lg); }
-.mt-sm { margin-top: var(--spacing-sm); }
-.mt-md { margin-top: var(--spacing-md); }
-.mb-sm { margin-bottom: var(--spacing-sm); }
-.mb-md { margin-bottom: var(--spacing-md); }
+.text-center {
+  text-align: center;
+}
+.text-success {
+  color: var(--success-color);
+}
+.text-warning {
+  color: var(--warning-color);
+}
+.text-danger {
+  color: var(--accent-color);
+}
+.hidden {
+  display: none;
+}
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.flex {
+  display: flex;
+}
+.flex-column {
+  flex-direction: column;
+}
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+.gap-md {
+  gap: var(--spacing-md);
+}
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
+.mt-md {
+  margin-top: var(--spacing-md);
+}
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
 
 // Enhanced animations and loading states
 .loading-overlay {
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -1039,7 +1105,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeInUp {
@@ -1065,19 +1133,39 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: var(--shadow-md); }
-  50% { box-shadow: var(--shadow-lg), 0 0 20px rgba(49, 130, 206, 0.3); }
+  0%,
+  100% {
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    box-shadow:
+      var(--shadow-lg),
+      0 0 20px rgba(49, 130, 206, 0.3);
+  }
 }
 
-.animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
-.animate-slideInLeft { animation: slideInLeft 0.4s ease-out; }
-.animate-pulse { animation: pulse 2s infinite; }
-.animate-glow { animation: glow 3s infinite; }
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+.animate-slideInLeft {
+  animation: slideInLeft 0.4s ease-out;
+}
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+.animate-glow {
+  animation: glow 3s infinite;
+}
 
 // Status indicators with enhanced visuals
 .status-indicator {
@@ -1159,8 +1247,12 @@ body {
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 // Enhanced tooltips
@@ -1656,7 +1748,7 @@ body {
   overflow: hidden;
   max-width: 1200px;
   margin: 0 auto;
-  
+
   &.guide-visible {
     animation: fadeInUp 0.4s ease-out;
   }
@@ -1813,7 +1905,8 @@ body {
       color: var(--text-color);
     }
 
-    ul, ol {
+    ul,
+    ol {
       margin: 0 0 var(--spacing-md) 0;
       padding-left: var(--spacing-lg);
 
@@ -1834,7 +1927,8 @@ body {
       }
     }
 
-    .key-objectives, .getting-started {
+    .key-objectives,
+    .getting-started {
       background: var(--background-alt);
       padding: var(--spacing-md);
       border-radius: var(--border-radius);
@@ -1972,14 +2066,20 @@ body {
       }
     }
 
-    .system-interaction, .mechanic-detail, .crisis-type, .tool-category, .theory-approach, .scenario {
+    .system-interaction,
+    .mechanic-detail,
+    .crisis-type,
+    .tool-category,
+    .theory-approach,
+    .scenario {
       background: var(--surface-color);
       padding: var(--spacing-md);
       border-radius: var(--border-radius);
       margin: var(--spacing-md) 0;
       border-left: 3px solid var(--secondary-color);
 
-      h4, h5 {
+      h4,
+      h5 {
         margin-top: 0;
         color: var(--primary-color);
       }

@@ -21,7 +21,9 @@
     "import/extensions": "off",
     "max-len": ["error", { "code": 190, "ignoreUrls": true }],
     "no-param-reassign": ["error", { "props": false }],
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "arrow-parens": ["error", "as-needed"],
+    "operator-linebreak": "off"
   },
   "ignorePatterns": [
     "dist/",

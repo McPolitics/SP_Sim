@@ -117,14 +117,14 @@ class SPSimApp {
    */
   setupScreenManagement() {
     // Listen for navigation events
-    this.eventSystem.on(EVENTS.UI_UPDATE, (event) => {
+    this.eventSystem.on(EVENTS.UI_UPDATE, event => {
       if (event.data.type === 'navigation') {
         this.switchToScreen(event.data.to);
       }
     });
 
     // Setup URL-based routing
-    window.addEventListener('popstate', (event) => {
+    window.addEventListener('popstate', event => {
       const screen = event.state?.screen || 'dashboard';
       this.switchToScreen(screen, false);
     });
@@ -149,7 +149,7 @@ class SPSimApp {
     }
 
     // Hide all screens first
-    document.querySelectorAll('.screen').forEach((screen) => {
+    document.querySelectorAll('.screen').forEach(screen => {
       screen.classList.remove('screen--active');
     });
 
@@ -228,7 +228,7 @@ class SPSimApp {
       this.handlePauseToggle();
     });
 
-    this.eventSystem.on(EVENTS.GAME_SAVE, (event) => {
+    this.eventSystem.on(EVENTS.GAME_SAVE, event => {
       this.handleSaveGame(event.data.saveName);
     });
 
@@ -237,50 +237,47 @@ class SPSimApp {
       this.showLoadGameDialog();
     });
 
-    this.eventSystem.on('ui:decision_dialog', (event) => {
+    this.eventSystem.on('ui:decision_dialog', event => {
       this.showDecisionDialog(event.data.decision);
     });
 
     // Error handling
-    this.eventSystem.on(EVENTS.UI_ERROR, (event) => {
+    this.eventSystem.on(EVENTS.UI_ERROR, event => {
       this.showError(event.data.message);
     });
 
     // Notification handling
-    this.eventSystem.on(EVENTS.UI_NOTIFICATION, (event) => {
+    this.eventSystem.on(EVENTS.UI_NOTIFICATION, event => {
       this.showNotification(event.data.message, event.data.type);
     });
 
     // Achievement notifications
-    this.eventSystem.on('achievement:unlocked', (event) => {
-      const achievement = event.data.achievement;
-      this.showNotification(
-        `🏆 Achievement Unlocked: ${achievement.title}`,
-        'success'
-      );
+    this.eventSystem.on('achievement:unlocked', event => {
+      const { achievement } = event.data;
+      this.showNotification(`🏆 Achievement Unlocked: ${achievement.title}`, 'success');
     });
 
     // Game end handling
-    this.eventSystem.on('ui:game_end', (event) => {
+    this.eventSystem.on('ui:game_end', event => {
       this.showGameEndDialog(event.data.endCondition);
     });
 
     // Political events
-    this.eventSystem.on('political:vote_scheduled', (event) => {
+    this.eventSystem.on('political:vote_scheduled', _event => {
       this.showNotification('New political vote scheduled!', 'info');
     });
 
-    this.eventSystem.on('political:crisis_triggered', (event) => {
+    this.eventSystem.on('political:crisis_triggered', event => {
       this.showNotification(`Political Crisis: ${event.data.crisis.title}`, 'warning');
     });
 
     // Modal system for reset dialogs
-    this.eventSystem.on('ui:show_modal', (event) => {
+    this.eventSystem.on('ui:show_modal', event => {
       this.showCustomModal(event.data);
     });
 
     // Keyboard shortcuts
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', event => {
       this.handleKeyboard(event);
     });
 
@@ -355,13 +352,13 @@ class SPSimApp {
    * Setup error handling
    */
   setupErrorHandling() {
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       console.error('Unhandled error:', event.error);
       this.showError('An unexpected error occurred. The game has been auto-saved.');
       this.gameEngine.autoSave();
     });
 
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       console.error('Unhandled promise rejection:', event.reason);
       this.showError('An unexpected error occurred. The game has been auto-saved.');
       this.gameEngine.autoSave();
@@ -566,7 +563,7 @@ class SPSimApp {
         }
 
         // Handle suggestion buttons
-        suggestionBtns.forEach((btn) => {
+        suggestionBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const suggestedName = btn.getAttribute('data-name');
             const gameState = this.gameEngine.getGameState();
@@ -808,20 +805,20 @@ class SPSimApp {
     setTimeout(() => {
       // Save item selection
       const saveItems = document.querySelectorAll('.save-item');
-      saveItems.forEach((item) => {
-        item.addEventListener('click', (e) => {
+      saveItems.forEach(item => {
+        item.addEventListener('click', e => {
           // Don't select if clicking on action buttons
           if (e.target.classList.contains('save-action-btn')) return;
 
-          saveItems.forEach((i) => i.classList.remove('selected'));
+          saveItems.forEach(i => i.classList.remove('selected'));
           item.classList.add('selected');
         });
       });
 
       // Export buttons
       const exportBtns = document.querySelectorAll('.export-btn');
-      exportBtns.forEach((btn) => {
-        btn.addEventListener('click', (e) => {
+      exportBtns.forEach(btn => {
+        btn.addEventListener('click', e => {
           e.stopPropagation();
           const saveId = btn.getAttribute('data-save-id');
           const success = this.gameEngine.saveSystem.exportSave(saveId);
@@ -835,8 +832,8 @@ class SPSimApp {
 
       // Delete buttons
       const deleteBtns = document.querySelectorAll('.delete-btn');
-      deleteBtns.forEach((btn) => {
-        btn.addEventListener('click', (e) => {
+      deleteBtns.forEach(btn => {
+        btn.addEventListener('click', e => {
           e.stopPropagation();
           const saveId = btn.getAttribute('data-save-id');
           const saveName = btn.closest('.save-item').querySelector('.save-name').textContent;
@@ -856,7 +853,7 @@ class SPSimApp {
       // Import file handler
       const importFile = document.getElementById('import-save-file');
       if (importFile) {
-        importFile.addEventListener('change', async (e) => {
+        importFile.addEventListener('change', async e => {
           const file = e.target.files[0];
           if (file) {
             const success = await this.gameEngine.saveSystem.importSave(file);
@@ -928,7 +925,7 @@ class SPSimApp {
 
     // Prevent duplicate notifications
     const existingNotifications = document.querySelectorAll('.notification');
-    if (Array.from(existingNotifications).some((existing) => existing.textContent === message)) {
+    if (Array.from(existingNotifications).some(existing => existing.textContent === message)) {
       return; // Don't show duplicate
     }
 
@@ -949,7 +946,7 @@ class SPSimApp {
 
     // Calculate notification position (stack them)
     const notificationCount = document.querySelectorAll('.notification').length;
-    const topOffset = 20 + (notificationCount * 60);
+    const topOffset = 20 + notificationCount * 60;
 
     notification.style.cssText = `
       position: fixed;
@@ -1067,7 +1064,7 @@ class SPSimApp {
       onConfirm: () => {
         this.gameEngine.requestReset('new_game');
         return true;
-      }
+      },
     });
 
     modal.show();

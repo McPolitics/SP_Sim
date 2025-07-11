@@ -80,36 +80,36 @@ export class Timeline extends BaseComponent {
    */
   setupEventListeners() {
     // Toggle timeline expansion
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       if (e.target.closest('.timeline-toggle')) {
         this.toggleTimeline();
       }
     });
 
     // Zoom controls
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       if (e.target.classList.contains('zoom-btn')) {
         this.handleZoomChange(e.target.dataset.zoom);
       }
     });
 
     // Timeline events
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       if (e.target.closest('.timeline-event')) {
         this.handleEventClick(e.target.closest('.timeline-event'));
       }
     });
 
     // Listen for game state updates
-    eventSystem.on(EVENTS.TURN_END, (event) => {
+    eventSystem.on(EVENTS.TURN_END, event => {
       this.updateTimeline(event.data.gameState);
     });
 
-    eventSystem.on(EVENTS.GAME_SAVE, (event) => {
+    eventSystem.on(EVENTS.GAME_SAVE, event => {
       this.addSavePoint(event.data);
     });
 
-    eventSystem.on('economic:event', (event) => {
+    eventSystem.on('economic:event', event => {
       this.addTimelineEvent(event.data, 'economic');
     });
   }
@@ -141,7 +141,7 @@ export class Timeline extends BaseComponent {
    */
   handleZoomChange(zoomLevel) {
     const zoomBtns = this.element.querySelectorAll('.zoom-btn');
-    zoomBtns.forEach((btn) => btn.classList.remove('active'));
+    zoomBtns.forEach(btn => btn.classList.remove('active'));
     this.element.querySelector(`[data-zoom="${zoomLevel}"]`).classList.add('active');
 
     this.currentZoom = zoomLevel;
@@ -168,7 +168,7 @@ export class Timeline extends BaseComponent {
 
     // Add recent events to timeline
     if (gameState.events && gameState.events.recent) {
-      gameState.events.recent.forEach((event) => {
+      gameState.events.recent.forEach(event => {
         this.addTimelineEvent(event, event.type || 'general');
       });
     }
@@ -239,8 +239,8 @@ export class Timeline extends BaseComponent {
     event.setAttribute('data-tooltip', eventData.description || eventData.title || 'Game Event');
 
     // Calculate event position
-    const eventWeek = eventData.week || (this.gameState
-      ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1);
+    const eventWeek =
+      eventData.week || (this.gameState ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1);
 
     let maxWeeks;
     if (this.currentZoom === 'week') {
@@ -272,12 +272,15 @@ export class Timeline extends BaseComponent {
    * Add save point to timeline
    */
   addSavePoint(saveData) {
-    this.addTimelineEvent({
-      id: saveData.saveId || `save_${Date.now()}`,
-      title: 'Game Saved',
-      description: `Save: ${saveData.saveName || 'Unnamed'}`,
-      week: this.gameState ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1,
-    }, 'save');
+    this.addTimelineEvent(
+      {
+        id: saveData.saveId || `save_${Date.now()}`,
+        title: 'Game Saved',
+        description: `Save: ${saveData.saveName || 'Unnamed'}`,
+        week: this.gameState ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1,
+      },
+      'save',
+    );
   }
 
   /**
@@ -290,7 +293,7 @@ export class Timeline extends BaseComponent {
       tooltip.classList.toggle('visible');
 
       // Hide other tooltips
-      this.element.querySelectorAll('.event-tooltip.visible').forEach((tip) => {
+      this.element.querySelectorAll('.event-tooltip.visible').forEach(tip => {
         if (tip !== tooltip) {
           tip.classList.remove('visible');
         }
@@ -303,10 +306,11 @@ export class Timeline extends BaseComponent {
    */
   cleanupOldEvents() {
     const events = this.element.querySelectorAll('.timeline-event');
-    if (events.length > 50) { // Keep only last 50 events
+    if (events.length > 50) {
+      // Keep only last 50 events
       Array.from(events)
         .slice(0, events.length - 50)
-        .forEach((event) => event.remove());
+        .forEach(event => event.remove());
     }
   }
 

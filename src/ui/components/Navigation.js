@@ -71,7 +71,7 @@ export class Navigation extends BaseComponent {
    */
   setupEventListeners() {
     // Handle navigation clicks
-    this.addEventListener(this.element, 'click', (e) => {
+    this.addEventListener(this.element, 'click', e => {
       e.preventDefault();
       const link = e.target.closest('.navigation__link');
       if (link) {
@@ -81,7 +81,7 @@ export class Navigation extends BaseComponent {
     });
 
     // Listen for external navigation events
-    eventSystem.on('navigation:goto', (event) => {
+    eventSystem.on('navigation:goto', event => {
       this.navigateToScreen(event.data.screen);
     });
   }
@@ -119,11 +119,7 @@ export class Navigation extends BaseComponent {
 
     // Update browser URL without page reload
     if (window.history) {
-      window.history.pushState(
-        { screen: screenId },
-        this.screens[screenId],
-        `#${screenId}`,
-      );
+      window.history.pushState({ screen: screenId }, this.screens[screenId], `#${screenId}`);
     }
 
     console.log(`Navigated to ${this.screens[screenId]}`);
@@ -149,7 +145,7 @@ export class Navigation extends BaseComponent {
    */
   updateScreenBadges(gameState) {
     // Clear existing badges
-    this.element.querySelectorAll('.navigation__badge').forEach((badge) => {
+    this.element.querySelectorAll('.navigation__badge').forEach(badge => {
       badge.remove();
     });
 

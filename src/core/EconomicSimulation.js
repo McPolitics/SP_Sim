@@ -13,7 +13,7 @@ export class EconomicSimulation {
       inflation: 2.4,
       interestRate: 3.5,
       consumerSpending: 0.65, // 65% of GDP
-      governmentSpending: 0.20, // 20% of GDP
+      governmentSpending: 0.2, // 20% of GDP
       investment: 0.18, // 18% of GDP
       netExports: -0.03, // -3% of GDP (trade deficit)
       productivity: 1.0, // Baseline productivity index
@@ -22,8 +22,8 @@ export class EconomicSimulation {
 
     this.sectors = {
       agriculture: { share: 0.05, growth: 1.2, volatility: 0.15 },
-      manufacturing: { share: 0.25, growth: 2.8, volatility: 0.10 },
-      services: { share: 0.70, growth: 2.0, volatility: 0.05 },
+      manufacturing: { share: 0.25, growth: 2.8, volatility: 0.1 },
+      services: { share: 0.7, growth: 2.0, volatility: 0.05 },
     };
 
     this.cycle = {
@@ -46,11 +46,11 @@ export class EconomicSimulation {
       this.updateEconomy();
     });
 
-    eventSystem.on('policy:implemented', (event) => {
+    eventSystem.on('policy:implemented', event => {
       this.applyPolicy(event.data.policy);
     });
 
-    eventSystem.on('economic:shock', (event) => {
+    eventSystem.on('economic:shock', event => {
       this.applyShock(event.data.shock);
     });
   }
@@ -94,7 +94,8 @@ export class EconomicSimulation {
     // Business cycle transitions based on duration and economic conditions
     switch (this.cycle.phase) {
       case 'expansion':
-        if (this.cycle.duration > 104 || this.metrics.inflation > 4.5) { // 2 years or high inflation
+        if (this.cycle.duration > 104 || this.metrics.inflation > 4.5) {
+          // 2 years or high inflation
           this.cycle.phase = 'peak';
           this.cycle.duration = 0;
           this.cycle.intensity = Math.min(1.0, this.cycle.intensity + 0.1);
@@ -104,7 +105,8 @@ export class EconomicSimulation {
         break;
 
       case 'peak':
-        if (this.cycle.duration > 8 || this.metrics.unemployment > 7.5) { // 2 months or high unemployment
+        if (this.cycle.duration > 8 || this.metrics.unemployment > 7.5) {
+          // 2 months or high unemployment
           this.cycle.phase = 'recession';
           this.cycle.duration = 0;
           this.cycle.intensity = Math.max(0.1, this.cycle.intensity - 0.1);
@@ -112,7 +114,8 @@ export class EconomicSimulation {
         break;
 
       case 'recession':
-        if (this.cycle.duration > 52 || this.metrics.gdpGrowth > 0) { // 1 year or positive growth
+        if (this.cycle.duration > 52 || this.metrics.gdpGrowth > 0) {
+          // 1 year or positive growth
           this.cycle.phase = 'trough';
           this.cycle.duration = 0;
           this.cycle.intensity = Math.max(0.1, this.cycle.intensity - 0.02);
@@ -122,7 +125,8 @@ export class EconomicSimulation {
         break;
 
       case 'trough':
-        if (this.cycle.duration > 12 || this.metrics.confidence > 60) { // 3 months or improving confidence
+        if (this.cycle.duration > 12 || this.metrics.confidence > 60) {
+          // 3 months or improving confidence
           this.cycle.phase = 'expansion';
           this.cycle.duration = 0;
           this.cycle.intensity = Math.min(1.0, this.cycle.intensity + 0.05);
@@ -141,7 +145,7 @@ export class EconomicSimulation {
    * Update sector performance
    */
   updateSectors() {
-    Object.keys(this.sectors).forEach((sectorName) => {
+    Object.keys(this.sectors).forEach(sectorName => {
       const sector = this.sectors[sectorName];
 
       // Base growth with cycle effects
@@ -167,7 +171,7 @@ export class EconomicSimulation {
   updateGDP() {
     // Calculate weighted sector growth
     let weightedGrowth = 0;
-    Object.keys(this.sectors).forEach((sectorName) => {
+    Object.keys(this.sectors).forEach(sectorName => {
       const sector = this.sectors[sectorName];
       weightedGrowth += sector.share * (sector.currentGrowth || sector.growth);
     });
@@ -185,7 +189,7 @@ export class EconomicSimulation {
 
     // Update actual GDP
     const weeklyGrowthRate = this.metrics.gdpGrowth / 52 / 100;
-    this.metrics.gdp *= (1 + weeklyGrowthRate);
+    this.metrics.gdp *= 1 + weeklyGrowthRate;
   }
 
   /**
@@ -230,7 +234,7 @@ export class EconomicSimulation {
     const costPushInflation = this.cycle.intensity * 0.8;
 
     // Money supply effects (simplified)
-    const monetaryInflation = (this.metrics.interestRate < 2.0) ? 0.5 : -0.2;
+    const monetaryInflation = this.metrics.interestRate < 2.0 ? 0.5 : -0.2;
 
     const targetInflation = 2.0 + demandPullInflation + costPushInflation + monetaryInflation;
 
@@ -356,12 +360,12 @@ export class EconomicSimulation {
    * Apply active policies each turn
    */
   applyActivePolicies() {
-    this.policies = this.policies.filter((policy) => {
+    this.policies = this.policies.filter(policy => {
       policy.implementedWeek += 1;
 
       // Apply ongoing effects
       if (policy.ongoingEffects) {
-        Object.keys(policy.ongoingEffects).forEach((metric) => {
+        Object.keys(policy.ongoingEffects).forEach(metric => {
           if (this.metrics[metric] !== undefined) {
             this.metrics[metric] += policy.ongoingEffects[metric];
           }
@@ -489,12 +493,16 @@ export class EconomicSimulation {
     }
 
     // Stagflation detection
-    if (this.metrics.inflation > 3.5 && this.metrics.unemployment > 7.0
-        && this.metrics.gdpGrowth < 1.0 && Math.random() < 0.1) {
+    if (
+      this.metrics.inflation > 3.5 &&
+      this.metrics.unemployment > 7.0 &&
+      this.metrics.gdpGrowth < 1.0 &&
+      Math.random() < 0.1
+    ) {
       events.push({
         type: 'stagflation',
-        message: 'Stagflation detected: High inflation and unemployment with low growth. '
-          + 'Difficult policy choices ahead.',
+        message:
+          'Stagflation detected: High inflation and unemployment with low growth. Difficult policy choices ahead.',
         severity: 'danger',
       });
     }
@@ -509,15 +517,16 @@ export class EconomicSimulation {
     }
 
     // Sector-specific events
-    Object.keys(this.sectors).forEach((sectorName) => {
+    Object.keys(this.sectors).forEach(sectorName => {
       const sector = this.sectors[sectorName];
 
       // Sector boom
       if (sector.currentGrowth > 5.0 && Math.random() < 0.04) {
         events.push({
           type: 'sector_boom',
-          message: `${sectorName.charAt(0).toUpperCase() + sectorName.slice(1)} sector `
-            + `experiencing rapid growth at ${sector.currentGrowth.toFixed(1)}%.`,
+          message:
+            `${sectorName.charAt(0).toUpperCase() + sectorName.slice(1)} sector ` +
+            `experiencing rapid growth at ${sector.currentGrowth.toFixed(1)}%.`,
           severity: 'success',
         });
       }
@@ -526,15 +535,17 @@ export class EconomicSimulation {
       if (sector.currentGrowth < -2.0 && Math.random() < 0.06) {
         events.push({
           type: 'sector_decline',
-          message: `${sectorName.charAt(0).toUpperCase() + sectorName.slice(1)} sector `
-            + `declining at ${sector.currentGrowth.toFixed(1)}%. May need targeted support.`,
+          message:
+            `${sectorName.charAt(0).toUpperCase() + sectorName.slice(1)} sector ` +
+            `declining at ${sector.currentGrowth.toFixed(1)}%. May need targeted support.`,
           severity: 'warning',
         });
       }
     });
 
     // Random economic shocks (Week 8 feature)
-    if (Math.random() < 0.02) { // 2% chance per week
+    if (Math.random() < 0.02) {
+      // 2% chance per week
       const shockType = this.generateRandomShock();
       if (shockType) {
         events.push(shockType);
@@ -546,8 +557,9 @@ export class EconomicSimulation {
     if (this.metrics.confidence > 85 && Math.random() < 0.03) {
       events.push({
         type: 'high_confidence',
-        message: `Consumer confidence at ${this.metrics.confidence.toFixed(0)}%. `
-          + 'Strong economic sentiment boosting spending.',
+        message:
+          `Consumer confidence at ${this.metrics.confidence.toFixed(0)}%. ` +
+          'Strong economic sentiment boosting spending.',
         severity: 'success',
       });
     }
@@ -555,14 +567,15 @@ export class EconomicSimulation {
     if (this.metrics.confidence < 30 && Math.random() < 0.05) {
       events.push({
         type: 'confidence_crisis',
-        message: `Consumer confidence plummeted to ${this.metrics.confidence.toFixed(0)}%. `
-          + 'Economic uncertainty affecting all sectors.',
+        message:
+          `Consumer confidence plummeted to ${this.metrics.confidence.toFixed(0)}%. ` +
+          'Economic uncertainty affecting all sectors.',
         severity: 'danger',
       });
     }
 
     // Emit events
-    events.forEach((event) => {
+    events.forEach(event => {
       eventSystem.emit('economic:event', event);
     });
   }
@@ -619,11 +632,11 @@ export class EconomicSimulation {
   getCycleEffect() {
     switch (this.cycle.phase) {
       case 'expansion':
-        return 1.0 + (this.cycle.intensity * 0.2);
+        return 1.0 + this.cycle.intensity * 0.2;
       case 'peak':
         return 1.1;
       case 'recession':
-        return 0.8 - (this.cycle.intensity * 0.3);
+        return 0.8 - this.cycle.intensity * 0.3;
       case 'trough':
         return 0.7;
       default:
