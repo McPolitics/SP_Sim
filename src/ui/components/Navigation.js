@@ -17,6 +17,7 @@ export class Navigation extends BaseComponent {
       policies: 'Policies',
       crisis: 'Crisis Management',
       analytics: 'Analytics',
+      help: 'Help Guide',
     };
 
     this.initializeNavigation();
