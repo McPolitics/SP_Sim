@@ -294,8 +294,12 @@ body {
 .footer {
   background: linear-gradient(135deg, var(--surface-color) 0%, var(--background-alt) 100%);
   border-top: 2px solid var(--border-color);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
   box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-sm);
+  }
 }
 
 .game-controls {
@@ -304,6 +308,23 @@ body {
   align-items: center;
   gap: var(--spacing-md);
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: var(--spacing-sm);
+    
+    .btn {
+      flex: 1;
+      min-width: 0;
+      max-width: calc(50% - var(--spacing-xs));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .btn {
+      max-width: 100%;
+      margin-bottom: var(--spacing-xs);
+    }
+  }
 }
 
 // Buttons
@@ -395,15 +416,29 @@ body {
   .header {
     flex-direction: column;
     gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+
+    &__title {
+      font-size: 1.5rem;
+      text-align: center;
+    }
 
     &__info {
       flex-wrap: wrap;
       justify-content: center;
+      gap: var(--spacing-xs);
+
+      span {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        min-width: auto;
+      }
     }
   }
 
   .dashboard__panels {
     grid-template-columns: 1fr;
+    gap: var(--spacing-md);
   }
 
   .events-section {
@@ -413,21 +448,62 @@ body {
   .game-controls {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+
+    .btn {
+      min-width: auto;
+      flex: 1;
+      font-size: 0.8rem;
+      padding: var(--spacing-sm);
+    }
+  }
+
+  .main-content {
+    padding: var(--spacing-md);
+  }
+
+  .panel {
+    &__title {
+      font-size: 1rem;
+      padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    &__content {
+      padding: var(--spacing-md);
+    }
+  }
+
+  .metric {
+    padding: var(--spacing-sm) 0;
+
+    label {
+      font-size: 0.8rem;
+    }
+
+    span {
+      font-size: 1rem;
+    }
   }
 }
 
 // Navigation
 .navigation {
+  width: 100%;
+  margin-top: var(--spacing-sm);
+
   &__menu {
     display: flex;
     list-style: none;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     margin: 0;
     padding: 0;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   &__item {
     position: relative;
+    flex: 0 0 auto;
   }
 
   &__link {
@@ -437,7 +513,9 @@ body {
     text-decoration: none;
     border-radius: var(--border-radius);
     transition: all 0.2s;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-align: center;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
@@ -465,6 +543,37 @@ body {
     justify-content: center;
     font-size: 10px;
     font-weight: bold;
+  }
+
+  // Mobile improvements
+  @media (max-width: 768px) {
+    &__menu {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 0 var(--spacing-sm);
+      
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &__item {
+      flex: 0 0 auto;
+    }
+
+    &__link {
+      font-size: 0.75rem;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      min-width: auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    &__link {
+      font-size: 0.7rem;
+      padding: var(--spacing-xs);
+    }
   }
 }
 
