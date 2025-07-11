@@ -2172,3 +2172,176 @@ body {
     }
   }
 }
+
+// Political Events Styles
+.political-events-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  .political-event-item {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: var(--surface-color);
+
+    &:hover {
+      background: var(--background-alt);
+      border-color: var(--secondary-color);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .event-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+
+      .event-icon {
+        font-size: 1.2rem;
+      }
+
+      .event-title {
+        flex: 1;
+        font-weight: 500;
+        color: var(--text-color);
+      }
+
+      .event-deadline {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        background: rgba(0, 0, 0, 0.05);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--border-radius-sm);
+      }
+    }
+  }
+}
+
+// Political Status Indicators
+.status-value {
+  font-weight: 600;
+
+  &.status-high {
+    color: var(--success-color);
+  }
+
+  &.status-medium {
+    color: var(--warning-color);
+  }
+
+  &.status-low {
+    color: var(--accent-color);
+  }
+
+  &.status-critical {
+    color: var(--accent-color);
+    animation: pulse 2s infinite;
+  }
+}
+
+.pressure-value {
+  font-weight: 600;
+
+  &.pressure-low {
+    color: var(--success-color);
+  }
+
+  &.pressure-medium {
+    color: var(--warning-color);
+  }
+
+  &.pressure-high {
+    color: var(--accent-color);
+  }
+
+  &.pressure-critical {
+    color: var(--accent-color);
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Notification animations
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.political-event-notification {
+  .notification-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+
+    .notification-icon {
+      font-size: 1.2rem;
+    }
+
+    .notification-title {
+      font-weight: 600;
+    }
+  }
+
+  .notification-content {
+    padding: var(--spacing-md);
+
+    h4 {
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-color);
+    }
+
+    p {
+      margin-bottom: var(--spacing-md);
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .btn {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border: none;
+      border-radius: var(--border-radius);
+      background: var(--secondary-color);
+      color: white;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background var(--transition-base);
+
+      &:hover {
+        background: var(--secondary-light);
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { EVENTS, eventSystem } from './EventSystem';
 import { saveSystem } from './SaveSystem';
 import { economicSimulation } from './EconomicSimulation';
 import { politicalSystem } from './PoliticalSystem';
+import { politicalEvents } from './PoliticalEvents';
 import { winConditions } from './WinConditions';
 import { gameReset } from './GameReset';
 
@@ -15,6 +16,7 @@ export class GameEngine {
     this.saveSystem = saveSystem;
     this.economicSimulation = economicSimulation;
     this.politicalSystem = politicalSystem;
+    this.politicalEvents = politicalEvents;
     this.winConditions = winConditions;
     this.gameReset = gameReset;
 
@@ -156,6 +158,9 @@ export class GameEngine {
     // Advance time
     this.advanceTime();
 
+    // Update game systems
+    this.updateGameSystems();
+
     // Process queued events
     this.eventSystem.processQueue();
 
@@ -168,6 +173,24 @@ export class GameEngine {
       gameState: this.gameState,
       turn: this.gameState.time.week,
     });
+  }
+
+  /**
+   * Update all game systems
+   */
+  updateGameSystems() {
+    // Systems are event-driven and will update themselves via TURN_END event
+    // Just emit the turn processed event for political events
+    this.eventSystem.emit('game:turn_processed', {
+      gameState: this.gameState,
+      systems: {
+        political: this.politicalEvents.getPoliticalStatus(this.gameState),
+        coalition: this.politicalEvents.getCoalitionStability()
+      }
+    });
+
+    // Check win conditions
+    this.winConditions.checkWinConditions(this.gameState);
   }
 
   /**

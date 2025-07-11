@@ -13,6 +13,7 @@ import { DebugPanel } from './ui/components/DebugPanel';
 import { Timeline } from './ui/components/Timeline';
 import { PlayerGuide } from './ui/components/PlayerGuide';
 import { StartingScreen } from './ui/components/StartingScreen';
+import { PoliticalEventsPanel } from './ui/components/PoliticalEventsPanel';
 
 /**
  * Main application class
@@ -28,6 +29,7 @@ class SPSimApp {
     this.timeline = null;
     this.playerGuide = null;
     this.startingScreen = null;
+    this.politicalEventsPanel = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -101,6 +103,9 @@ class SPSimApp {
 
     // Initialize player guide
     this.playerGuide = new PlayerGuide();
+
+    // Initialize political events panel
+    this.politicalEventsPanel = new PoliticalEventsPanel();
 
     // Initialize debug panel (only in debug mode)
     // eslint-disable-next-line no-undef
@@ -436,14 +441,19 @@ class SPSimApp {
    */
   updateUI() {
     const gameState = this.gameEngine.getGameState();
+    const politicalStatus = this.gameEngine.politicalEvents.getPoliticalStatus(gameState);
 
     if (this.dashboard) {
       this.dashboard.update(gameState);
     }
 
+    if (this.politicalEventsPanel) {
+      this.politicalEventsPanel.update(gameState, politicalStatus);
+    }
+
     // Update page title with current game info
     const title = `SP_Sim - Week ${gameState.time.week}, Year ${gameState.time.year}`;
-    const approval = `(${gameState.politics.approval}% approval)`;
+    const approval = `(${gameState.politics.approval.toFixed(1)}% approval)`;
     document.title = `${title} ${approval}`;
   }
 
