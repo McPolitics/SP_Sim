@@ -13,6 +13,7 @@ permissions:
 
 env:
   NODE_VERSION: '22.x'
+  VITE_BUILD_MODE: 'production'
 
 jobs:
   lint-test-build:
