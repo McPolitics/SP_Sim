@@ -17,8 +17,10 @@ env:
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -48,11 +50,17 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
 
-      - name: Build
+      - name: Build project
         run: npm run build
         env:
           NODE_ENV: production
           VITE_BUILD_MODE: production
+
+      - name: Debug dist contents
+        run: |
+          echo "Checking dist/ directory before uploading..."
+          ls -la dist
+          find dist -type f
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -63,7 +71,7 @@ jobs:
   deploy:
     needs: lint-test-build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +80,12 @@ jobs:
         with:
           name: build
           path: dist
+
+      - name: Verify downloaded dist
+        run: |
+          echo "Verifying downloaded dist/"
+          ls -la dist
+          find dist -type f
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -84,7 +98,7 @@ jobs:
   deploy-dev:
     needs: lint-test-build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v4
@@ -94,7 +108,13 @@ jobs:
           name: build
           path: dist
 
-      - name: Deploy Development build to GitHub Pages
+      - name: Verify downloaded dist (dev)
+        run: |
+          echo "Verifying dev dist/"
+          ls -la dist
+          find dist -type f
+
+      - name: Deploy development build to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
