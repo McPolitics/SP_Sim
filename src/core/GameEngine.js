@@ -1,6 +1,9 @@
 import { EVENTS, eventSystem } from './EventSystem';
 import { saveSystem } from './SaveSystem';
 import { economicSimulation } from './EconomicSimulation';
+import { politicalSystem } from './PoliticalSystem';
+import { winConditions } from './WinConditions';
+import { gameReset } from './GameReset';
 
 /**
  * GameEngine - Core game loop and state management for SP_Sim
@@ -11,6 +14,9 @@ export class GameEngine {
     this.eventSystem = eventSystem;
     this.saveSystem = saveSystem;
     this.economicSimulation = economicSimulation;
+    this.politicalSystem = politicalSystem;
+    this.winConditions = winConditions;
+    this.gameReset = gameReset;
 
     // Game state
     this.gameState = this.createInitialGameState();
@@ -269,6 +275,75 @@ export class GameEngine {
   }
 
   /**
+   * Reset game with new state
+   */
+  resetGame(newGameState) {
+    // Stop current game
+    this.stop();
+
+    // Reset achievements
+    this.winConditions.resetAchievements();
+
+    // Set new game state
+    this.gameState = newGameState;
+
+    // Clear any stored intervals/timeouts
+    if (this.gameLoopId) {
+      clearTimeout(this.gameLoopId);
+      this.gameLoopId = null;
+    }
+
+    // Reset performance tracking
+    this.frameCount = 0;
+    this.lastFrameTime = Date.now();
+    this.fps = 0;
+    this.lastUpdateTime = 0;
+
+    // Emit reset complete event
+    this.eventSystem.emit(EVENTS.GAME_START, { gameState: this.gameState });
+    
+    // Auto-start the new game
+    this.start();
+
+    console.log('Game reset complete');
+  }
+
+  /**
+   * Handle game end condition
+   */
+  handleGameEnd(data) {
+    const { gameState, endCondition } = data;
+    
+    // Stop the game
+    this.stop();
+
+    // Mark game as ended
+    this.gameState.gameEnded = true;
+    this.gameState.endCondition = endCondition;
+
+    // Auto-save the final state
+    this.saveSystem.saveGame(this.gameState, `Final State - ${endCondition.title}`);
+
+    // Emit UI notification
+    this.eventSystem.emit('ui:game_end', {
+      endCondition,
+      gameState: this.gameState
+    });
+
+    console.log(`Game ended: ${endCondition.title}`);
+  }
+
+  /**
+   * Request game reset
+   */
+  requestReset(resetType = 'confirm') {
+    this.eventSystem.emit('game:reset_request', {
+      currentGameState: this.gameState,
+      resetType
+    });
+  }
+
+  /**
    * Create initial game state
    * @private
    */
@@ -383,6 +458,25 @@ export class GameEngine {
       if (this.gameState.events.recent.length > 10) {
         this.gameState.events.recent = this.gameState.events.recent.slice(-10);
       }
+    });
+
+    // Listen for game reset events
+    this.eventSystem.on('game:reset', (event) => {
+      this.resetGame(event.data.newGameState);
+    });
+
+    // Listen for game end events
+    this.eventSystem.on('game:end', (event) => {
+      this.handleGameEnd(event.data);
+    });
+
+    // Listen for political events
+    this.eventSystem.on('political:vote_scheduled', (event) => {
+      // Political votes are handled by the political system
+    });
+
+    this.eventSystem.on('achievement:unlocked', (event) => {
+      // Achievements are handled by the win conditions system
     });
   }
 

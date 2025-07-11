@@ -251,6 +251,34 @@ class SPSimApp {
       this.showNotification(event.data.message, event.data.type);
     });
 
+    // Achievement notifications
+    this.eventSystem.on('achievement:unlocked', (event) => {
+      const achievement = event.data.achievement;
+      this.showNotification(
+        `🏆 Achievement Unlocked: ${achievement.title}`,
+        'success'
+      );
+    });
+
+    // Game end handling
+    this.eventSystem.on('ui:game_end', (event) => {
+      this.showGameEndDialog(event.data.endCondition);
+    });
+
+    // Political events
+    this.eventSystem.on('political:vote_scheduled', (event) => {
+      this.showNotification('New political vote scheduled!', 'info');
+    });
+
+    this.eventSystem.on('political:crisis_triggered', (event) => {
+      this.showNotification(`Political Crisis: ${event.data.crisis.title}`, 'warning');
+    });
+
+    // Modal system for reset dialogs
+    this.eventSystem.on('ui:show_modal', (event) => {
+      this.showCustomModal(event.data);
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (event) => {
       this.handleKeyboard(event);
@@ -311,6 +339,14 @@ class SPSimApp {
     if (loadBtn) {
       loadBtn.addEventListener('click', () => {
         this.showLoadGameDialog();
+      });
+    }
+
+    // Reset game button
+    const resetBtn = document.getElementById('reset-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.gameEngine.requestReset('confirm');
       });
     }
   }
@@ -905,6 +941,8 @@ class SPSimApp {
       backgroundColor = '#e74c3c';
     } else if (type === 'success') {
       backgroundColor = '#27ae60';
+    } else if (type === 'warning') {
+      backgroundColor = '#f39c12';
     } else {
       backgroundColor = '#3498db';
     }
@@ -941,6 +979,106 @@ class SPSimApp {
         }, 300);
       }
     }, 3000);
+  }
+
+  /**
+   * Show game end dialog
+   */
+  showGameEndDialog(endCondition) {
+    const isVictory = endCondition.type === 'victory';
+    const modal = new Modal({
+      title: endCondition.title,
+      content: `
+        <div class="game-end-dialog ${isVictory ? 'victory' : 'defeat'}">
+          <div class="end-icon">
+            ${isVictory ? '🏆' : '💔'}
+          </div>
+          <div class="end-description">
+            <p>${endCondition.description}</p>
+          </div>
+          <div class="final-stats">
+            <h4>Final Statistics:</h4>
+            <div class="stats-grid">
+              <div class="stat">
+                <span>Time in Office:</span>
+                <span>${endCondition.finalStats.timeInOffice}</span>
+              </div>
+              <div class="stat">
+                <span>Final Approval:</span>
+                <span>${endCondition.finalStats.finalApproval.toFixed(1)}%</span>
+              </div>
+              <div class="stat">
+                <span>GDP Growth:</span>
+                <span>${endCondition.finalStats.finalGDPGrowth.toFixed(1)}%</span>
+              </div>
+              <div class="stat">
+                <span>Achievements:</span>
+                <span>${endCondition.finalStats.achievementsUnlocked}</span>
+              </div>
+            </div>
+          </div>
+          <div class="next-actions">
+            <p>What would you like to do next?</p>
+          </div>
+        </div>
+        <style>
+          .game-end-dialog {
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+          }
+          .end-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+          }
+          .victory .end-icon {
+            color: #27ae60;
+          }
+          .defeat .end-icon {
+            color: #e74c3c;
+          }
+          .end-description {
+            margin-bottom: var(--spacing-lg);
+          }
+          .final-stats h4 {
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+          }
+          .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+          }
+          .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px solid var(--border-light);
+          }
+          .stat:last-child {
+            border-bottom: none;
+          }
+        </style>
+      `,
+      confirmText: 'New Game',
+      cancelText: 'Continue',
+      showCancel: true,
+      onConfirm: () => {
+        this.gameEngine.requestReset('new_game');
+        return true;
+      }
+    });
+
+    modal.show();
+  }
+
+  /**
+   * Show custom modal
+   */
+  showCustomModal(modalData) {
+    const modal = new Modal(modalData);
+    modal.show();
   }
 }
 
