@@ -235,7 +235,19 @@ export class Dashboard extends BaseComponent {
         this.recentEventsElement.appendChild(li);
       } else {
         events.forEach((event) => {
-          const li = this.createElement('li', '', event.description || event);
+          const li = this.createElement(
+            'li',
+            `event-item type-${event.type} severity-${event.severity}`,
+            event.message || event.description,
+          );
+
+          // Mini message with timestamp
+          const timestampSpan = this.createElement(
+            'span',
+            'event-timestamp',
+            ` (${new Date(event.timestamp).toLocaleTimeString()})`,
+          );
+          li.appendChild(timestampSpan);
           this.recentEventsElement.appendChild(li);
         });
       }
