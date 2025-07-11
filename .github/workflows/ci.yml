@@ -6,375 +6,152 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: write
+  deployments: write
+  pages: write
+
 env:
   NODE_VERSION: '22.x'
 
 jobs:
-  lint-and-test:
+  lint-test-build:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [22.x]
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run linter
-      run: npm run lint
-      
-    - name: Run unit tests
-      run: npm run test
-      
-    - name: Generate test coverage
-      run: npm run test -- --coverage --watchAll=false
-      
-    - name: Upload coverage to codecov
-      uses: codecov/codecov-action@v4
-      if: always()
-      with:
-        file: ./coverage/lcov.info
-        fail_ci_if_error: false
-      
-    - name: Run build
-      run: npm run build
-      
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps
-      
-    - name: Run E2E tests
-      run: npm run test:e2e
-      
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: test-results-${{ matrix.node-version }}
-        path: |
-          test-results/
-          playwright-report/
-          coverage/
-        retention-days: 5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-  build-production:
-    needs: lint-and-test
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Generate test coverage
+        run: npm run test -- --coverage --watchAll=false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_BUILD_MODE: production
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: dist/
+
+  deploy:
+    needs: lint-test-build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build for production
-      run: npm run build
-      env:
-        NODE_ENV: production
-        VITE_BUILD_MODE: production
-        
-    - name: Upload production build
-      uses: actions/upload-artifact@v4
-      with:
-        name: production-build
-        path: dist/
-        retention-days: 30
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-  build-development:
-    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          publish_branch: gh-pages
+          commit_message: '🚀 Deploy production build from commit ${{ github.sha }}'
+
+  deploy-dev:
+    needs: lint-test-build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build for development
-      run: npm run build
-      env:
-        NODE_ENV: development
-        VITE_BUILD_MODE: development
-        VITE_ENABLE_DEBUG: true
-        VITE_ENABLE_TESTING_FEATURES: true
-        
-    - name: Upload development build
-      uses: actions/upload-artifact@v4
-      with:
-        name: development-build
-        path: dist/
-        retention-days: 14
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 
-  deploy-production:
-    needs: [lint-and-test, build-production]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Download production build
-      uses: actions/download-artifact@v4
-      with:
-        name: production-build
-        path: dist
-        
-    - name: Deploy to GitHub Pages (Production)
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.DEV_TOKEN }}
-        publish_dir: ./dist
-        publish_branch: gh-pages
-        cname: sp-sim.mcpolitics.com
-        commit_message: 'Deploy production build ${{ github.sha }}'
-        
+      - uses: actions/checkout@v4
 
-  deploy-development:
-    needs: [lint-and-test, build-development]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Download development build
-      uses: actions/download-artifact@v4
-      with:
-        name: development-build
-        path: dist
-        
-    - name: Deploy to GitHub Pages (Development)
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.DEV_TOKEN }}
-        publish_dir: ./dist
-        publish_branch: gh-pages-dev
-        commit_message: 'Deploy development build ${{ github.sha }}'
-        
-    - name: Create deployment status
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Step 1: Create a deployment
-          const deployment = await github.rest.repos.createDeployment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: context.sha,
-            required_contexts: [],
-            environment: 'development',
-            transient_environment: false,
-            auto_merge: false
-          });
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
 
-          // Step 2: Set deployment status
-          await github.rest.repos.createDeploymentStatus({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            deployment_id: deployment.data.id,
-            state: 'success',
-            environment_url: 'https://mcpolitics.github.io/SP_Sim/dev',
-            description: 'Development deployment successful'
-          });
-
-  security-scan:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run security audit
-      run: npm audit --audit-level=moderate
-      
-    - name: Run dependency check
-      run: npx audit-ci --moderate
-      
-    - name: Run CodeQL Analysis
-      uses: github/codeql-action/init@v3
-      with:
-        languages: javascript
-        
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-
-  code-quality:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Check code formatting
-      run: npm run format:check
-      
-    - name: Analyze bundle size
-      run: npm run analyze
-      if: github.event_name == 'pull_request'
-      
-    - name: Generate performance report
-      run: |
-        npm run build
-        npx lighthouse-ci autorun --config=./lighthouse.config.js || true
-      if: github.event_name == 'pull_request'
-
-  feature-testing:
-    needs: [deploy-development]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Install Playwright
-      run: npx playwright install --with-deps
-      
-    - name: Run feature tests against development deployment
-      run: |
-        export PLAYWRIGHT_BASE_URL=https://mcpolitics.github.io/SP_Sim/dev
-        npm run test:e2e:development
-      env:
-        PLAYWRIGHT_BASE_URL: https://mcpolitics.github.io/SP_Sim/dev
-        
-    - name: Upload feature test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: feature-test-results
-        path: |
-          test-results/
-          playwright-report/
-        retention-days: 7
+      - name: Deploy Development build to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          publish_branch: gh-pages-dev
+          commit_message: '🧪 Deploy dev build from commit ${{ github.sha }}'
 
   pr-preview:
-    needs: lint-and-test
+    needs: lint-test-build
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build PR preview
-      run: npm run build
-      env:
-        VITE_BUILD_MODE: preview
-        VITE_PR_NUMBER: ${{ github.event.number }}
-        VITE_ENABLE_DEBUG: true
-        
-    - name: Deploy PR preview
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.DEV_TOKEN }}
-        publish_dir: ./dist
-        destination_dir: pr-${{ github.event.number }}
-        publish_branch: gh-pages-pr
-        commit_message: 'Deploy PR #${{ github.event.number }} preview'
-        
-    - name: Comment PR with preview link
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const prNumber = context.payload.pull_request.number;
-          const previewUrl = `https://mcpolitics.github.io/SP_Sim/pr-${prNumber}`;
-          
-          github.rest.issues.createComment({
-            issue_number: prNumber,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `🚀 **Preview deployment ready!**
-            
-            View this PR's changes at: ${previewUrl}
-            
-            This preview includes:
-            - Latest changes from this PR
-            - Debug features enabled
-            - Performance monitoring
-            - Full economic simulation features (Week 8 complete)
-            
-            The preview will be updated automatically with new commits.`
-          });
 
-  cleanup-pr-previews:
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
+
+      - name: Deploy PR Preview
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          destination_dir: pr-${{ github.event.number }}
+          publish_branch: gh-pages-pr
+          commit_message: '🔍 Deploy preview for PR #${{ github.event.number }}'
+
+      - name: Comment PR with Preview Link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const url = `https://mcpolitics.github.io/SP_Sim/pr-${prNumber}`;
+            github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Preview deployment ready!**\n\n🔗 [View Preview Here](${url})\n\n*Automatically updates with each commit.*`
+            });
+
+  cleanup-pr:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    
+
     steps:
-    - name: Checkout gh-pages-pr branch
-      uses: actions/checkout@v4
-      with:
-        ref: gh-pages-pr
-        token: ${{ secrets.DEV_TOKEN }}
-        
-    - name: Remove PR preview directory
-      run: |
-        rm -rf pr-${{ github.event.number }}
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        git add .
-        git commit -m "Remove preview for PR #${{ github.event.number }}" || exit 0
-        git push
-      continue-on-error: true
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages-pr
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove PR preview
+        run: |
+          rm -rf pr-${{ github.event.number }}
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Remove preview for PR #${{ github.event.number }}" || exit 0
+          git push
