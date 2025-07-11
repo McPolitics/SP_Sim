@@ -50,7 +50,7 @@ export class PoliticalEventsPanel extends BaseComponent {
   handleEventTriggered(data) {
     const { event, gameState } = data;
     this.activeEvents.push(event);
-    
+
     // Show event modal immediately for high severity events
     if (event.severity === 'high') {
       this.showEventModal(event, gameState);
@@ -65,7 +65,7 @@ export class PoliticalEventsPanel extends BaseComponent {
    */
   handleEventResolved(data) {
     const { event } = data;
-    this.activeEvents = this.activeEvents.filter(e => e.id !== event.id);
+    this.activeEvents = this.activeEvents.filter((e) => e.id !== event.id);
     this.updateActiveEventsList();
   }
 
@@ -89,7 +89,7 @@ export class PoliticalEventsPanel extends BaseComponent {
    * Show political event modal
    */
   showEventModal(event, gameState) {
-    const optionsHtml = event.options.map(option => `
+    const optionsHtml = event.options.map((option) => `
       <div class="event-option" data-option-id="${option.id}">
         <div class="option-header">
           <h4>${option.text}</h4>
@@ -318,9 +318,9 @@ export class PoliticalEventsPanel extends BaseComponent {
     // Add option selection handlers
     setTimeout(() => {
       const options = document.querySelectorAll('.event-option');
-      options.forEach(option => {
+      options.forEach((option) => {
         option.addEventListener('click', () => {
-          options.forEach(opt => opt.classList.remove('selected'));
+          options.forEach((opt) => opt.classList.remove('selected'));
           option.classList.add('selected');
         });
       });
@@ -391,7 +391,7 @@ export class PoliticalEventsPanel extends BaseComponent {
     eventSystem.emit('political:event_response', {
       eventId,
       optionId,
-      gameState
+      gameState,
     });
   }
 
@@ -473,10 +473,10 @@ export class PoliticalEventsPanel extends BaseComponent {
           </div>
 
           <div class="vote-impact">
-            <p>${outcome.passed ? 
-              'The vote passed successfully, strengthening your political position.' : 
-              'The vote failed, potentially weakening your government.'
-            }</p>
+            <p>${outcome.passed
+    ? 'The vote passed successfully, strengthening your political position.'
+    : 'The vote failed, potentially weakening your government.'
+}</p>
           </div>
         </div>
 
@@ -664,7 +664,7 @@ export class PoliticalEventsPanel extends BaseComponent {
       return;
     }
 
-    eventsContainer.innerHTML = this.activeEvents.map(event => `
+    eventsContainer.innerHTML = this.activeEvents.map((event) => `
       <li class="political-event-item" data-event-id="${event.id}">
         <div class="event-summary">
           <span class="event-icon">${this.getSeverityIcon(event.severity)}</span>
@@ -675,10 +675,10 @@ export class PoliticalEventsPanel extends BaseComponent {
     `).join('');
 
     // Add click handlers for event items
-    eventsContainer.querySelectorAll('.political-event-item').forEach(item => {
+    eventsContainer.querySelectorAll('.political-event-item').forEach((item) => {
       item.addEventListener('click', () => {
         const eventId = item.getAttribute('data-event-id');
-        const event = this.activeEvents.find(e => e.id === eventId);
+        const event = this.activeEvents.find((e) => e.id === eventId);
         if (event) {
           this.showEventModal(event, this.lastGameState);
         }
@@ -692,7 +692,7 @@ export class PoliticalEventsPanel extends BaseComponent {
   showNotification(message, type = 'info') {
     eventSystem.emit('ui:notification', {
       message,
-      type
+      type,
     });
   }
 }

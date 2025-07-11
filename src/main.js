@@ -43,16 +43,15 @@ class SPSimApp {
 
       // Initialize starting screen first
       this.startingScreen = new StartingScreen();
-      
+
       // Show starting screen for new players
       const showStartingScreen = this.startingScreen.show();
-      
+
       if (!showStartingScreen) {
         // Existing player - proceed with normal initialization
         this.initializeGameForExistingPlayer();
       }
       // If starting screen is shown, game initialization will happen after difficulty selection
-      
     } catch (error) {
       console.error('❌ Failed to initialize SP_Sim:', error);
       this.showError('Failed to initialize game. Please refresh the page.');

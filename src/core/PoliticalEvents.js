@@ -13,7 +13,7 @@ export class PoliticalEvents {
     this.coalitionStability = 100;
     this.lastEventTime = 0;
     this.eventFrequency = 4; // Every 4 weeks on average
-    
+
     this.initializeEventTypes();
     this.setupEventListeners();
   }
@@ -34,28 +34,28 @@ export class PoliticalEvents {
           effects: {
             approval: { min: -8, max: 12 },
             gdp: { min: -0.5, max: 1.5 },
-            coalitionSupport: { min: -15, max: 10 }
+            coalitionSupport: { min: -15, max: 10 },
           },
           options: [
             {
               id: 'support',
               text: 'Support the reform',
               description: 'Back the tax reform package',
-              effects: { approval: 8, gdp: 1.2, coalitionSupport: 5 }
+              effects: { approval: 8, gdp: 1.2, coalitionSupport: 5 },
             },
             {
               id: 'oppose',
               text: 'Oppose the reform',
               description: 'Reject the tax reform package',
-              effects: { approval: -3, gdp: -0.2, coalitionSupport: -8 }
+              effects: { approval: -3, gdp: -0.2, coalitionSupport: -8 },
             },
             {
               id: 'modify',
               text: 'Propose modifications',
               description: 'Suggest amendments to the package',
-              effects: { approval: 2, gdp: 0.5, coalitionSupport: -2 }
-            }
-          ]
+              effects: { approval: 2, gdp: 0.5, coalitionSupport: -2 },
+            },
+          ],
         },
         {
           id: 'healthcare_funding',
@@ -66,23 +66,23 @@ export class PoliticalEvents {
           effects: {
             approval: { min: -5, max: 15 },
             debt: { min: 0.5, max: 2.0 },
-            coalitionSupport: { min: -10, max: 8 }
+            coalitionSupport: { min: -10, max: 8 },
           },
           options: [
             {
               id: 'support',
               text: 'Support increased funding',
               description: 'Approve the healthcare budget increase',
-              effects: { approval: 12, debt: 1.5, coalitionSupport: 5 }
+              effects: { approval: 12, debt: 1.5, coalitionSupport: 5 },
             },
             {
               id: 'oppose',
               text: 'Oppose the increase',
               description: 'Reject additional healthcare spending',
-              effects: { approval: -5, debt: 0, coalitionSupport: -7 }
-            }
-          ]
-        }
+              effects: { approval: -5, debt: 0, coalitionSupport: -7 },
+            },
+          ],
+        },
       ],
 
       // Coalition Events (Week 9 roadmap)
@@ -95,28 +95,28 @@ export class PoliticalEvents {
           severity: 'medium',
           effects: {
             coalitionSupport: { min: -20, max: 5 },
-            approval: { min: -5, max: 3 }
+            approval: { min: -5, max: 3 },
           },
           options: [
             {
               id: 'concede',
               text: 'Grant more influence',
               description: 'Give coalition partner key ministry positions',
-              effects: { coalitionSupport: 10, approval: -2 }
+              effects: { coalitionSupport: 10, approval: -2 },
             },
             {
               id: 'negotiate',
               text: 'Negotiate compromise',
               description: 'Find middle ground on ministry assignments',
-              effects: { coalitionSupport: 3, approval: 1 }
+              effects: { coalitionSupport: 3, approval: 1 },
             },
             {
               id: 'refuse',
               text: 'Refuse demands',
               description: 'Maintain current power structure',
-              effects: { coalitionSupport: -15, approval: 2 }
-            }
-          ]
+              effects: { coalitionSupport: -15, approval: 2 },
+            },
+          ],
         },
         {
           id: 'cabinet_reshuffle',
@@ -126,29 +126,29 @@ export class PoliticalEvents {
           severity: 'medium',
           effects: {
             approval: { min: -8, max: 10 },
-            coalitionSupport: { min: -10, max: 15 }
+            coalitionSupport: { min: -10, max: 15 },
           },
           options: [
             {
               id: 'reshuffle',
               text: 'Conduct reshuffle',
               description: 'Replace underperforming ministers',
-              effects: { approval: 6, coalitionSupport: 8 }
+              effects: { approval: 6, coalitionSupport: 8 },
             },
             {
               id: 'minor_changes',
               text: 'Make minor changes',
               description: 'Limited portfolio adjustments',
-              effects: { approval: 2, coalitionSupport: 3 }
+              effects: { approval: 2, coalitionSupport: 3 },
             },
             {
               id: 'no_changes',
               text: 'No changes',
               description: 'Maintain current cabinet',
-              effects: { approval: -4, coalitionSupport: -5 }
-            }
-          ]
-        }
+              effects: { approval: -4, coalitionSupport: -5 },
+            },
+          ],
+        },
       ],
 
       // Opposition Events (Week 11 roadmap)
@@ -161,29 +161,29 @@ export class PoliticalEvents {
           severity: 'high',
           effects: {
             approval: { min: -15, max: 5 },
-            coalitionSupport: { min: -25, max: 10 }
+            coalitionSupport: { min: -25, max: 10 },
           },
           options: [
             {
               id: 'rally_support',
               text: 'Rally coalition support',
               description: 'Work to ensure coalition unity against the motion',
-              effects: { approval: 2, coalitionSupport: 8 }
+              effects: { approval: 2, coalitionSupport: 8 },
             },
             {
               id: 'public_campaign',
               text: 'Launch public campaign',
               description: 'Take your case directly to the people',
-              effects: { approval: 5, coalitionSupport: -2 }
+              effects: { approval: 5, coalitionSupport: -2 },
             },
             {
               id: 'policy_concessions',
               text: 'Make policy concessions',
               description: 'Offer compromise on controversial policies',
-              effects: { approval: -2, coalitionSupport: 5 }
-            }
-          ]
-        }
+              effects: { approval: -2, coalitionSupport: 5 },
+            },
+          ],
+        },
       ],
 
       // Economic Policy Events (Week 8 roadmap continuation)
@@ -197,24 +197,24 @@ export class PoliticalEvents {
           effects: {
             gdp: { min: -1.0, max: 0.8 },
             inflation: { min: -0.5, max: 1.2 },
-            approval: { min: -10, max: 8 }
+            approval: { min: -10, max: 8 },
           },
           options: [
             {
               id: 'defend_independence',
               text: 'Defend central bank independence',
               description: 'Support the central bank\'s autonomy',
-              effects: { gdp: 0.3, inflation: -0.2, approval: 3 }
+              effects: { gdp: 0.3, inflation: -0.2, approval: 3 },
             },
             {
               id: 'pressure_rates',
               text: 'Pressure for rate changes',
               description: 'Advocate for specific monetary policy',
-              effects: { gdp: -0.2, inflation: 0.8, approval: -5 }
-            }
-          ]
-        }
-      ]
+              effects: { gdp: -0.2, inflation: 0.8, approval: -5 },
+            },
+          ],
+        },
+      ],
     };
   }
 
@@ -261,10 +261,10 @@ export class PoliticalEvents {
   updateCoalitionStability(politics) {
     const approvalFactor = (politics.approval - 50) * 0.1;
     const coalitionFactor = politics.coalition.reduce((sum, party) => sum + party.support, 0) * 0.05;
-    
+
     // Natural decay towards 75 (baseline stability)
     const decay = (75 - this.coalitionStability) * 0.02;
-    
+
     this.coalitionStability += approvalFactor + coalitionFactor + decay;
     this.coalitionStability = Math.max(0, Math.min(100, this.coalitionStability));
   }
@@ -280,11 +280,11 @@ export class PoliticalEvents {
 
     // Determine event probability based on game state
     const eventProbability = this.calculateEventProbability(gameState);
-    
+
     if (Math.random() < eventProbability) {
       const eventType = this.selectEventType(gameState);
       const event = this.createEvent(eventType, gameState);
-      
+
       if (event) {
         this.triggerEvent(event, gameState);
         this.lastEventTime = currentWeek;
@@ -309,8 +309,8 @@ export class PoliticalEvents {
     }
 
     // Higher probability during election years
-    const weeksUntilElection = gameState.politics.nextElection.week + 
-                              (gameState.politics.nextElection.year - gameState.time.year) * 52;
+    const weeksUntilElection = gameState.politics.nextElection.week
+                              + (gameState.politics.nextElection.year - gameState.time.year) * 52;
     if (weeksUntilElection < 52) {
       baseProbability += 0.1;
     }
@@ -326,7 +326,7 @@ export class PoliticalEvents {
       policyVotes: 30,
       coalitionEvents: 25,
       oppositionEvents: 20,
-      economicEvents: 25
+      economicEvents: 25,
     };
 
     // Adjust weights based on game state
@@ -346,11 +346,13 @@ export class PoliticalEvents {
     const totalWeight = Object.values(weights).reduce((sum, weight) => sum + weight, 0);
     let random = Math.random() * totalWeight;
 
-    for (const [type, weight] of Object.entries(weights)) {
+    const selectedType = Object.entries(weights).find(([_type, weight]) => {
       random -= weight;
-      if (random <= 0) {
-        return type;
-      }
+      return random <= 0;
+    });
+
+    if (selectedType) {
+      return selectedType[0];
     }
 
     return 'policyVotes'; // fallback
@@ -365,7 +367,7 @@ export class PoliticalEvents {
 
     // Select random event from type
     const eventTemplate = events[Math.floor(Math.random() * events.length)];
-    
+
     // Create event instance
     const event = {
       ...eventTemplate,
@@ -373,7 +375,7 @@ export class PoliticalEvents {
       triggeredWeek: gameState.time.week,
       triggeredYear: gameState.time.year,
       deadline: this.calculateDeadline(eventTemplate, gameState),
-      status: 'pending'
+      status: 'pending',
     };
 
     return event;
@@ -383,12 +385,18 @@ export class PoliticalEvents {
    * Calculate deadline for event response
    */
   calculateDeadline(eventTemplate, gameState) {
-    const baseWeeks = eventTemplate.severity === 'high' ? 1 : 
-                     eventTemplate.severity === 'medium' ? 2 : 3;
-    
+    let baseWeeks;
+    if (eventTemplate.severity === 'high') {
+      baseWeeks = 1;
+    } else if (eventTemplate.severity === 'medium') {
+      baseWeeks = 2;
+    } else {
+      baseWeeks = 3;
+    }
+
     return {
       week: gameState.time.week + baseWeeks,
-      year: gameState.time.year + Math.floor((gameState.time.week + baseWeeks - 1) / 52)
+      year: gameState.time.year + Math.floor((gameState.time.week + baseWeeks - 1) / 52),
     };
   }
 
@@ -401,7 +409,7 @@ export class PoliticalEvents {
     // Emit event for UI to display
     this.eventSystem.emit('political:event_triggered', {
       event,
-      gameState
+      gameState,
     });
 
     // Add to recent events
@@ -411,7 +419,7 @@ export class PoliticalEvents {
       type: 'political',
       severity: event.severity,
       requiresResponse: true,
-      eventId: event.id
+      eventId: event.id,
     });
   }
 
@@ -420,11 +428,11 @@ export class PoliticalEvents {
    */
   handleEventResponse(data) {
     const { eventId, optionId, gameState } = data;
-    const event = this.activeEvents.find(e => e.id === eventId);
-    
+    const event = this.activeEvents.find((e) => e.id === eventId);
+
     if (!event) return;
 
-    const option = event.options.find(o => o.id === optionId);
+    const option = event.options.find((o) => o.id === optionId);
     if (!option) return;
 
     // Apply effects
@@ -437,14 +445,14 @@ export class PoliticalEvents {
     event.resolvedYear = gameState.time.year;
 
     // Remove from active events
-    this.activeEvents = this.activeEvents.filter(e => e.id !== eventId);
+    this.activeEvents = this.activeEvents.filter((e) => e.id !== eventId);
 
     // Emit resolution event
     this.eventSystem.emit('political:event_resolved', {
       event,
       option,
       effects,
-      gameState
+      gameState,
     });
 
     // Add resolution to recent events
@@ -452,7 +460,7 @@ export class PoliticalEvents {
       title: `Resolved: ${event.title}`,
       description: `${option.description}. ${this.formatEffects(effects)}`,
       type: 'political',
-      severity: 'neutral'
+      severity: 'neutral',
     });
   }
 
@@ -490,13 +498,13 @@ export class PoliticalEvents {
     if (effects.coalitionSupport !== undefined) {
       const change = effects.coalitionSupport * (0.8 + Math.random() * 0.4);
       this.coalitionStability = Math.max(0, Math.min(100, this.coalitionStability + change));
-      
+
       // Also affect individual coalition party support
-      gameState.politics.coalition.forEach(party => {
+      gameState.politics.coalition.forEach((party) => {
         const partyChange = change * (0.5 + Math.random() * 0.5);
         party.support = Math.max(0, Math.min(100, party.support + partyChange));
       });
-      
+
       actualEffects.coalitionSupport = change;
     }
 
@@ -508,15 +516,15 @@ export class PoliticalEvents {
    */
   formatEffects(effects) {
     const parts = [];
-    
+
     if (effects.approval) {
       parts.push(`Approval ${effects.approval > 0 ? '+' : ''}${effects.approval.toFixed(1)}%`);
     }
-    
+
     if (effects.gdp) {
       parts.push(`GDP Growth ${effects.gdp > 0 ? '+' : ''}${effects.gdp.toFixed(1)}%`);
     }
-    
+
     if (effects.coalitionSupport) {
       parts.push(`Coalition ${effects.coalitionSupport > 0 ? '+' : ''}${effects.coalitionSupport.toFixed(1)}%`);
     }
@@ -532,7 +540,7 @@ export class PoliticalEvents {
       ...voteData,
       scheduledWeek: voteData.week,
       scheduledYear: voteData.year,
-      status: 'scheduled'
+      status: 'scheduled',
     });
   }
 
@@ -540,18 +548,18 @@ export class PoliticalEvents {
    * Process scheduled votes
    */
   processScheduledVotes(currentWeek, gameState) {
-    const dueVotes = this.scheduledVotes.filter(vote => {
+    const dueVotes = this.scheduledVotes.filter((vote) => {
       const voteWeek = vote.scheduledWeek + (vote.scheduledYear - 1) * 52;
       return voteWeek <= currentWeek && vote.status === 'scheduled';
     });
 
-    dueVotes.forEach(vote => {
+    dueVotes.forEach((vote) => {
       this.processVote(vote, gameState);
       vote.status = 'processed';
     });
 
     // Clean up processed votes
-    this.scheduledVotes = this.scheduledVotes.filter(vote => vote.status !== 'processed');
+    this.scheduledVotes = this.scheduledVotes.filter((vote) => vote.status !== 'processed');
   }
 
   /**
@@ -560,11 +568,11 @@ export class PoliticalEvents {
   processVote(vote, gameState) {
     // Simple vote processing - in real game this would be more complex
     const outcome = this.simulateVoteOutcome(vote, gameState);
-    
+
     this.eventSystem.emit('political:vote_completed', {
       vote,
       outcome,
-      gameState
+      gameState,
     });
   }
 
@@ -576,13 +584,13 @@ export class PoliticalEvents {
     const baseChance = coalitionStrength / 100;
     const approvalBonus = (gameState.politics.approval - 50) * 0.01;
     const stabilityBonus = (this.coalitionStability - 50) * 0.01;
-    
+
     const passChance = Math.max(0.1, Math.min(0.9, baseChance + approvalBonus + stabilityBonus));
-    
+
     return {
       passed: Math.random() < passChance,
       margin: Math.floor(Math.random() * 20) + 1, // 1-20 vote margin
-      coalitionUnity: this.coalitionStability
+      coalitionUnity: this.coalitionStability,
     };
   }
 
@@ -591,16 +599,16 @@ export class PoliticalEvents {
    */
   processPoliticalCrises(gameState) {
     // Handle any ongoing crises that may escalate or resolve
-    this.politicalCrises.forEach(crisis => {
-      crisis.duration++;
-      
+    this.politicalCrises.forEach((crisis) => {
+      crisis.duration += 1;
+
       if (crisis.duration > crisis.maxDuration) {
         this.resolveCrisis(crisis, gameState);
       }
     });
 
     // Clean up resolved crises
-    this.politicalCrises = this.politicalCrises.filter(crisis => crisis.status !== 'resolved');
+    this.politicalCrises = this.politicalCrises.filter((crisis) => crisis.status !== 'resolved');
   }
 
   /**
@@ -608,7 +616,7 @@ export class PoliticalEvents {
    */
   resolveCrisis(crisis, gameState) {
     crisis.status = 'resolved';
-    
+
     // Apply crisis resolution effects
     const effects = crisis.resolutionEffects;
     this.applyEventEffects(effects, gameState);
@@ -616,7 +624,7 @@ export class PoliticalEvents {
     this.eventSystem.emit('political:crisis_resolved', {
       crisis,
       effects,
-      gameState
+      gameState,
     });
   }
 
@@ -643,7 +651,7 @@ export class PoliticalEvents {
       activeEvents: this.activeEvents.length,
       scheduledVotes: this.scheduledVotes.length,
       politicalPressure: this.calculatePoliticalPressure(gameState),
-      nextElectionWeeks: this.calculateWeeksUntilElection(gameState)
+      nextElectionWeeks: this.calculateWeeksUntilElection(gameState),
     };
   }
 
@@ -652,12 +660,12 @@ export class PoliticalEvents {
    */
   calculatePoliticalPressure(gameState) {
     let pressure = 0;
-    
+
     if (gameState.politics.approval < 40) pressure += 30;
     if (this.coalitionStability < 60) pressure += 25;
     if (this.activeEvents.length > 2) pressure += 20;
     if (gameState.economy.gdpGrowth < 1) pressure += 15;
-    
+
     return Math.min(100, pressure);
   }
 
@@ -666,9 +674,9 @@ export class PoliticalEvents {
    */
   calculateWeeksUntilElection(gameState) {
     const currentWeek = gameState.time.week + (gameState.time.year - 1) * 52;
-    const electionWeek = gameState.politics.nextElection.week + 
-                        (gameState.politics.nextElection.year - 1) * 52;
-    
+    const electionWeek = gameState.politics.nextElection.week
+                        + (gameState.politics.nextElection.year - 1) * 52;
+
     return Math.max(0, electionWeek - currentWeek);
   }
 }

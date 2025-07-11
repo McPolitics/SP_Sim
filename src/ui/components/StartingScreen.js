@@ -28,12 +28,11 @@ export class StartingScreen extends BaseComponent {
     const hasExistingGame = this.checkForExistingGame();
     if (hasExistingGame) {
       // Skip starting screen if player has existing progress
-      return false;
+      // Do not show starting screen
     }
 
     this.createStartingScreen();
     this.isVisible = true;
-    return true;
   }
 
   /**
@@ -54,7 +53,7 @@ export class StartingScreen extends BaseComponent {
     // Check localStorage for any saved games or auto-saves
     const autoSave = localStorage.getItem('sp_sim_autosave');
     const savedGames = localStorage.getItem('sp_sim_saves');
-    
+
     return !!(autoSave || (savedGames && JSON.parse(savedGames).length > 0));
   }
 
@@ -63,11 +62,11 @@ export class StartingScreen extends BaseComponent {
    */
   createStartingScreen() {
     const difficulties = gameReset.getDifficulties();
-    
+
     const startingScreen = document.createElement('div');
     startingScreen.id = 'starting-screen';
     startingScreen.className = 'starting-screen';
-    
+
     startingScreen.innerHTML = `
       <div class="starting-screen__overlay">
         <div class="starting-screen__container">
@@ -89,7 +88,7 @@ export class StartingScreen extends BaseComponent {
             <p class="section-description">Select the difficulty level that matches your experience and desired challenge:</p>
             
             <div class="difficulty-grid">
-              ${difficulties.map(difficulty => `
+              ${difficulties.map((difficulty) => `
                 <div class="difficulty-card ${difficulty.id === 'normal' ? 'selected' : ''}" 
                      data-difficulty="${difficulty.id}">
                   <div class="difficulty-header">
@@ -482,10 +481,10 @@ export class StartingScreen extends BaseComponent {
   setupEventListeners() {
     // Difficulty selection
     const difficultyCards = document.querySelectorAll('.difficulty-card');
-    difficultyCards.forEach(card => {
+    difficultyCards.forEach((card) => {
       card.addEventListener('click', () => {
         // Remove selection from all cards
-        difficultyCards.forEach(c => c.classList.remove('selected'));
+        difficultyCards.forEach((c) => c.classList.remove('selected'));
         // Add selection to clicked card
         card.classList.add('selected');
         this.selectedDifficulty = card.getAttribute('data-difficulty');
@@ -554,7 +553,7 @@ export class StartingScreen extends BaseComponent {
     setTimeout(() => {
       gameReset.startNewGame({
         difficulty: this.selectedDifficulty,
-        options: this.gameOptions
+        options: this.gameOptions,
       });
 
       // Hide starting screen
@@ -673,7 +672,7 @@ export class StartingScreen extends BaseComponent {
     const steps = loadingOverlay.querySelectorAll('.loading-step');
     steps.forEach((step, index) => {
       setTimeout(() => {
-        steps.forEach(s => s.classList.remove('active'));
+        steps.forEach((s) => s.classList.remove('active'));
         step.classList.add('active');
       }, index * 400);
     });

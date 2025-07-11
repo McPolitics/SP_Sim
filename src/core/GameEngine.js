@@ -185,8 +185,8 @@ export class GameEngine {
       gameState: this.gameState,
       systems: {
         political: this.politicalEvents.getPoliticalStatus(this.gameState),
-        coalition: this.politicalEvents.getCoalitionStability()
-      }
+        coalition: this.politicalEvents.getCoalitionStability(),
+      },
     });
 
     // Check win conditions
