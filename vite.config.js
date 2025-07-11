@@ -7,11 +7,11 @@ export default defineConfig(({ command, mode }) => {
   
   return {
     root: '.',
+    base: env.VITE_BUILD_MODE === 'production' ? '/SP_Sim/' : '/',
     build: {
       outDir: 'dist',
       sourcemap: env.VITE_BUILD_MODE !== 'production',
       target: env.VITE_BUILD_MODE === 'production' ? 'es2015' : 'esnext',
-      base: env.VITE_BUILD_MODE === 'production' ? '/SP_Sim/' : '/',
       minify: env.VITE_BUILD_MODE === 'production' ? 'terser' : false,
       rollupOptions: {
         input: {
