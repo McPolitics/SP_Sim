@@ -908,3 +908,266 @@ body {
 .mt-md { margin-top: var(--spacing-md); }
 .mb-sm { margin-bottom: var(--spacing-sm); }
 .mb-md { margin-bottom: var(--spacing-md); }
+
+// Enhanced animations and loading states
+.loading-overlay {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--secondary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 10;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: var(--shadow-md); }
+  50% { box-shadow: var(--shadow-lg), 0 0 20px rgba(49, 130, 206, 0.3); }
+}
+
+.animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
+.animate-slideInLeft { animation: slideInLeft 0.4s ease-out; }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-glow { animation: glow 3s infinite; }
+
+// Status indicators with enhanced visuals
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &--positive::before {
+    background: var(--success-color);
+    box-shadow: 0 0 6px rgba(56, 161, 105, 0.6);
+  }
+
+  &--negative::before {
+    background: var(--accent-color);
+    box-shadow: 0 0 6px rgba(229, 62, 62, 0.6);
+  }
+
+  &--neutral::before {
+    background: var(--warning-color);
+    box-shadow: 0 0 6px rgba(214, 158, 46, 0.6);
+  }
+
+  &--stable::before {
+    background: var(--info-color);
+    box-shadow: 0 0 6px rgba(11, 197, 234, 0.6);
+  }
+}
+
+// Progress bars with enhanced styling
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin-top: var(--spacing-xs);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-color), var(--secondary-light));
+    border-radius: var(--border-radius);
+    transition: width 0.8s ease-out;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+      animation: shimmer 2.5s infinite;
+    }
+  }
+
+  &--success &__fill {
+    background: linear-gradient(90deg, var(--success-color), #48bb78);
+  }
+
+  &--warning &__fill {
+    background: linear-gradient(90deg, var(--warning-color), #ed8936);
+  }
+
+  &--danger &__fill {
+    background: linear-gradient(90deg, var(--accent-color), #f56565);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+// Enhanced tooltips
+.tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted var(--text-light);
+
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all var(--transition-base);
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    border: 5px solid transparent;
+    border-top-color: var(--primary-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: all var(--transition-base);
+    z-index: 1000;
+  }
+
+  &:hover::after,
+  &:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+// Enhanced notification system
+.notification {
+  position: fixed;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  min-width: 300px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  color: white;
+  font-weight: 500;
+  box-shadow: var(--shadow-xl);
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out;
+
+  &--success {
+    background: linear-gradient(135deg, var(--success-color), #48bb78);
+  }
+
+  &--warning {
+    background: linear-gradient(135deg, var(--warning-color), #ed8936);
+  }
+
+  &--error {
+    background: linear-gradient(135deg, var(--accent-color), #f56565);
+  }
+
+  &--info {
+    background: linear-gradient(135deg, var(--info-color), #4299e1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Screen transition enhancements
+.screen {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all var(--transition-base);
+  display: none;
+
+  &--active {
+    opacity: 1;
+    transform: translateY(0);
+    display: block;
+    animation: fadeInUp 0.4s ease-out;
+  }
+}
+
+// Dark mode support (optional enhancement)
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #2d3748;
+    --primary-light: #4a5568;
+    --background-color: #1a202c;
+    --background-alt: #2d3748;
+    --surface-color: #2d3748;
+    --text-color: #f7fafc;
+    --text-light: #a0aec0;
+    --border-color: #4a5568;
+    --border-light: #4a5568;
+  }
+}
