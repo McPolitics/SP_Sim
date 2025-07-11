@@ -1,4 +1,4 @@
-import { eventSystem, EVENTS } from './EventSystem';
+import { eventSystem } from './EventSystem';
 
 /**
  * GameReset - Manages game reset functionality and new game setup
@@ -38,15 +38,15 @@ export class GameReset {
           economicStability: 1.2,
           crisisFrequency: 0.5,
           approvalVolatility: 0.8,
-          coalitionSupport: 1.1
+          coalitionSupport: 1.1,
         },
         startingConditions: {
           approval: 60,
           gdpGrowth: 2.8,
           unemployment: 5.0,
           inflation: 2.0,
-          debt: 55
-        }
+          debt: 55,
+        },
       },
       normal: {
         id: 'normal',
@@ -58,15 +58,15 @@ export class GameReset {
           economicStability: 1.0,
           crisisFrequency: 1.0,
           approvalVolatility: 1.0,
-          coalitionSupport: 1.0
+          coalitionSupport: 1.0,
         },
         startingConditions: {
           approval: 50,
           gdpGrowth: 2.1,
           unemployment: 6.0,
           inflation: 2.4,
-          debt: 60
-        }
+          debt: 60,
+        },
       },
       hard: {
         id: 'hard',
@@ -78,15 +78,15 @@ export class GameReset {
           economicStability: 0.8,
           crisisFrequency: 1.5,
           approvalVolatility: 1.3,
-          coalitionSupport: 0.9
+          coalitionSupport: 0.9,
         },
         startingConditions: {
           approval: 35,
           gdpGrowth: 1.2,
           unemployment: 7.5,
           inflation: 3.2,
-          debt: 70
-        }
+          debt: 70,
+        },
       },
       expert: {
         id: 'expert',
@@ -98,16 +98,16 @@ export class GameReset {
           economicStability: 0.6,
           crisisFrequency: 2.0,
           approvalVolatility: 1.5,
-          coalitionSupport: 0.8
+          coalitionSupport: 0.8,
         },
         startingConditions: {
           approval: 25,
           gdpGrowth: 0.5,
           unemployment: 9.0,
           inflation: 4.0,
-          debt: 80
-        }
-      }
+          debt: 80,
+        },
+      },
     };
   }
 
@@ -131,7 +131,7 @@ export class GameReset {
    */
   showResetConfirmation(currentGameState) {
     const timeInOffice = `${currentGameState.time.year} years, ${currentGameState.time.week} weeks`;
-    
+
     this.eventSystem.emit('ui:show_modal', {
       title: 'Reset Game',
       content: `
@@ -269,7 +269,7 @@ export class GameReset {
       `,
       confirmText: 'Cancel',
       showCancel: false,
-      onConfirm: () => true // Just close the dialog
+      onConfirm: () => true, // Just close the dialog
     });
   }
 
@@ -277,7 +277,7 @@ export class GameReset {
    * Show new game dialog with difficulty selection
    */
   showNewGameDialog() {
-    const difficultyOptions = Object.values(this.difficulties).map(difficulty => `
+    const difficultyOptions = Object.values(this.difficulties).map((difficulty) => `
       <div class="difficulty-option" data-difficulty="${difficulty.id}">
         <div class="difficulty-header">
           <span class="difficulty-icon">${difficulty.icon}</span>
@@ -437,20 +437,20 @@ export class GameReset {
         const options = {
           tutorial: document.getElementById('tutorial-enabled')?.checked || false,
           autoSave: document.getElementById('auto-save')?.checked || false,
-          crisisEvents: document.getElementById('crisis-events')?.checked || false
+          crisisEvents: document.getElementById('crisis-events')?.checked || false,
         };
 
         this.startNewGame({ difficulty: difficultyId, options });
         return true;
-      }
+      },
     });
 
     // Add click handlers for difficulty selection
     setTimeout(() => {
-      const difficultyOptions = document.querySelectorAll('.difficulty-option');
-      difficultyOptions.forEach(option => {
+      const difficultyOptionElements = document.querySelectorAll('.difficulty-option');
+      difficultyOptionElements.forEach((option) => {
         option.addEventListener('click', () => {
-          difficultyOptions.forEach(opt => opt.classList.remove('selected'));
+          difficultyOptionElements.forEach((opt) => opt.classList.remove('selected'));
           option.classList.add('selected');
         });
       });
@@ -476,12 +476,12 @@ export class GameReset {
     this.eventSystem.emit('game:reset', {
       newGameState,
       difficulty,
-      options
+      options,
     });
 
     this.eventSystem.emit('ui:notification', {
       message: `New game started on ${difficulty.name} difficulty!`,
-      type: 'success'
+      type: 'success',
     });
   }
 
@@ -495,7 +495,7 @@ export class GameReset {
     return {
       version: '1.0.0',
       difficulty: difficulty.id,
-      options: options,
+      options,
       player: {
         name: 'Player',
         party: 'Independent',
@@ -562,7 +562,7 @@ export class GameReset {
           severity: 'neutral',
           week: 1,
           year: 1,
-          timestamp: now.toISOString()
+          timestamp: now.toISOString(),
         }],
         pending: [],
       },
@@ -572,17 +572,17 @@ export class GameReset {
       },
       achievements: {
         unlocked: [],
-        progress: {}
+        progress: {},
       },
       gameEnded: false,
-      endCondition: null
+      endCondition: null,
     };
   }
 
   /**
    * Perform full reset to default state
    */
-  performReset(currentGameState) {
+  performReset(_currentGameState) {
     this.startNewGame({ difficulty: 'normal' });
   }
 

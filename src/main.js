@@ -253,10 +253,10 @@ class SPSimApp {
 
     // Achievement notifications
     this.eventSystem.on('achievement:unlocked', (event) => {
-      const achievement = event.data.achievement;
+      const { achievement } = event.data;
       this.showNotification(
         `🏆 Achievement Unlocked: ${achievement.title}`,
-        'success'
+        'success',
       );
     });
 
@@ -266,7 +266,7 @@ class SPSimApp {
     });
 
     // Political events
-    this.eventSystem.on('political:vote_scheduled', (event) => {
+    this.eventSystem.on('political:vote_scheduled', (_event) => {
       this.showNotification('New political vote scheduled!', 'info');
     });
 
@@ -1067,7 +1067,7 @@ class SPSimApp {
       onConfirm: () => {
         this.gameEngine.requestReset('new_game');
         return true;
-      }
+      },
     });
 
     modal.show();

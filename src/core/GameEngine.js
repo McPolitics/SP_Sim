@@ -301,7 +301,7 @@ export class GameEngine {
 
     // Emit reset complete event
     this.eventSystem.emit(EVENTS.GAME_START, { gameState: this.gameState });
-    
+
     // Auto-start the new game
     this.start();
 
@@ -312,8 +312,8 @@ export class GameEngine {
    * Handle game end condition
    */
   handleGameEnd(data) {
-    const { gameState, endCondition } = data;
-    
+    const { endCondition } = data;
+
     // Stop the game
     this.stop();
 
@@ -327,7 +327,7 @@ export class GameEngine {
     // Emit UI notification
     this.eventSystem.emit('ui:game_end', {
       endCondition,
-      gameState: this.gameState
+      gameState: this.gameState,
     });
 
     console.log(`Game ended: ${endCondition.title}`);
@@ -339,7 +339,7 @@ export class GameEngine {
   requestReset(resetType = 'confirm') {
     this.eventSystem.emit('game:reset_request', {
       currentGameState: this.gameState,
-      resetType
+      resetType,
     });
   }
 
@@ -471,11 +471,11 @@ export class GameEngine {
     });
 
     // Listen for political events
-    this.eventSystem.on('political:vote_scheduled', (event) => {
+    this.eventSystem.on('political:vote_scheduled', (_event) => {
       // Political votes are handled by the political system
     });
 
-    this.eventSystem.on('achievement:unlocked', (event) => {
+    this.eventSystem.on('achievement:unlocked', (_event) => {
       // Achievements are handled by the win conditions system
     });
   }
