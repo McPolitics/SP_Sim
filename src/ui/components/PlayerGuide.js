@@ -1,6 +1,6 @@
 import { BaseComponent } from './BaseComponent';
 import { Modal } from './Modal';
-import { eventSystem, EVENTS } from '../../core/EventSystem';
+// import { eventSystem, EVENTS } from '../../core/EventSystem';
 
 /**
  * PlayerGuide - Comprehensive help and tutorial system
@@ -13,7 +13,7 @@ export class PlayerGuide extends BaseComponent {
     this.currentSection = 'overview';
     this.guideData = this.initializeGuideData();
     this.element = null;
-    
+
     this.createGuideStructure();
   }
 
@@ -44,10 +44,11 @@ export class PlayerGuide extends BaseComponent {
 
               <div class="getting-started">
                 <h3>Getting Started:</h3>
-                <p>The game runs in real-time with each turn representing one week. You can pause anytime to make decisions carefully. Start by exploring the different screens and familiarizing yourself with the current state of your nation.</p>
+                <p>The game runs in real-time with each turn representing one week. 
+                <br>You can pause anytime to make decisions carefully. Start by exploring the different screens and familiarizing yourself with the current state of your nation.</p>
               </div>
             </div>
-          `
+          `,
         },
         controls: {
           title: 'Game Controls & Interface',
@@ -108,7 +109,7 @@ export class PlayerGuide extends BaseComponent {
                 </div>
               </div>
             </div>
-          `
+          `,
         },
         economy: {
           title: 'Understanding the Economy',
@@ -173,7 +174,7 @@ export class PlayerGuide extends BaseComponent {
                 </ul>
               </div>
             </div>
-          `
+          `,
         },
         politics: {
           title: 'Political System Basics',
@@ -237,7 +238,7 @@ export class PlayerGuide extends BaseComponent {
                 </ul>
               </div>
             </div>
-          `
+          `,
         },
         save_system: {
           title: 'Saving & Loading Games',
@@ -285,8 +286,8 @@ export class PlayerGuide extends BaseComponent {
                 </ul>
               </div>
             </div>
-          `
-        }
+          `,
+        },
       },
       advanced: {
         mechanics: {
@@ -350,7 +351,7 @@ export class PlayerGuide extends BaseComponent {
                 </ul>
               </div>
             </div>
-          `
+          `,
         },
         strategy: {
           title: 'Advanced Political Strategy',
@@ -443,7 +444,7 @@ export class PlayerGuide extends BaseComponent {
                 </ul>
               </div>
             </div>
-          `
+          `,
         },
         economics: {
           title: 'Advanced Economic Management',
@@ -574,9 +575,9 @@ export class PlayerGuide extends BaseComponent {
                 </div>
               </div>
             </div>
-          `
-        }
-      }
+          `,
+        },
+      },
     };
   }
 
@@ -641,7 +642,7 @@ export class PlayerGuide extends BaseComponent {
     // Setup basic navigation
     const basicNav = this.element.querySelector('#guide-nav-basic');
     const basicSections = Object.keys(this.guideData.basic);
-    basicNav.innerHTML = basicSections.map(section => `
+    basicNav.innerHTML = basicSections.map((section) => `
       <button class="guide-nav-item ${section === 'overview' ? 'active' : ''}" 
               data-section="${section}" 
               data-mode="basic" 
@@ -654,7 +655,7 @@ export class PlayerGuide extends BaseComponent {
     // Setup advanced navigation
     const advancedNav = this.element.querySelector('#guide-nav-advanced');
     const advancedSections = Object.keys(this.guideData.advanced);
-    advancedNav.innerHTML = advancedSections.map(section => `
+    advancedNav.innerHTML = advancedSections.map((section) => `
       <button class="guide-nav-item" 
               data-section="${section}" 
               data-mode="advanced" 
@@ -698,7 +699,7 @@ export class PlayerGuide extends BaseComponent {
     // Keyboard navigation
     this.addEventListener(document, 'keydown', (e) => {
       if (!this.element.classList.contains('guide-visible')) return;
-      
+
       if (e.key === 'ArrowLeft' && !e.target.closest('input, textarea')) {
         e.preventDefault();
         this.navigatePrevious();
@@ -717,14 +718,14 @@ export class PlayerGuide extends BaseComponent {
    */
   switchMode(mode) {
     this.currentMode = mode;
-    
+
     // Update mode buttons
-    this.element.querySelectorAll('.mode-btn').forEach(btn => {
+    this.element.querySelectorAll('.mode-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.mode === mode);
     });
 
     // Show appropriate navigation
-    this.element.querySelectorAll('.guide-nav').forEach(nav => {
+    this.element.querySelectorAll('.guide-nav').forEach((nav) => {
       nav.classList.toggle('hidden', !nav.id.includes(mode));
     });
 
@@ -741,21 +742,23 @@ export class PlayerGuide extends BaseComponent {
     this.currentMode = mode;
 
     // Update navigation
-    this.element.querySelectorAll('.guide-nav-item').forEach(item => {
-      item.classList.toggle('active', 
-        item.dataset.section === section && item.dataset.mode === mode);
+    this.element.querySelectorAll('.guide-nav-item').forEach((item) => {
+      item.classList.toggle(
+        'active',
+        item.dataset.section === section && item.dataset.mode === mode,
+      );
     });
 
     // Update content
     const content = this.element.querySelector('#guide-section-content');
     const sectionData = this.guideData[mode][section];
-    
+
     content.innerHTML = sectionData.content;
     content.scrollTop = 0;
 
     // Update progress
     this.updateProgress();
-    
+
     // Update navigation buttons
     this.updateNavigationButtons();
   }
@@ -766,7 +769,7 @@ export class PlayerGuide extends BaseComponent {
   navigatePrevious() {
     const sections = Object.keys(this.guideData[this.currentMode]);
     const currentIndex = sections.indexOf(this.currentSection);
-    
+
     if (currentIndex > 0) {
       this.showSection(sections[currentIndex - 1]);
     } else if (this.currentMode === 'advanced') {
@@ -783,7 +786,7 @@ export class PlayerGuide extends BaseComponent {
   navigateNext() {
     const sections = Object.keys(this.guideData[this.currentMode]);
     const currentIndex = sections.indexOf(this.currentSection);
-    
+
     if (currentIndex < sections.length - 1) {
       this.showSection(sections[currentIndex + 1]);
     } else if (this.currentMode === 'basic') {
@@ -800,19 +803,19 @@ export class PlayerGuide extends BaseComponent {
   updateProgress() {
     const allSections = [
       ...Object.keys(this.guideData.basic),
-      ...Object.keys(this.guideData.advanced)
+      ...Object.keys(this.guideData.advanced),
     ];
-    
+
     const currentSections = Object.keys(this.guideData[this.currentMode]);
     const currentIndex = currentSections.indexOf(this.currentSection);
     const modeOffset = this.currentMode === 'advanced' ? Object.keys(this.guideData.basic).length : 0;
     const totalIndex = modeOffset + currentIndex;
-    
+
     const progress = ((totalIndex + 1) / allSections.length) * 100;
-    
+
     const progressFill = this.element.querySelector('.progress-fill');
     const progressText = this.element.querySelector('.progress-text');
-    
+
     progressFill.style.width = `${progress}%`;
     progressText.textContent = `Progress: ${totalIndex + 1}/${allSections.length} sections`;
   }
@@ -823,18 +826,18 @@ export class PlayerGuide extends BaseComponent {
   updateNavigationButtons() {
     const sections = Object.keys(this.guideData[this.currentMode]);
     const currentIndex = sections.indexOf(this.currentSection);
-    
+
     const prevBtn = this.element.querySelector('.guide-prev');
     const nextBtn = this.element.querySelector('.guide-next');
-    
+
     // Previous button
     const canGoPrev = currentIndex > 0 || this.currentMode === 'advanced';
     prevBtn.disabled = !canGoPrev;
-    
+
     // Next button
     const canGoNext = currentIndex < sections.length - 1 || this.currentMode === 'basic';
     nextBtn.disabled = !canGoNext;
-    
+
     // Update next button text for mode transition
     if (this.currentMode === 'basic' && currentIndex === sections.length - 1) {
       nextBtn.textContent = 'Advanced Guide →';
@@ -853,11 +856,11 @@ export class PlayerGuide extends BaseComponent {
       size: 'large',
       showCancel: false,
       confirmText: 'Close',
-      onConfirm: () => true
+      onConfirm: () => true,
     });
 
     modal.show();
-    
+
     // Re-setup event listeners for modal content
     const modalContent = document.querySelector('.modal .player-guide');
     if (modalContent) {
@@ -898,7 +901,7 @@ export class PlayerGuide extends BaseComponent {
       currentSection: this.currentSection,
       totalBasicSections: Object.keys(this.guideData.basic).length,
       totalAdvancedSections: Object.keys(this.guideData.advanced).length,
-      isVisible: this.element.classList.contains('guide-visible')
+      isVisible: this.element.classList.contains('guide-visible'),
     };
   }
 }

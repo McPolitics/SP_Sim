@@ -414,7 +414,7 @@ class SPSimApp {
    */
   handleSaveGame(requestedSaveName = null) {
     let saveName = requestedSaveName;
-    
+
     if (!saveName) {
       // Use a proper modal instead of window.prompt for better mobile UX
       const modal = new Modal({
@@ -500,7 +500,7 @@ class SPSimApp {
         onConfirm: () => {
           const input = document.getElementById('save-name-input');
           saveName = input.value.trim();
-          
+
           if (!saveName) {
             this.showNotification('Please enter a save name.', 'warning');
             return false;
@@ -517,20 +517,20 @@ class SPSimApp {
       });
 
       modal.show();
-      
+
       // Setup suggestion button handlers and auto-focus
       setTimeout(() => {
         const input = document.getElementById('save-name-input');
         const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-        
+
         // Auto-focus and select text for mobile
         if (input) {
           input.focus();
           input.select();
         }
-        
+
         // Handle suggestion buttons
-        suggestionBtns.forEach(btn => {
+        suggestionBtns.forEach((btn) => {
           btn.addEventListener('click', () => {
             const suggestedName = btn.getAttribute('data-name');
             const gameState = this.gameEngine.getGameState();
@@ -540,7 +540,7 @@ class SPSimApp {
           });
         });
       }, 100);
-      
+
       return; // Exit early since we're using modal
     }
 
@@ -569,11 +569,11 @@ class SPSimApp {
 
     // Create save list HTML with enhanced mobile-friendly design
     let saveListHtml = '<div class="save-list">';
-    saves.forEach((save, index) => {
+    saves.forEach((save, _index) => {
       const date = new Date(save.timestamp).toLocaleString();
       const gameTime = save.gameTime ? `Week ${save.gameTime.week}, Year ${save.gameTime.year}` : 'Unknown';
       const isImported = save.imported ? '<span class="save-badge imported">Imported</span>' : '';
-      
+
       saveListHtml += `
         <div class="save-item" data-save-id="${save.id}">
           <div class="save-header">
@@ -609,7 +609,8 @@ class SPSimApp {
         </div>
         <div class="import-section">
           <input type="file" id="import-save-file" accept=".json" style="display: none;">
-          <button class="btn btn--secondary" type="button" onclick="document.getElementById('import-save-file').click()">
+          <button class="btn btn--secondary" 
+          type="button" onclick="document.getElementById('import-save-file').click()">
             Import Save File
           </button>
         </div>
@@ -767,7 +768,7 @@ class SPSimApp {
 
     // Add click handlers for save items and actions
     modal.show();
-    
+
     setTimeout(() => {
       // Save item selection
       const saveItems = document.querySelectorAll('.save-item');
@@ -775,7 +776,7 @@ class SPSimApp {
         item.addEventListener('click', (e) => {
           // Don't select if clicking on action buttons
           if (e.target.classList.contains('save-action-btn')) return;
-          
+
           saveItems.forEach((i) => i.classList.remove('selected'));
           item.classList.add('selected');
         });
@@ -803,8 +804,8 @@ class SPSimApp {
           e.stopPropagation();
           const saveId = btn.getAttribute('data-save-id');
           const saveName = btn.closest('.save-item').querySelector('.save-name').textContent;
-          
-          if (confirm(`Are you sure you want to delete "${saveName}"?`)) {
+
+          if (deleteBtns.confim(`Are you sure you want to delete "${saveName}"?`)) {
             const success = this.gameEngine.saveSystem.deleteSave(saveId);
             if (success) {
               btn.closest('.save-item').remove();
@@ -891,10 +892,8 @@ class SPSimApp {
 
     // Prevent duplicate notifications
     const existingNotifications = document.querySelectorAll('.notification');
-    for (const existing of existingNotifications) {
-      if (existing.textContent === message) {
-        return; // Don't show duplicate
-      }
+    if (Array.from(existingNotifications).some((existing) => existing.textContent === message)) {
+      return; // Don't show duplicate
     }
 
     // Create a simple notification element

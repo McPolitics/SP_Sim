@@ -124,7 +124,7 @@ export class Timeline extends BaseComponent {
     const toggleIcon = this.element.querySelector('.toggle-icon');
 
     if (this.isExpanded) {
-      content.style.maxHeight = content.scrollHeight + 'px';
+      content.style.maxHeight = `${content.scrollHeight}px`;
       toggleText.textContent = 'Collapse';
       toggleIcon.textContent = '▲';
       this.element.classList.add('timeline-expanded');
@@ -141,7 +141,7 @@ export class Timeline extends BaseComponent {
    */
   handleZoomChange(zoomLevel) {
     const zoomBtns = this.element.querySelectorAll('.zoom-btn');
-    zoomBtns.forEach(btn => btn.classList.remove('active'));
+    zoomBtns.forEach((btn) => btn.classList.remove('active'));
     this.element.querySelector(`[data-zoom="${zoomLevel}"]`).classList.add('active');
 
     this.currentZoom = zoomLevel;
@@ -153,22 +153,22 @@ export class Timeline extends BaseComponent {
    */
   updateTimeline(gameState) {
     this.gameState = gameState;
-    
+
     // Update time info
     const currentTime = this.element.querySelector('.current-time');
     const playtime = this.element.querySelector('.playtime');
-    
+
     currentTime.textContent = `Week ${gameState.time.week}, Year ${gameState.time.year}`;
-    
+
     const totalWeeks = (gameState.time.year - 1) * 52 + gameState.time.week;
     playtime.textContent = `Playtime: ${totalWeeks} weeks`;
 
     // Update timeline progress
     this.updateTimelineProgress(gameState);
-    
+
     // Add recent events to timeline
     if (gameState.events && gameState.events.recent) {
-      gameState.events.recent.forEach(event => {
+      gameState.events.recent.forEach((event) => {
         this.addTimelineEvent(event, event.type || 'general');
       });
     }
@@ -180,7 +180,7 @@ export class Timeline extends BaseComponent {
   updateTimelineProgress(gameState) {
     const currentMarker = this.element.querySelector('.timeline-current-marker');
     const totalWeeks = (gameState.time.year - 1) * 52 + gameState.time.week;
-    
+
     // Calculate position based on current zoom
     let maxWeeks = this.maxVisibleWeeks;
     if (this.currentZoom === 'week') {
@@ -199,24 +199,30 @@ export class Timeline extends BaseComponent {
   /**
    * Update timeline markers for scale reference
    */
-  updateTimelineMarkers(maxWeeks, gameState) {
+  updateTimelineMarkers(maxWeeks, _gameState) {
     const markersContainer = this.element.querySelector('.timeline-markers');
     markersContainer.innerHTML = '';
 
-    const markerInterval = this.currentZoom === 'week' ? 1 : 
-                          this.currentZoom === 'month' ? 4 : 13;
-    
+    let markerInterval;
+    if (this.currentZoom === 'week') {
+      markerInterval = 1;
+    } else if (this.currentZoom === 'month') {
+      markerInterval = 4;
+    } else {
+      markerInterval = 13;
+    }
+
     for (let week = 0; week <= maxWeeks; week += markerInterval) {
       const marker = this.createElement('div', 'timeline-marker');
       marker.style.left = `${(week / maxWeeks) * 100}%`;
-      
+
       const label = this.createElement('span', 'marker-label');
       if (this.currentZoom === 'year') {
         label.textContent = `Y${Math.floor(week / 52) + 1}`;
       } else {
         label.textContent = `W${week}`;
       }
-      
+
       marker.appendChild(label);
       markersContainer.appendChild(marker);
     }
@@ -227,30 +233,35 @@ export class Timeline extends BaseComponent {
    */
   addTimelineEvent(eventData, type = 'general') {
     const eventsContainer = this.element.querySelector('.timeline-events');
-    
+
     const event = this.createElement('div', `timeline-event event-${type}`);
     event.setAttribute('data-event-id', eventData.id || Date.now());
     event.setAttribute('data-tooltip', eventData.description || eventData.title || 'Game Event');
-    
+
     // Calculate event position
-    const eventWeek = eventData.week || (this.gameState ? 
-      (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1);
-    
-    const maxWeeks = this.currentZoom === 'week' ? 12 : 
-                    this.currentZoom === 'month' ? 52 : 
-                    52 * 4;
-    
+    const eventWeek = eventData.week || (this.gameState
+      ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1);
+
+    let maxWeeks;
+    if (this.currentZoom === 'week') {
+      maxWeeks = 12;
+    } else if (this.currentZoom === 'month') {
+      maxWeeks = 52;
+    } else {
+      maxWeeks = 52 * 4;
+    }
+
     const position = Math.min((eventWeek / maxWeeks) * 100, 100);
     event.style.left = `${position}%`;
-    
+
     // Event content
     const eventDot = this.createElement('div', 'event-dot');
     const eventTooltip = this.createElement('div', 'event-tooltip');
     eventTooltip.textContent = eventData.description || eventData.title || 'Game Event';
-    
+
     event.appendChild(eventDot);
     event.appendChild(eventTooltip);
-    
+
     eventsContainer.appendChild(event);
 
     // Remove old events to keep timeline clean
@@ -262,10 +273,10 @@ export class Timeline extends BaseComponent {
    */
   addSavePoint(saveData) {
     this.addTimelineEvent({
-      id: saveData.saveId || 'save_' + Date.now(),
+      id: saveData.saveId || `save_${Date.now()}`,
       title: 'Game Saved',
       description: `Save: ${saveData.saveName || 'Unnamed'}`,
-      week: this.gameState ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1
+      week: this.gameState ? (this.gameState.time.year - 1) * 52 + this.gameState.time.week : 1,
     }, 'save');
   }
 
@@ -277,9 +288,9 @@ export class Timeline extends BaseComponent {
     if (tooltip) {
       // Toggle tooltip visibility
       tooltip.classList.toggle('visible');
-      
+
       // Hide other tooltips
-      this.element.querySelectorAll('.event-tooltip.visible').forEach(tip => {
+      this.element.querySelectorAll('.event-tooltip.visible').forEach((tip) => {
         if (tip !== tooltip) {
           tip.classList.remove('visible');
         }
@@ -295,7 +306,7 @@ export class Timeline extends BaseComponent {
     if (events.length > 50) { // Keep only last 50 events
       Array.from(events)
         .slice(0, events.length - 50)
-        .forEach(event => event.remove());
+        .forEach((event) => event.remove());
     }
   }
 
@@ -338,7 +349,7 @@ export class Timeline extends BaseComponent {
       politicalEvents: this.element.querySelectorAll('.event-political').length,
       savePoints: this.element.querySelectorAll('.event-save').length,
       isExpanded: this.isExpanded,
-      currentZoom: this.currentZoom
+      currentZoom: this.currentZoom,
     };
   }
 }
