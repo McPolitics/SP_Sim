@@ -250,6 +250,15 @@ export class GameEngine {
   }
 
   /**
+   * Reset game state to a new state
+   */
+  resetGameState(newGameState) {
+    this.gameState = newGameState;
+    this.eventSystem.emit(EVENTS.GAME_START, { gameState: this.gameState });
+    console.log('Game state reset with new configuration');
+  }
+
+  /**
    * Get game statistics
    */
   getGameStats() {

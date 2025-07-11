@@ -12,6 +12,7 @@ import { EconomicsScreen } from './ui/components/EconomicsScreen';
 import { DebugPanel } from './ui/components/DebugPanel';
 import { Timeline } from './ui/components/Timeline';
 import { PlayerGuide } from './ui/components/PlayerGuide';
+import { StartingScreen } from './ui/components/StartingScreen';
 
 /**
  * Main application class
@@ -26,6 +27,7 @@ class SPSimApp {
     this.debugPanel = null;
     this.timeline = null;
     this.playerGuide = null;
+    this.startingScreen = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -37,30 +39,48 @@ class SPSimApp {
     try {
       console.log('🎮 Starting SP_Sim - Political Economy Simulation');
 
-      // Initialize game engine
-      this.gameEngine.initialize();
-
-      // Initialize UI components
-      this.initializeUI();
-
-      // Setup global event listeners
-      this.setupEventListeners();
-
-      // Setup error handling
-      this.setupErrorHandling();
-
-      // Start the game
-      this.gameEngine.start();
-
-      this.isInitialized = true;
-      console.log('✅ SP_Sim initialized successfully');
-
-      // Initial UI update
-      this.updateUI();
+      // Initialize starting screen first
+      this.startingScreen = new StartingScreen();
+      
+      // Show starting screen for new players
+      const showStartingScreen = this.startingScreen.show();
+      
+      if (!showStartingScreen) {
+        // Existing player - proceed with normal initialization
+        this.initializeGameForExistingPlayer();
+      }
+      // If starting screen is shown, game initialization will happen after difficulty selection
+      
     } catch (error) {
       console.error('❌ Failed to initialize SP_Sim:', error);
       this.showError('Failed to initialize game. Please refresh the page.');
     }
+  }
+
+  /**
+   * Initialize game for existing players (skip starting screen)
+   */
+  initializeGameForExistingPlayer() {
+    // Initialize game engine
+    this.gameEngine.initialize();
+
+    // Initialize UI components
+    this.initializeUI();
+
+    // Setup global event listeners
+    this.setupEventListeners();
+
+    // Setup error handling
+    this.setupErrorHandling();
+
+    // Start the game
+    this.gameEngine.start();
+
+    this.isInitialized = true;
+    console.log('✅ SP_Sim initialized successfully');
+
+    // Initial UI update
+    this.updateUI();
   }
 
   /**
@@ -277,6 +297,11 @@ class SPSimApp {
     // Modal system for reset dialogs
     this.eventSystem.on('ui:show_modal', (event) => {
       this.showCustomModal(event.data);
+    });
+
+    // New game started from starting screen
+    this.eventSystem.on('game:reset', (event) => {
+      this.handleNewGameFromStartingScreen(event.data);
     });
 
     // Keyboard shortcuts
@@ -1079,6 +1104,20 @@ class SPSimApp {
   showCustomModal(modalData) {
     const modal = new Modal(modalData);
     modal.show();
+  }
+
+  /**
+   * Handle new game started from starting screen
+   */
+  handleNewGameFromStartingScreen(data) {
+    if (!this.isInitialized) {
+      // Initialize the game engine and UI for the first time
+      this.initializeGameForExistingPlayer();
+    } else {
+      // Reset existing game state
+      this.gameEngine.resetGameState(data.newGameState);
+      this.updateUI();
+    }
   }
 }
 
