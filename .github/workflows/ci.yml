@@ -62,6 +62,9 @@ jobs:
           ls -la dist
           find dist -type f
 
+      - name: Inject build timestamp
+        run: date > dist/.timestamp
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -94,6 +97,7 @@ jobs:
           publish_dir: dist
           publish_branch: gh-pages
           commit_message: '🚀 Deploy production build from commit ${{ github.sha }}'
+          force_orphan: true
 
   deploy-dev:
     needs: lint-test-build
