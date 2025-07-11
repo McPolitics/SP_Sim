@@ -9,6 +9,7 @@ import { Dashboard } from './ui/components/Dashboard';
 import { Navigation } from './ui/components/Navigation';
 import { Modal } from './ui/components/Modal';
 import { EconomicsScreen } from './ui/components/EconomicsScreen';
+import { DebugPanel } from './ui/components/DebugPanel';
 
 /**
  * Main application class
@@ -20,6 +21,7 @@ class SPSimApp {
     this.dashboard = null;
     this.navigation = null;
     this.economicsScreen = null;
+    this.debugPanel = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -69,6 +71,13 @@ class SPSimApp {
 
     // Initialize economics screen
     this.economicsScreen = new EconomicsScreen();
+
+    // Initialize debug panel (only in debug mode)
+    // eslint-disable-next-line no-undef
+    if (typeof __ENABLE_DEBUG__ !== 'undefined' && __ENABLE_DEBUG__) {
+      this.debugPanel = new DebugPanel();
+      console.log('🔧 Debug panel enabled');
+    }
 
     // Setup screen management
     this.setupScreenManagement();
