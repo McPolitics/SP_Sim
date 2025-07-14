@@ -14,7 +14,7 @@ export class AIOpposition {
     this.recentActions = [];
     this.policyPositions = new Map();
     this.debateHistory = [];
-    
+
     this.initializeOppositionParties();
     this.initializeEventListeners();
   }
@@ -33,7 +33,7 @@ export class AIOpposition {
         aggressiveness: 0.7,
         expertise: ['economy', 'defense'],
         approval: 45,
-        leadership: 'strong'
+        leadership: 'strong',
       },
       {
         id: 'minor_opposition',
@@ -44,7 +44,7 @@ export class AIOpposition {
         aggressiveness: 0.4,
         expertise: ['social', 'environment'],
         approval: 35,
-        leadership: 'moderate'
+        leadership: 'moderate',
       },
       {
         id: 'populist_party',
@@ -55,8 +55,8 @@ export class AIOpposition {
         aggressiveness: 0.9,
         expertise: ['populism', 'media'],
         approval: 25,
-        leadership: 'charismatic'
-      }
+        leadership: 'charismatic',
+      },
     ];
   }
 
@@ -91,13 +91,13 @@ export class AIOpposition {
   processTurn(gameState) {
     // Update opposition strategy based on game state
     this.updateStrategy(gameState);
-    
+
     // Generate opposition actions
     this.generateOppositionActions(gameState);
-    
+
     // Update party standings
     this.updatePartyStandings(gameState);
-    
+
     // Clean up old actions
     this.cleanupOldActions();
   }
@@ -153,7 +153,7 @@ export class AIOpposition {
     }
 
     // Execute actions
-    actions.forEach(action => {
+    actions.forEach((action) => {
       if (action) {
         this.executeOppositionAction(action, gameState);
       }
@@ -165,8 +165,8 @@ export class AIOpposition {
    */
   generateCriticism(gameState) {
     const criticisms = [];
-    const economy = gameState.economy;
-    const approval = gameState.politics.approval;
+    const { economy } = gameState;
+    const { approval } = gameState.politics;
 
     if (economy.unemployment > 6.5) {
       criticisms.push({
@@ -174,7 +174,7 @@ export class AIOpposition {
         target: 'unemployment',
         severity: 'high',
         message: 'Government policies have failed to address rising unemployment',
-        impact: { approval: -2, support: +1 }
+        impact: { approval: -2, support: +1 },
       });
     }
 
@@ -184,7 +184,7 @@ export class AIOpposition {
         target: 'inflation',
         severity: 'medium',
         message: 'Inflationary pressure threatens household budgets',
-        impact: { approval: -1.5, support: +0.5 }
+        impact: { approval: -1.5, support: +0.5 },
       });
     }
 
@@ -194,7 +194,7 @@ export class AIOpposition {
         target: 'growth',
         severity: 'high',
         message: 'Economic stagnation under current leadership',
-        impact: { approval: -2.5, support: +1.5 }
+        impact: { approval: -2.5, support: +1.5 },
       });
     }
 
@@ -204,7 +204,7 @@ export class AIOpposition {
         target: 'leadership',
         severity: 'medium',
         message: 'Loss of public confidence demands new direction',
-        impact: { approval: -1, support: +0.8 }
+        impact: { approval: -1, support: +0.8 },
       });
     }
 
@@ -216,7 +216,7 @@ export class AIOpposition {
    */
   generateAlternativePolicy(gameState) {
     const policies = [];
-    const economy = gameState.economy;
+    const { economy } = gameState;
 
     if (economy.unemployment > 5.5) {
       policies.push({
@@ -226,7 +226,7 @@ export class AIOpposition {
         description: 'Comprehensive employment program targeting youth and long-term unemployed',
         proposedBy: this.getRandomOppositionParty(),
         impact: { unemployment: -0.8, debt: +2, approval: +1.5 },
-        cost: 5000000000 // $5 billion
+        cost: 5000000000, // $5 billion
       });
     }
 
@@ -238,7 +238,7 @@ export class AIOpposition {
         description: 'Targeted intervention to control rising prices',
         proposedBy: this.getRandomOppositionParty(),
         impact: { inflation: -0.5, growth: -0.2, approval: +1 },
-        cost: 2000000000 // $2 billion
+        cost: 2000000000, // $2 billion
       });
     }
 
@@ -256,7 +256,7 @@ export class AIOpposition {
         description: 'Opposition demands answers on recent policy decisions',
         urgency: this.aggressiveness > 0.7 ? 'high' : 'medium',
         proposedBy: this.getRandomOppositionParty(),
-        topics: this.generateDebateTopics(gameState)
+        topics: this.generateDebateTopics(gameState),
       };
     }
     return null;
@@ -267,13 +267,13 @@ export class AIOpposition {
    */
   generateDebateTopics(gameState) {
     const topics = [];
-    const economy = gameState.economy;
+    const { economy } = gameState;
 
     if (economy.unemployment > 6.0) topics.push('unemployment crisis');
     if (economy.inflation > 3.0) topics.push('cost of living');
     if (economy.gdpGrowth < 1.5) topics.push('economic stagnation');
     if (gameState.politics.approval < 45) topics.push('leadership crisis');
-    
+
     // Add some generic political topics
     const genericTopics = ['budget allocation', 'healthcare reform', 'education funding', 'infrastructure'];
     topics.push(genericTopics[Math.floor(Math.random() * genericTopics.length)]);
@@ -289,14 +289,14 @@ export class AIOpposition {
       ...action,
       timestamp: Date.now(),
       week: gameState.time.week,
-      year: gameState.time.year
+      year: gameState.time.year,
     });
 
     // Emit event for UI to handle
     this.eventSystem.emit('opposition:action', {
       action,
       gameState,
-      oppositionStatus: this.getOppositionStatus()
+      oppositionStatus: this.getOppositionStatus(),
     });
 
     // Apply direct impacts
@@ -315,13 +315,13 @@ export class AIOpposition {
       this.eventSystem.emit(EVENTS.APPROVAL_CHANGE, {
         change: impact.approval,
         newApproval: gameState.politics.approval + impact.approval,
-        reason: 'Opposition action'
+        reason: 'Opposition action',
       });
     }
 
     if (impact.support) {
       // Increase opposition support
-      this.oppositionParties.forEach(party => {
+      this.oppositionParties.forEach((party) => {
         party.support += impact.support * (party.support / 100); // Proportional increase
       });
     }
@@ -333,7 +333,7 @@ export class AIOpposition {
   handleApprovalChange(data) {
     // Opposition reacts to significant approval changes
     const { change, newApproval } = data;
-    
+
     if (Math.abs(change) > 3) { // Significant change
       if (change < 0 && Math.random() < this.aggressiveness * 0.6) {
         // Opposition takes advantage of declining approval
@@ -343,9 +343,9 @@ export class AIOpposition {
           target: 'leadership',
           severity: 'medium',
           message: `${party.name} questions government leadership as approval falls`,
-          impact: { support: +0.5 }
+          impact: { support: +0.5 },
         };
-        
+
         setTimeout(() => {
           this.executeOppositionAction(action, { politics: { approval: newApproval } });
         }, 1000 + Math.random() * 2000);
@@ -358,14 +358,14 @@ export class AIOpposition {
    */
   handlePolicyProposal(policy) {
     const response = this.generatePolicyResponse(policy);
-    
+
     if (response) {
       // Delay response to seem more realistic
       setTimeout(() => {
         this.eventSystem.emit('opposition:policy_response', {
           policy,
           response,
-          oppositionParty: this.getRandomOppositionParty()
+          oppositionParty: this.getRandomOppositionParty(),
         });
       }, 2000 + Math.random() * 3000); // 2-5 second delay
     }
@@ -384,7 +384,7 @@ export class AIOpposition {
         stance: 'oppose',
         reason: 'fiscal_responsibility',
         message: `${party.name} opposes this policy due to concerns about fiscal impact`,
-        severity: party.aggressiveness
+        severity: party.aggressiveness,
       });
     }
 
@@ -393,7 +393,7 @@ export class AIOpposition {
         stance: 'support_with_amendments',
         reason: 'insufficient_scope',
         message: `${party.name} supports the direction but demands stronger measures`,
-        severity: 0.3
+        severity: 0.3,
       });
     }
 
@@ -403,7 +403,7 @@ export class AIOpposition {
         stance: Math.random() < 0.6 ? 'oppose' : 'conditional_support',
         reason: 'political_disagreement',
         message: `${party.name} questions the effectiveness of this approach`,
-        severity: party.aggressiveness * 0.7
+        severity: party.aggressiveness * 0.7,
       });
     }
 
@@ -416,8 +416,8 @@ export class AIOpposition {
   handleEconomicUpdate(economicData) {
     // Opposition reacts to significant economic changes
     const significantChanges = this.identifySignificantChanges(economicData);
-    
-    significantChanges.forEach(change => {
+
+    significantChanges.forEach((change) => {
       if (Math.random() < this.aggressiveness * 0.5) {
         this.generateEconomicResponse(change);
       }
@@ -429,15 +429,15 @@ export class AIOpposition {
    */
   identifySignificantChanges(economicData) {
     const changes = [];
-    
+
     if (economicData.unemployment && economicData.unemployment > 7.0) {
       changes.push({ type: 'unemployment_rise', severity: 'high', data: economicData });
     }
-    
+
     if (economicData.inflation && economicData.inflation > 4.0) {
       changes.push({ type: 'inflation_spike', severity: 'high', data: economicData });
     }
-    
+
     if (economicData.gdpGrowth && economicData.gdpGrowth < 0) {
       changes.push({ type: 'recession_risk', severity: 'critical', data: economicData });
     }
@@ -450,13 +450,13 @@ export class AIOpposition {
    */
   generateEconomicResponse(change) {
     const party = this.getRandomOppositionParty();
-    
+
     const response = {
       type: 'economic_response',
       change,
       party,
       message: this.generateEconomicMessage(change, party),
-      urgency: change.severity === 'critical' ? 'high' : 'medium'
+      urgency: change.severity === 'critical' ? 'high' : 'medium',
     };
 
     this.eventSystem.emit('opposition:economic_response', response);
@@ -469,19 +469,19 @@ export class AIOpposition {
     const messages = {
       unemployment_rise: [
         `${party.name} demands immediate action on rising unemployment`,
-        `Government's economic policies clearly failing working families`,
-        `Unemployment crisis demands new leadership approach`
+        'Government\'s economic policies clearly failing working families',
+        'Unemployment crisis demands new leadership approach',
       ],
       inflation_spike: [
         `${party.name} warns of cost-of-living crisis for ordinary citizens`,
-        `Inflation spiraling out of control under current government`,
-        `Immediate intervention needed to protect household budgets`
+        'Inflation spiraling out of control under current government',
+        'Immediate intervention needed to protect household budgets',
       ],
       recession_risk: [
         `${party.name} calls emergency session on recession threat`,
-        `Economic crisis demands bipartisan response`,
-        `Government's economic incompetence threatens national stability`
-      ]
+        'Economic crisis demands bipartisan response',
+        'Government\'s economic incompetence threatens national stability',
+      ],
     };
 
     const messageArray = messages[change.type] || ['Opposition concerned about economic direction'];
@@ -494,15 +494,16 @@ export class AIOpposition {
   getRandomOppositionParty() {
     const totalSupport = this.oppositionParties.reduce((sum, party) => sum + party.support, 0);
     const random = Math.random() * totalSupport;
-    
+
     let currentSum = 0;
-    for (const party of this.oppositionParties) {
+    const foundParty = this.oppositionParties.find((party) => {
       currentSum += party.support;
-      if (random <= currentSum) {
-        return party;
-      }
+      return random <= currentSum;
+    });
+    if (foundParty) {
+      return foundParty;
     }
-    
+
     return this.oppositionParties[0]; // Fallback
   }
 
@@ -510,7 +511,7 @@ export class AIOpposition {
    * Update party standings based on performance
    */
   updatePartyStandings(gameState) {
-    this.oppositionParties.forEach(party => {
+    this.oppositionParties.forEach((party) => {
       // Parties gain support when government approval is low
       if (gameState.politics.approval < 40) {
         party.support += Math.random() * 0.5;
@@ -533,13 +534,13 @@ export class AIOpposition {
    * Calculate overall economic health score (0-1)
    */
   calculateEconomicHealth(gameState) {
-    const economy = gameState.economy;
-    
+    const { economy } = gameState;
+
     // Normalize each metric (lower is better for unemployment/inflation, higher for growth)
     const unemploymentScore = Math.max(0, Math.min(1, (10 - economy.unemployment) / 5));
     const inflationScore = Math.max(0, Math.min(1, (5 - economy.inflation) / 3));
     const growthScore = Math.max(0, Math.min(1, economy.gdpGrowth / 4));
-    
+
     return (unemploymentScore + inflationScore + growthScore) / 3;
   }
 
@@ -571,7 +572,7 @@ export class AIOpposition {
       aggressiveness: this.aggressiveness,
       recentActions: [...this.recentActions.slice(-5)], // Last 5 actions
       totalSupport: this.oppositionParties.reduce((sum, party) => sum + party.support, 0),
-      averageApproval: this.oppositionParties.reduce((sum, party) => sum + party.approval, 0) / this.oppositionParties.length
+      averageApproval: this.oppositionParties.reduce((sum, party) => sum + party.approval, 0) / this.oppositionParties.length,
     };
   }
 
@@ -580,7 +581,7 @@ export class AIOpposition {
    */
   initiateDebate(topic, urgency = 'medium') {
     const party = this.getRandomOppositionParty();
-    
+
     const debate = {
       id: `debate_${Date.now()}`,
       topic,
@@ -589,14 +590,14 @@ export class AIOpposition {
       status: 'pending',
       timestamp: Date.now(),
       arguments: this.generateDebateArguments(topic, party),
-      publicInterest: Math.random() * 0.5 + 0.3 // 0.3-0.8
+      publicInterest: Math.random() * 0.5 + 0.3, // 0.3-0.8
     };
 
     this.debateHistory.push(debate);
-    
+
     this.eventSystem.emit('opposition:debate_initiated', {
       debate,
-      requiredResponse: urgency === 'high'
+      requiredResponse: urgency === 'high',
     });
 
     return debate;
@@ -610,25 +611,25 @@ export class AIOpposition {
       unemployment: [
         'Government policies have failed to create sustainable employment',
         'Small businesses need more support to hire workers',
-        'Investment in infrastructure would create immediate jobs'
+        'Investment in infrastructure would create immediate jobs',
       ],
       inflation: [
         'Rising costs are hurting working families the most',
         'Government spending is driving inflation higher',
-        'Immediate price controls needed on essential goods'
+        'Immediate price controls needed on essential goods',
       ],
       healthcare: [
         'Healthcare system is failing those who need it most',
         'More funding needed for public health services',
-        'Private sector partnerships could improve efficiency'
-      ]
+        'Private sector partnerships could improve efficiency',
+      ],
     };
 
     const args = argumentTemplates[topic] || ['This policy requires serious reconsideration'];
-    return args.map(arg => ({
+    return args.map((arg) => ({
       argument: arg,
       strength: Math.random() * 0.5 + 0.5, // 0.5-1.0
-      party: party.name
+      party: party.name,
     }));
   }
 
@@ -636,22 +637,20 @@ export class AIOpposition {
    * Handle player response to debate
    */
   handleDebateResponse(debateId, playerResponse) {
-    const debate = this.debateHistory.find(d => d.id === debateId);
+    const debate = this.debateHistory.find((d) => d.id === debateId);
     if (!debate) return;
 
     debate.playerResponse = playerResponse;
     debate.status = 'completed';
-    
+
     // Calculate debate outcome based on response quality and opposition strength
     const outcome = this.calculateDebateOutcome(debate, playerResponse);
-    
+
     this.eventSystem.emit('opposition:debate_concluded', {
       debate,
       outcome,
-      impact: outcome.impact
+      impact: outcome.impact,
     });
-
-    return outcome;
   }
 
   /**
@@ -659,20 +658,20 @@ export class AIOpposition {
    */
   calculateDebateOutcome(debate, playerResponse) {
     const baseScore = Math.random() * 0.4 + 0.3; // 0.3-0.7 base
-    
+
     // Modify based on response type
     const responseModifiers = {
-      'strong_defense': 0.2,
-      'compromise': 0.1,
-      'deflect': -0.1,
-      'weak_response': -0.2,
-      'no_response': -0.3
+      strong_defense: 0.2,
+      compromise: 0.1,
+      deflect: -0.1,
+      weak_response: -0.2,
+      no_response: -0.3,
     };
 
     const finalScore = Math.max(0, Math.min(1, baseScore + (responseModifiers[playerResponse.type] || 0)));
 
     let outcome;
-    let impact = { approval: 0, support: 0 };
+    const impact = { approval: 0, support: 0 };
 
     if (finalScore > 0.6) {
       outcome = 'player_victory';

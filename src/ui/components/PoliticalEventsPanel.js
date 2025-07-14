@@ -76,7 +76,7 @@ export class PoliticalEventsPanel extends BaseComponent {
   handleOppositionAction(data) {
     const { action, oppositionStatus } = data;
     this.oppositionStatus = oppositionStatus;
-    
+
     // Add to recent actions
     this.oppositionActions.unshift(action);
     if (this.oppositionActions.length > 10) {
@@ -99,15 +99,15 @@ export class PoliticalEventsPanel extends BaseComponent {
    * Handle opposition policy response
    */
   handleOppositionPolicyResponse(data) {
-    const { policy, response, oppositionParty } = data;
-    
+    const { response, oppositionParty } = data;
+
     const notification = {
       type: 'policy_response',
       title: `${oppositionParty.name} responds to policy`,
       message: response.message,
       stance: response.stance,
       severity: response.severity,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.showOppositionNotification(notification);
@@ -134,10 +134,10 @@ export class PoliticalEventsPanel extends BaseComponent {
    */
   handleDebateConcluded(data) {
     const { debate, outcome } = data;
-    
+
     // Remove from active debates
-    this.activeDebates = this.activeDebates.filter(d => d.id !== debate.id);
-    
+    this.activeDebates = this.activeDebates.filter((d) => d.id !== debate.id);
+
     // Show outcome modal
     this.showDebateOutcomeModal(debate, outcome);
   }
@@ -146,19 +146,22 @@ export class PoliticalEventsPanel extends BaseComponent {
    * Handle opposition economic response
    */
   handleOppositionEconomicResponse(data) {
-    const { change, party, message, urgency } = data;
-    
+    const {
+      change, party, message, urgency,
+    } = data;
+
     const notification = {
       type: 'economic_response',
       title: `${party.name} on Economic Issues`,
       message,
       urgency,
       change,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.showOppositionNotification(notification);
   }
+
   handleEventTriggered(data) {
     const { event, gameState } = data;
     this.activeEvents.push(event);
@@ -513,25 +516,25 @@ export class PoliticalEventsPanel extends BaseComponent {
   showOppositionNotification(action) {
     const notification = document.createElement('div');
     notification.className = 'opposition-notification';
-    
+
     const iconMap = {
       criticism: '📢',
       policy_proposal: '📋',
       debate_call: '⚡',
       policy_response: '💬',
-      economic_response: '📊'
+      economic_response: '📊',
     };
 
     const colorMap = {
       high: '#dc2626',
       medium: '#d97706',
-      low: '#16a34a'
+      low: '#16a34a',
     };
 
     const bgColorMap = {
       high: 'rgba(239, 68, 68, 0.1)',
       medium: 'rgba(245, 158, 11, 0.1)',
-      low: 'rgba(34, 197, 94, 0.1)'
+      low: 'rgba(34, 197, 94, 0.1)',
     };
 
     const severity = action.severity || action.urgency || 'medium';
@@ -673,7 +676,7 @@ export class PoliticalEventsPanel extends BaseComponent {
   showDebateCallNotification(action) {
     this.showOppositionNotification({
       ...action,
-      message: `${action.proposedBy.name} is calling for a parliamentary debate on: ${action.topics.join(', ')}`
+      message: `${action.proposedBy.name} is calling for a parliamentary debate on: ${action.topics.join(', ')}`,
     });
   }
 
@@ -728,6 +731,7 @@ export class PoliticalEventsPanel extends BaseComponent {
       }
     }, 8000);
   }
+
   showEventNotification(event) {
     const notification = document.createElement('div');
     notification.className = 'political-event-notification';
@@ -777,7 +781,7 @@ export class PoliticalEventsPanel extends BaseComponent {
    * Show debate modal
    */
   showDebateModal(debate) {
-    const argumentsHtml = debate.arguments.map(arg => `
+    const argumentsHtml = debate.arguments.map((arg) => `
       <div class="debate-argument">
         <div class="argument-header">
           <strong>${arg.party}</strong>
@@ -989,7 +993,7 @@ export class PoliticalEventsPanel extends BaseComponent {
     const costFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      notation: 'compact'
+      notation: 'compact',
     }).format(proposal.cost);
 
     const modal = new Modal({
@@ -1110,13 +1114,13 @@ export class PoliticalEventsPanel extends BaseComponent {
     const outcomeTexts = {
       player_victory: 'You successfully defended your position!',
       opposition_victory: 'The opposition made compelling arguments.',
-      draw: 'The debate ended without a clear winner.'
+      draw: 'The debate ended without a clear winner.',
     };
 
     const outcomeColors = {
       player_victory: '#16a34a',
       opposition_victory: '#dc2626',
-      draw: '#d97706'
+      draw: '#d97706',
     };
 
     const modal = new Modal({
@@ -1190,6 +1194,7 @@ export class PoliticalEventsPanel extends BaseComponent {
 
     modal.show();
   }
+
   showVoteResultModal(vote, outcome) {
     const resultText = outcome.passed ? 'PASSED' : 'FAILED';
     const resultColor = outcome.passed ? '#16a34a' : '#dc2626';
@@ -1402,7 +1407,7 @@ export class PoliticalEventsPanel extends BaseComponent {
   respondToDebate(debateId, response) {
     eventSystem.emit('opposition:debate_response', {
       debateId,
-      response
+      response,
     });
   }
 
@@ -1426,9 +1431,9 @@ export class PoliticalEventsPanel extends BaseComponent {
         const iconMap = {
           criticism: '📢',
           policy_proposal: '📋',
-          debate_call: '⚡'
+          debate_call: '⚡',
         };
-        
+
         return `
           <li class="opposition-action-item" data-action='${JSON.stringify(item)}'>
             <div class="action-summary">
@@ -1438,9 +1443,9 @@ export class PoliticalEventsPanel extends BaseComponent {
             </div>
           </li>
         `;
-      } else {
-        // Regular political event
-        return `
+      }
+      // Regular political event
+      return `
           <li class="political-event-item" data-event-id="${item.id}">
             <div class="event-summary">
               <span class="event-icon">${this.getSeverityIcon(item.severity)}</span>
@@ -1449,7 +1454,6 @@ export class PoliticalEventsPanel extends BaseComponent {
             </div>
           </li>
         `;
-      }
     }).join('');
 
     // Add click handlers
@@ -1478,7 +1482,7 @@ export class PoliticalEventsPanel extends BaseComponent {
     if (action.type === 'policy_proposal') {
       this.showPolicyProposalModal(action);
     } else if (action.type === 'debate_call') {
-      const debate = this.activeDebates.find(d => d.initiator.id === action.proposedBy.id);
+      const debate = this.activeDebates.find((d) => d.initiator.id === action.proposedBy.id);
       if (debate) {
         this.showDebateModal(debate);
       }

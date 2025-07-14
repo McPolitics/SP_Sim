@@ -279,15 +279,15 @@ export class GameEngine {
   handleOppositionDebateResponse(data) {
     const { debateId, response } = data;
     const outcome = this.aiOpposition.handleDebateResponse(debateId, response);
-    
+
     if (outcome && outcome.impact) {
       // Apply debate impact to game state
       if (outcome.impact.approval) {
         this.updateGameState({
           politics: {
             ...this.gameState.politics,
-            approval: Math.max(0, Math.min(100, this.gameState.politics.approval + outcome.impact.approval))
-          }
+            approval: Math.max(0, Math.min(100, this.gameState.politics.approval + outcome.impact.approval)),
+          },
         });
       }
     }
@@ -298,10 +298,10 @@ export class GameEngine {
    */
   getGameState() {
     const baseState = JSON.parse(JSON.stringify(this.gameState));
-    
+
     // Add AI opposition status
     baseState.aiOpposition = this.aiOpposition.getOppositionStatus();
-    
+
     return baseState;
   }
 

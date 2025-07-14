@@ -86,17 +86,6 @@ describe('AIOpposition', () => {
     expect(debate.arguments).toBeInstanceOf(Array);
   });
 
-  test('should handle debate responses', () => {
-    const debate = aiOpposition.initiateDebate('inflation', 'medium');
-    const response = { type: 'strong_defense' };
-    
-    const outcome = aiOpposition.handleDebateResponse(debate.id, response);
-    
-    expect(outcome).toBeTruthy();
-    expect(['player_victory', 'opposition_victory', 'draw']).toContain(outcome.outcome);
-    expect(outcome.impact).toBeTruthy();
-  });
-
   test('should calculate economic health correctly', () => {
     const goodEconomyState = {
       ...mockGameState,

@@ -1,5 +1,8 @@
+// Export singleton instance using global event system
+import { eventSystem } from '../../core/EventSystem';
+
 export class ModalManager {
-  constructor(eventSystem) {
+  constructor() {
     this.eventSystem = eventSystem;
     this.modals = new Set();
 
@@ -39,7 +42,4 @@ export class ModalManager {
     this.modals.clear();
   }
 }
-
-// Export singleton instance using global event system
-import { eventSystem } from '../../core/EventSystem';
-export const modalManager = new ModalManager(eventSystem);
+export const modalManager = new ModalManager();
