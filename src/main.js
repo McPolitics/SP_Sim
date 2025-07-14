@@ -10,6 +10,7 @@ import { Dashboard } from './ui/components/Dashboard';
 import { Navigation } from './ui/components/Navigation';
 import { Modal } from './ui/components/Modal';
 import { EconomicsScreen } from './ui/components/EconomicsScreen';
+import { PolicyScreen } from './ui/components/PolicyScreen';
 import { DebugPanel } from './ui/components/DebugPanel';
 import { Timeline } from './ui/components/Timeline';
 import { PlayerGuide } from './ui/components/PlayerGuide';
@@ -28,6 +29,7 @@ class SPSimApp {
     this.dashboard = null;
     this.navigation = null;
     this.economicsScreen = null;
+    this.policyScreen = null;
     this.debugPanel = null;
     this.timeline = null;
     this.playerGuide = null;
@@ -100,6 +102,9 @@ class SPSimApp {
 
     // Initialize economics screen
     this.economicsScreen = new EconomicsScreen();
+
+    // Initialize policy screen
+    this.policyScreen = new PolicyScreen();
 
     // Initialize timeline component
     this.timeline = new Timeline();
@@ -184,18 +189,27 @@ class SPSimApp {
       screen.classList.remove('screen--active');
     });
 
-    // Show target screen
-    const targetScreen = document.querySelector(`#screen-${screenId}`);
-    if (targetScreen) {
-      targetScreen.classList.add('screen--active');
-
-      // Initialize specific screens
-      if (screenId === 'economy' && this.economicsScreen) {
+    // Handle specific screens that need special initialization
+    if (screenId === 'policies' && this.policyScreen) {
+      this.showPolicyScreen();
+    } else if (screenId === 'economy' && this.economicsScreen) {
+      // Show target screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
         this.economicsScreen.show();
+      } else {
+        this.createScreenPlaceholder(screenId);
       }
     } else {
-      // Create screen placeholder if it doesn't exist
-      this.createScreenPlaceholder(screenId);
+      // Show target screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
+      } else {
+        // Create screen placeholder if it doesn't exist
+        this.createScreenPlaceholder(screenId);
+      }
     }
 
     this.currentScreen = screenId;
@@ -214,6 +228,37 @@ class SPSimApp {
   showPlayerGuide() {
     if (this.playerGuide) {
       this.playerGuide.showModal();
+    }
+  }
+
+  /**
+   * Show policy screen
+   */
+  showPolicyScreen() {
+    if (this.policyScreen) {
+      // Create policy screen container if it doesn't exist
+      let policyContainer = document.querySelector('#screen-policies');
+      if (!policyContainer) {
+        policyContainer = document.createElement('div');
+        policyContainer.id = 'screen-policies';
+        policyContainer.className = 'screen screen--active';
+        
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+          mainContent.appendChild(policyContainer);
+        }
+      }
+      
+      // Render policy screen content
+      policyContainer.innerHTML = this.policyScreen.render();
+      
+      // Setup interactivity
+      this.policyScreen.setupInteractivity();
+      
+      // Update with current game state
+      if (this.gameEngine && this.gameEngine.getState) {
+        this.policyScreen.update(this.gameEngine.getState());
+      }
     }
   }
 
@@ -455,6 +500,10 @@ class SPSimApp {
 
     if (this.politicalEventsPanel) {
       this.politicalEventsPanel.update(gameState, politicalStatus);
+    }
+
+    if (this.policyScreen && this.currentScreen === 'policies') {
+      this.policyScreen.update(gameState);
     }
 
     // Update page title with current game info
