@@ -2,21 +2,14 @@
 
 A single-player web-based political economy simulation game where players take on the role of a political leader managing a nation through complex economic, political, and global challenges.
 
-Buttons
-[![GitHub Stars](https://img.shields.io/github/stars/McPolitics/SP_Sim?style=social)]
-[![GitHub Issues](https://img.shields.io/github/issues/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub License](https://img.shields.io/github/license/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Contributors](https://img.shields.io/github/contributors/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Forks](https://img.shields.io/github/forks/McPolitics/SP_Sim?style=social)]
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Code Size](https://img.shields.io/github/languages/code-size/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Language Count](https://img.shields.io/github/languages/count/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Top Language](https://img.shields.io/github/languages/top/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Commit Activity Year](https://img.shields.io/github/commit-activity/y/McPolitics/SP_Sim?style=flat-square)]
-[![GitHub Last Commit Date](https://img.shields.io/github/last-commit/McPolitics/SP_Sim?style=flat-square)]
-
+![GitHub Contributors](https://img.shields.io/github/contributors/McPolitics/SP_Sim?style=flat-square)
+![GitHub Last Commit](https://img.shields.io/github/last-commit/McPolitics/SP_Sim?style=flat-square)
+![GitHub Issues](https://img.shields.io/github/issues/McPolitics/SP_Sim?style=flat-square)
+![GitHub Pull Requests](https://img.shields.io/github/issues-pr/McPolitics/SP_Sim?style=flat-square)
+![GitHub Code Size](https://img.shields.io/github/languages/code-size/McPolitics/SP_Sim?style=flat-square)
+![GitHub Language Count](https://img.shields.io/github/languages/count/McPolitics/SP_Sim?style=flat-square)
+![GitHub Top Language](https://img.shields.io/github/languages/top/McPolitics/SP_Sim?style=flat-square)
+![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/McPolitics/SP_Sim?style=flat-square)
 
 ## Game Overview
 
