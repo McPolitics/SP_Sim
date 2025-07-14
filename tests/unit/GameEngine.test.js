@@ -171,4 +171,18 @@ describe('GameEngine', () => {
     expect(result.e).toEqual([1, 2, 3]); // unchanged array
     expect(result.g).toBe(5); // added
   });
+
+  test('resetGame should cleanup modals', () => {
+    const modal = new (require('../../src/ui/components/Modal').Modal)();
+    modal.show();
+    const { modalManager } = require('../../src/ui/components/ModalManager');
+    const spy = jest.spyOn(modalManager, 'cleanup');
+
+    gameEngine.resetGame(gameEngine.createInitialGameState());
+
+    expect(spy).toHaveBeenCalled();
+    expect(modalManager.modals.size).toBe(0);
+
+    spy.mockRestore();
+  });
 });
