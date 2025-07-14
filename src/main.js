@@ -242,19 +242,19 @@ class SPSimApp {
         policyContainer = document.createElement('div');
         policyContainer.id = 'screen-policies';
         policyContainer.className = 'screen screen--active';
-        
+
         const mainContent = document.querySelector('.main-content');
         if (mainContent) {
           mainContent.appendChild(policyContainer);
         }
       }
-      
+
       // Render policy screen content
       policyContainer.innerHTML = this.policyScreen.render();
-      
+
       // Setup interactivity
       this.policyScreen.setupInteractivity();
-      
+
       // Update with current game state
       if (this.gameEngine && this.gameEngine.getState) {
         this.policyScreen.update(this.gameEngine.getState());

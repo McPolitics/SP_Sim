@@ -52,13 +52,13 @@ export class PolicyScreen extends BaseComponent {
             gdp: { min: -0.5, max: 2.0 },
             approval: { min: -8, max: 12 },
             debt: { min: -1.0, max: 0.5 },
-            unemployment: { min: -0.2, max: 0.3 }
+            unemployment: { min: -0.2, max: 0.3 },
           },
           requirements: {
             approval: 45,
-            coalitionSupport: 60
+            coalitionSupport: 60,
           },
-          complexity: 'high'
+          complexity: 'high',
         },
         {
           id: 'infrastructure_investment',
@@ -71,13 +71,13 @@ export class PolicyScreen extends BaseComponent {
             gdp: { min: 0.5, max: 3.0 },
             approval: { min: 2, max: 8 },
             debt: { min: 1.0, max: 3.0 },
-            unemployment: { min: -1.5, max: -0.5 }
+            unemployment: { min: -1.5, max: -0.5 },
           },
           requirements: {
             approval: 35,
-            coalitionSupport: 55
+            coalitionSupport: 55,
           },
-          complexity: 'high'
+          complexity: 'high',
         },
         {
           id: 'small_business_support',
@@ -90,14 +90,14 @@ export class PolicyScreen extends BaseComponent {
             gdp: { min: 0.2, max: 1.0 },
             approval: { min: 1, max: 5 },
             debt: { min: 0.1, max: 0.5 },
-            unemployment: { min: -0.5, max: -0.1 }
+            unemployment: { min: -0.5, max: -0.1 },
           },
           requirements: {
             approval: 30,
-            coalitionSupport: 40
+            coalitionSupport: 40,
           },
-          complexity: 'medium'
-        }
+          complexity: 'medium',
+        },
       ],
       social: [
         {
@@ -110,13 +110,13 @@ export class PolicyScreen extends BaseComponent {
           effects: {
             approval: { min: 5, max: 15 },
             debt: { min: 1.5, max: 2.5 },
-            gdp: { min: -0.2, max: 0.8 }
+            gdp: { min: -0.2, max: 0.8 },
           },
           requirements: {
             approval: 40,
-            coalitionSupport: 65
+            coalitionSupport: 65,
           },
-          complexity: 'high'
+          complexity: 'high',
         },
         {
           id: 'education_reform',
@@ -128,13 +128,13 @@ export class PolicyScreen extends BaseComponent {
           effects: {
             approval: { min: 3, max: 10 },
             debt: { min: 0.8, max: 1.5 },
-            gdp: { min: 0.5, max: 2.0 }
+            gdp: { min: 0.5, max: 2.0 },
           },
           requirements: {
             approval: 35,
-            coalitionSupport: 50
+            coalitionSupport: 50,
           },
-          complexity: 'high'
+          complexity: 'high',
         },
         {
           id: 'unemployment_benefits',
@@ -146,14 +146,14 @@ export class PolicyScreen extends BaseComponent {
           effects: {
             approval: { min: 2, max: 8 },
             debt: { min: 0.3, max: 0.8 },
-            unemployment: { min: 0.1, max: 0.3 }
+            unemployment: { min: 0.1, max: 0.3 },
           },
           requirements: {
             approval: 25,
-            coalitionSupport: 45
+            coalitionSupport: 45,
           },
-          complexity: 'low'
-        }
+          complexity: 'low',
+        },
       ],
       environmental: [
         {
@@ -166,13 +166,13 @@ export class PolicyScreen extends BaseComponent {
           effects: {
             approval: { min: -5, max: 8 },
             gdp: { min: -0.8, max: 0.2 },
-            debt: { min: -0.5, max: 0.1 }
+            debt: { min: -0.5, max: 0.1 },
           },
           requirements: {
             approval: 45,
-            coalitionSupport: 60
+            coalitionSupport: 60,
           },
-          complexity: 'medium'
+          complexity: 'medium',
         },
         {
           id: 'renewable_energy',
@@ -185,14 +185,14 @@ export class PolicyScreen extends BaseComponent {
             approval: { min: 3, max: 12 },
             gdp: { min: 0.2, max: 2.5 },
             debt: { min: 2.0, max: 4.0 },
-            unemployment: { min: -2.0, max: -0.5 }
+            unemployment: { min: -2.0, max: -0.5 },
           },
           requirements: {
             approval: 40,
-            coalitionSupport: 55
+            coalitionSupport: 55,
           },
-          complexity: 'high'
-        }
+          complexity: 'high',
+        },
       ],
       foreign: [
         {
@@ -205,13 +205,13 @@ export class PolicyScreen extends BaseComponent {
           effects: {
             gdp: { min: 0.5, max: 2.0 },
             approval: { min: -3, max: 6 },
-            unemployment: { min: -0.5, max: 0.2 }
+            unemployment: { min: -0.5, max: 0.2 },
           },
           requirements: {
             approval: 35,
-            coalitionSupport: 50
+            coalitionSupport: 50,
           },
-          complexity: 'medium'
+          complexity: 'medium',
         },
         {
           id: 'defense_spending',
@@ -223,15 +223,15 @@ export class PolicyScreen extends BaseComponent {
           effects: {
             approval: { min: -2, max: 8 },
             debt: { min: 0.5, max: 1.5 },
-            gdp: { min: 0.1, max: 0.8 }
+            gdp: { min: 0.1, max: 0.8 },
           },
           requirements: {
             approval: 30,
-            coalitionSupport: 45
+            coalitionSupport: 45,
           },
-          complexity: 'medium'
-        }
-      ]
+          complexity: 'medium',
+        },
+      ],
     };
   }
 
@@ -572,7 +572,7 @@ export class PolicyScreen extends BaseComponent {
    */
   update(gameState) {
     this.gameState = gameState;
-    
+
     // Update active policies from game state
     if (gameState.policies) {
       this.activePolicies = gameState.policies.active || [];
@@ -588,10 +588,10 @@ export class PolicyScreen extends BaseComponent {
       { id: 'economic', name: '💰 Economic', icon: '💰' },
       { id: 'social', name: '👥 Social', icon: '👥' },
       { id: 'environmental', name: '🌱 Environmental', icon: '🌱' },
-      { id: 'foreign', name: '🌍 Foreign Policy', icon: '🌍' }
+      { id: 'foreign', name: '🌍 Foreign Policy', icon: '🌍' },
     ];
 
-    return categories.map(category => `
+    return categories.map((category) => `
       <button class="category-tab ${this.selectedCategory === category.id ? 'active' : ''}" 
               data-category="${category.id}">
         ${category.icon} ${category.name.split(' ').slice(1).join(' ')}
@@ -605,7 +605,7 @@ export class PolicyScreen extends BaseComponent {
   renderImplementationCapacity() {
     const capacity = this.calculateImplementationCapacity();
     const percentage = Math.min(100, capacity);
-    
+
     return `
       <div class="capacity-bar">
         <div class="capacity-fill" style="width: ${percentage}%"></div>
@@ -619,7 +619,13 @@ export class PolicyScreen extends BaseComponent {
    */
   calculateImplementationCapacity() {
     const activePolicyLoad = this.activePolicies.reduce((sum, policy) => {
-      return sum + (policy.complexity === 'high' ? 30 : policy.complexity === 'medium' ? 20 : 10);
+      let load = 10;
+      if (policy.complexity === 'high') {
+        load = 30;
+      } else if (policy.complexity === 'medium') {
+        load = 20;
+      }
+      return sum + load;
     }, 0);
 
     return activePolicyLoad;
@@ -630,10 +636,10 @@ export class PolicyScreen extends BaseComponent {
    */
   calculatePoliticalCapital() {
     if (!this.gameState) return 0;
-    
+
     const approval = this.gameState.politics?.approval || 50;
     const coalitionSupport = this.gameState.politics?.coalition?.reduce((sum, party) => sum + party.support, 0) || 50;
-    
+
     return Math.floor((approval + coalitionSupport) / 2);
   }
 
@@ -651,7 +657,7 @@ export class PolicyScreen extends BaseComponent {
       `;
     }
 
-    return this.activePolicies.map(policy => this.renderPolicyCard(policy, 'active')).join('');
+    return this.activePolicies.map((policy) => this.renderPolicyCard(policy, 'active')).join('');
   }
 
   /**
@@ -668,14 +674,14 @@ export class PolicyScreen extends BaseComponent {
       `;
     }
 
-    return this.draftPolicies.map(policy => this.renderPolicyCard(policy, 'draft')).join('');
+    return this.draftPolicies.map((policy) => this.renderPolicyCard(policy, 'draft')).join('');
   }
 
   /**
    * Render policy templates
    */
   renderPolicyTemplates() {
-    const selectedTemplates = this.selectedCategory === 'all' 
+    const selectedTemplates = this.selectedCategory === 'all'
       ? Object.values(this.policyTemplates).flat()
       : this.policyTemplates[this.selectedCategory] || [];
 
@@ -689,7 +695,7 @@ export class PolicyScreen extends BaseComponent {
       `;
     }
 
-    return selectedTemplates.map(template => this.renderPolicyCard(template, 'template')).join('');
+    return selectedTemplates.map((template) => this.renderPolicyCard(template, 'template')).join('');
   }
 
   /**
@@ -699,7 +705,7 @@ export class PolicyScreen extends BaseComponent {
     const costFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      notation: 'compact'
+      notation: 'compact',
     }).format(policy.baseCost || policy.cost || 0);
 
     return `
@@ -734,20 +740,32 @@ export class PolicyScreen extends BaseComponent {
    */
   renderEffectTags(effects) {
     if (!effects) return '';
-    
+
     return Object.entries(effects).map(([key, value]) => {
       let className = 'effect-neutral';
       let text = key;
-      
+
       if (typeof value === 'object' && value.min !== undefined) {
         const avg = (value.min + value.max) / 2;
-        className = avg > 0 ? 'effect-positive' : avg < 0 ? 'effect-negative' : 'effect-neutral';
+        if (avg > 0) {
+          className = 'effect-positive';
+        } else if (avg < 0) {
+          className = 'effect-negative';
+        } else {
+          className = 'effect-neutral';
+        }
         text = `${key}: ${value.min > 0 ? '+' : ''}${value.min}% to ${value.max > 0 ? '+' : ''}${value.max}%`;
       } else if (typeof value === 'number') {
-        className = value > 0 ? 'effect-positive' : value < 0 ? 'effect-negative' : 'effect-neutral';
+        if (value > 0) {
+          className = 'effect-positive';
+        } else if (value < 0) {
+          className = 'effect-negative';
+        } else {
+          className = 'effect-neutral';
+        }
         text = `${key}: ${value > 0 ? '+' : ''}${value}%`;
       }
-      
+
       return `<span class="effect-tag ${className}">${text}</span>`;
     }).join('');
   }
@@ -794,16 +812,16 @@ export class PolicyScreen extends BaseComponent {
    */
   handlePolicyImplemented(data) {
     const { policy } = data;
-    
+
     // Move from drafts to active
-    this.draftPolicies = this.draftPolicies.filter(p => p.id !== policy.id);
+    this.draftPolicies = this.draftPolicies.filter((p) => p.id !== policy.id);
     this.activePolicies.push({
       ...policy,
       implementedWeek: this.gameState?.time?.week || 1,
       implementedYear: this.gameState?.time?.year || 1,
-      status: 'implementing'
+      status: 'implementing',
     });
-    
+
     this.refresh();
   }
 
@@ -812,7 +830,7 @@ export class PolicyScreen extends BaseComponent {
    */
   handlePolicyRejected(data) {
     const { policy, reason } = data;
-    
+
     // Show rejection modal
     const modal = new Modal({
       title: 'Policy Rejected',
@@ -825,9 +843,9 @@ export class PolicyScreen extends BaseComponent {
         </div>
       `,
       confirmText: 'Understood',
-      showCancel: false
+      showCancel: false,
     });
-    
+
     modal.show();
   }
 
@@ -839,15 +857,15 @@ export class PolicyScreen extends BaseComponent {
     if (!container) return;
 
     // Category tab switching
-    container.querySelectorAll('.category-tab').forEach(tab => {
+    container.querySelectorAll('.category-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
-        const category = tab.dataset.category;
+        const { category } = tab.dataset;
         this.selectedCategory = category;
-        
+
         // Update active states
-        container.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        container.querySelectorAll('.category-tab').forEach((t) => t.classList.remove('active'));
         tab.classList.add('active');
-        
+
         // Refresh templates tab if visible
         if (container.querySelector('#templates-tab.active')) {
           this.refreshTemplatesTab();
@@ -856,16 +874,16 @@ export class PolicyScreen extends BaseComponent {
     });
 
     // Tab switching
-    container.querySelectorAll('.tab-btn').forEach(btn => {
+    container.querySelectorAll('.tab-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const tabName = btn.dataset.tab;
-        
+
         // Update tab buttons
-        container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        container.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        
+
         // Update tab content
-        container.querySelectorAll('.tab-content').forEach(content => {
+        container.querySelectorAll('.tab-content').forEach((content) => {
           content.classList.remove('active');
         });
         container.querySelector(`#${tabName}-tab`).classList.add('active');
@@ -874,9 +892,9 @@ export class PolicyScreen extends BaseComponent {
 
     // Policy actions
     container.addEventListener('click', (e) => {
-      const action = e.target.dataset.action;
-      const policyId = e.target.dataset.policyId;
-      
+      const { action } = e.target.dataset;
+      const { policyId } = e.target.dataset;
+
       if (action && policyId) {
         this.handlePolicyAction(action, policyId);
       }
@@ -915,6 +933,8 @@ export class PolicyScreen extends BaseComponent {
       case 'cancel':
         this.cancelPolicy(policyId);
         break;
+      default:
+        console.warn(`Unknown action: ${action}`);
     }
   }
 
@@ -922,7 +942,7 @@ export class PolicyScreen extends BaseComponent {
    * Use a policy template
    */
   useTemplate(templateId) {
-    const template = Object.values(this.policyTemplates).flat().find(t => t.id === templateId);
+    const template = Object.values(this.policyTemplates).flat().find((t) => t.id === templateId);
     if (!template) return;
 
     // Create draft from template
@@ -930,7 +950,7 @@ export class PolicyScreen extends BaseComponent {
       ...template,
       id: `draft_${Date.now()}`,
       createdAt: new Date().toISOString(),
-      status: 'draft'
+      status: 'draft',
     };
 
     this.draftPolicies.push(draft);
@@ -944,7 +964,7 @@ export class PolicyScreen extends BaseComponent {
    * Preview policy details
    */
   previewPolicy(policyId) {
-    const policy = Object.values(this.policyTemplates).flat().find(p => p.id === policyId);
+    const policy = Object.values(this.policyTemplates).flat().find((p) => p.id === policyId);
     if (!policy) return;
 
     this.showPolicyPreviewModal(policy);
@@ -956,7 +976,7 @@ export class PolicyScreen extends BaseComponent {
   showPolicyPreviewModal(policy) {
     const costFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(policy.baseCost);
 
     const modal = new Modal({
@@ -997,7 +1017,7 @@ export class PolicyScreen extends BaseComponent {
       onConfirm: () => {
         this.useTemplate(policy.id);
         return true;
-      }
+      },
     });
 
     modal.show();
@@ -1012,7 +1032,7 @@ export class PolicyScreen extends BaseComponent {
       if (typeof value === 'object' && value.min !== undefined) {
         range = `${value.min > 0 ? '+' : ''}${value.min}% to ${value.max > 0 ? '+' : ''}${value.max}%`;
       }
-      
+
       return `
         <div class="effect-detail">
           <span class="effect-name">${key.charAt(0).toUpperCase() + key.slice(1)}:</span>
@@ -1028,10 +1048,10 @@ export class PolicyScreen extends BaseComponent {
   renderFeasibilityAssessment(policy) {
     const currentApproval = this.gameState.politics?.approval || 0;
     const currentCoalition = this.gameState.politics?.coalition?.reduce((sum, party) => sum + party.support, 0) || 0;
-    
+
     const approvalMet = currentApproval >= policy.requirements.approval;
     const coalitionMet = currentCoalition >= policy.requirements.coalitionSupport;
-    
+
     return `
       <div class="feasibility-assessment">
         <h4>Current Feasibility</h4>
@@ -1056,7 +1076,7 @@ export class PolicyScreen extends BaseComponent {
    * Implement a draft policy
    */
   implementPolicy(policyId) {
-    const policy = this.draftPolicies.find(p => p.id === policyId);
+    const policy = this.draftPolicies.find((p) => p.id === policyId);
     if (!policy) return;
 
     // Check requirements
@@ -1067,7 +1087,7 @@ export class PolicyScreen extends BaseComponent {
     // Emit implementation event
     eventSystem.emit('policy:implement', {
       policy,
-      gameState: this.gameState
+      gameState: this.gameState,
     });
   }
 
@@ -1079,7 +1099,7 @@ export class PolicyScreen extends BaseComponent {
 
     const currentApproval = this.gameState.politics?.approval || 0;
     const currentCoalition = this.gameState.politics?.coalition?.reduce((sum, party) => sum + party.support, 0) || 0;
-    
+
     const approvalMet = currentApproval >= policy.requirements.approval;
     const coalitionMet = currentCoalition >= policy.requirements.coalitionSupport;
 
@@ -1097,7 +1117,7 @@ export class PolicyScreen extends BaseComponent {
           </div>
         `,
         confirmText: 'Understood',
-        showCancel: false
+        showCancel: false,
       });
       modal.show();
       return false;
@@ -1131,7 +1151,7 @@ export class PolicyScreen extends BaseComponent {
       onConfirm: () => {
         document.querySelector('[data-tab="templates"]')?.click();
         return true;
-      }
+      },
     });
 
     modal.show();
@@ -1160,15 +1180,15 @@ export class PolicyScreen extends BaseComponent {
    */
   updatePolicyStatus(gameState) {
     this.gameState = gameState;
-    
+
     // Update active policies with current progress
-    this.activePolicies.forEach(policy => {
+    this.activePolicies.forEach((policy) => {
       if (policy.implementedWeek && gameState.time) {
-        const weeksElapsed = (gameState.time.year - policy.implementedYear) * 52 + 
-                           (gameState.time.week - policy.implementedWeek);
-        
+        const weeksElapsed = (gameState.time.year - policy.implementedYear) * 52
+                           + (gameState.time.week - policy.implementedWeek);
+
         policy.progress = Math.min(100, (weeksElapsed / policy.duration) * 100);
-        
+
         if (policy.progress >= 100) {
           policy.status = 'completed';
         }
