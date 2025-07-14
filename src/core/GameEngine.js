@@ -6,6 +6,7 @@ import { politicalEvents } from './PoliticalEvents';
 import { winConditions } from './WinConditions';
 import { gameReset } from './GameReset';
 import { aiOpposition } from './AIOpposition';
+import { modalManager } from '../ui/components/ModalManager';
 
 /**
  * GameEngine - Core game loop and state management for SP_Sim
@@ -344,6 +345,9 @@ export class GameEngine {
   resetGame(newGameState) {
     // Stop current game
     this.stop();
+
+    // Ensure any open modals are cleared
+    modalManager.cleanup();
 
     // Reset achievements
     this.winConditions.resetAchievements();
