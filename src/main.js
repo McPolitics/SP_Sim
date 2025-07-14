@@ -189,20 +189,27 @@ class SPSimApp {
       screen.classList.remove('screen--active');
     });
 
-    // Show target screen
-    const targetScreen = document.querySelector(`#screen-${screenId}`);
-    if (targetScreen) {
-      targetScreen.classList.add('screen--active');
-
-      // Initialize specific screens
-      if (screenId === 'economy' && this.economicsScreen) {
+    // Handle specific screens that need special initialization
+    if (screenId === 'policies' && this.policyScreen) {
+      this.showPolicyScreen();
+    } else if (screenId === 'economy' && this.economicsScreen) {
+      // Show target screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
         this.economicsScreen.show();
-      } else if (screenId === 'policies' && this.policyScreen) {
-        this.showPolicyScreen();
+      } else {
+        this.createScreenPlaceholder(screenId);
       }
     } else {
-      // Create screen placeholder if it doesn't exist
-      this.createScreenPlaceholder(screenId);
+      // Show target screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
+      } else {
+        // Create screen placeholder if it doesn't exist
+        this.createScreenPlaceholder(screenId);
+      }
     }
 
     this.currentScreen = screenId;
