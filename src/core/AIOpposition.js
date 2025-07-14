@@ -242,7 +242,7 @@ export class AIOpposition {
       });
     }
 
-    return policies.length > 0 ? policies[Math.floor(Math.random() * policies.length)] : null;
+    return policies.length > 0 ? policies[0] : null;
   }
 
   /**

@@ -15,6 +15,7 @@ import { Timeline } from './ui/components/Timeline';
 import { PlayerGuide } from './ui/components/PlayerGuide';
 import { StartingScreen } from './ui/components/StartingScreen';
 import { PoliticalEventsPanel } from './ui/components/PoliticalEventsPanel';
+import { SettingsScreen } from './ui/components/SettingsScreen';
 
 /**
  * Main application class
@@ -32,6 +33,7 @@ class SPSimApp {
     this.playerGuide = null;
     this.startingScreen = null;
     this.politicalEventsPanel = null;
+    this.settingsScreen = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -107,6 +109,9 @@ class SPSimApp {
 
     // Initialize political events panel
     this.politicalEventsPanel = new PoliticalEventsPanel();
+
+    // Initialize settings screen
+    this.settingsScreen = new SettingsScreen();
 
     // Initialize debug panel (only in debug mode)
     // eslint-disable-next-line no-undef
