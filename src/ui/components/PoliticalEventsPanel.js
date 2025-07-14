@@ -9,7 +9,10 @@ export class PoliticalEventsPanel extends BaseComponent {
   constructor() {
     super();
     this.activeEvents = [];
+    this.oppositionActions = [];
+    this.activeDebates = [];
     this.coalitionStability = 100;
+    this.oppositionStatus = null;
     this.setupEventListeners();
   }
 
@@ -33,6 +36,27 @@ export class PoliticalEventsPanel extends BaseComponent {
     eventSystem.on('political:crisis_triggered', (event) => {
       this.handleCrisisTriggered(event.data);
     });
+
+    // Listen for AI opposition events
+    eventSystem.on('opposition:action', (event) => {
+      this.handleOppositionAction(event.data);
+    });
+
+    eventSystem.on('opposition:policy_response', (event) => {
+      this.handleOppositionPolicyResponse(event.data);
+    });
+
+    eventSystem.on('opposition:debate_initiated', (event) => {
+      this.handleDebateInitiated(event.data);
+    });
+
+    eventSystem.on('opposition:debate_concluded', (event) => {
+      this.handleDebateConcluded(event.data);
+    });
+
+    eventSystem.on('opposition:economic_response', (event) => {
+      this.handleOppositionEconomicResponse(event.data);
+    });
   }
 
   /**
@@ -40,13 +64,101 @@ export class PoliticalEventsPanel extends BaseComponent {
    */
   update(gameState, politicalStatus) {
     this.coalitionStability = politicalStatus.coalition;
+    this.lastGameState = gameState; // Store for event modals
     this.updatePoliticalStatusDisplay(gameState, politicalStatus);
     this.updateActiveEventsList();
+    this.updateOppositionActionsList();
   }
 
   /**
-   * Handle new political event being triggered
+   * Handle AI opposition action
    */
+  handleOppositionAction(data) {
+    const { action, oppositionStatus } = data;
+    this.oppositionStatus = oppositionStatus;
+    
+    // Add to recent actions
+    this.oppositionActions.unshift(action);
+    if (this.oppositionActions.length > 10) {
+      this.oppositionActions = this.oppositionActions.slice(0, 10);
+    }
+
+    // Show notification for important actions
+    if (action.type === 'criticism' && action.severity === 'high') {
+      this.showOppositionNotification(action);
+    } else if (action.type === 'policy_proposal') {
+      this.showPolicyProposalNotification(action);
+    } else if (action.type === 'debate_call') {
+      this.showDebateCallNotification(action);
+    }
+
+    this.updateOppositionActionsList();
+  }
+
+  /**
+   * Handle opposition policy response
+   */
+  handleOppositionPolicyResponse(data) {
+    const { policy, response, oppositionParty } = data;
+    
+    const notification = {
+      type: 'policy_response',
+      title: `${oppositionParty.name} responds to policy`,
+      message: response.message,
+      stance: response.stance,
+      severity: response.severity,
+      timestamp: Date.now()
+    };
+
+    this.showOppositionNotification(notification);
+  }
+
+  /**
+   * Handle debate initiated by opposition
+   */
+  handleDebateInitiated(data) {
+    const { debate, requiredResponse } = data;
+    this.activeDebates.push(debate);
+
+    if (requiredResponse) {
+      // Show urgent debate modal
+      this.showDebateModal(debate);
+    } else {
+      // Show notification
+      this.showDebateNotification(debate);
+    }
+  }
+
+  /**
+   * Handle debate conclusion
+   */
+  handleDebateConcluded(data) {
+    const { debate, outcome } = data;
+    
+    // Remove from active debates
+    this.activeDebates = this.activeDebates.filter(d => d.id !== debate.id);
+    
+    // Show outcome modal
+    this.showDebateOutcomeModal(debate, outcome);
+  }
+
+  /**
+   * Handle opposition economic response
+   */
+  handleOppositionEconomicResponse(data) {
+    const { change, party, message, urgency } = data;
+    
+    const notification = {
+      type: 'economic_response',
+      title: `${party.name} on Economic Issues`,
+      message,
+      urgency,
+      change,
+      timestamp: Date.now()
+    };
+
+    this.showOppositionNotification(notification);
+  }
   handleEventTriggered(data) {
     const { event, gameState } = data;
     this.activeEvents.push(event);
@@ -396,8 +508,226 @@ export class PoliticalEventsPanel extends BaseComponent {
   }
 
   /**
-   * Show event notification
+   * Show opposition action notification
    */
+  showOppositionNotification(action) {
+    const notification = document.createElement('div');
+    notification.className = 'opposition-notification';
+    
+    const iconMap = {
+      criticism: '📢',
+      policy_proposal: '📋',
+      debate_call: '⚡',
+      policy_response: '💬',
+      economic_response: '📊'
+    };
+
+    const colorMap = {
+      high: '#dc2626',
+      medium: '#d97706',
+      low: '#16a34a'
+    };
+
+    const bgColorMap = {
+      high: 'rgba(239, 68, 68, 0.1)',
+      medium: 'rgba(245, 158, 11, 0.1)',
+      low: 'rgba(34, 197, 94, 0.1)'
+    };
+
+    const severity = action.severity || action.urgency || 'medium';
+    const icon = iconMap[action.type] || '🏛️';
+
+    notification.innerHTML = `
+      <div class="notification-header">
+        <span class="notification-icon">${icon}</span>
+        <span class="notification-title">Opposition Action</span>
+        <button class="notification-close" onclick="this.closest('.opposition-notification').remove()">×</button>
+      </div>
+      <div class="notification-content">
+        <h4>${action.title || 'Opposition Response'}</h4>
+        <p>${action.message || action.description}</p>
+        ${action.proposedBy ? `<small>— ${action.proposedBy.name}</small>` : ''}
+      </div>
+    `;
+
+    notification.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 320px;
+      background: ${bgColorMap[severity]};
+      border: 1px solid ${colorMap[severity]};
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      animation: slideInRight 0.3s ease-out;
+      padding: var(--spacing-md);
+    `;
+
+    // Style the content
+    const style = document.createElement('style');
+    style.textContent = `
+      .opposition-notification .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-sm);
+      }
+      .opposition-notification .notification-title {
+        font-weight: 600;
+        color: ${colorMap[severity]};
+      }
+      .opposition-notification .notification-close {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: ${colorMap[severity]};
+      }
+      .opposition-notification h4 {
+        margin: 0 0 var(--spacing-xs) 0;
+        color: ${colorMap[severity]};
+      }
+      .opposition-notification p {
+        margin: 0 0 var(--spacing-xs) 0;
+        font-size: 0.9rem;
+      }
+      .opposition-notification small {
+        font-style: italic;
+        opacity: 0.8;
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after 6 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }
+    }, 6000);
+  }
+
+  /**
+   * Show policy proposal notification
+   */
+  showPolicyProposalNotification(action) {
+    const notification = document.createElement('div');
+    notification.className = 'policy-proposal-notification';
+    notification.innerHTML = `
+      <div class="notification-header">
+        <span class="notification-icon">📋</span>
+        <span class="notification-title">Opposition Policy Proposal</span>
+      </div>
+      <div class="notification-content">
+        <h4>${action.title}</h4>
+        <p>${action.description}</p>
+        <div class="proposal-actions">
+          <button class="btn btn--sm btn--primary view-proposal-btn" data-action='${JSON.stringify(action)}'>
+            View Proposal
+          </button>
+        </div>
+      </div>
+    `;
+
+    notification.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 340px;
+      background: rgba(49, 130, 206, 0.1);
+      border: 1px solid #3182ce;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      animation: slideInRight 0.3s ease-out;
+      padding: var(--spacing-md);
+    `;
+
+    document.body.appendChild(notification);
+
+    // Add event handler for view proposal button
+    const viewBtn = notification.querySelector('.view-proposal-btn');
+    viewBtn.addEventListener('click', () => {
+      this.showPolicyProposalModal(action);
+      notification.remove();
+    });
+
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 10000);
+  }
+
+  /**
+   * Show debate call notification
+   */
+  showDebateCallNotification(action) {
+    this.showOppositionNotification({
+      ...action,
+      message: `${action.proposedBy.name} is calling for a parliamentary debate on: ${action.topics.join(', ')}`
+    });
+  }
+
+  /**
+   * Show debate notification
+   */
+  showDebateNotification(debate) {
+    const notification = document.createElement('div');
+    notification.className = 'debate-notification';
+    notification.innerHTML = `
+      <div class="notification-header">
+        <span class="notification-icon">⚡</span>
+        <span class="notification-title">Parliamentary Debate</span>
+      </div>
+      <div class="notification-content">
+        <h4>${debate.topic}</h4>
+        <p>The ${debate.initiator.name} has initiated a debate</p>
+        <div class="debate-actions">
+          <button class="btn btn--sm btn--primary join-debate-btn" data-debate-id="${debate.id}">
+            Join Debate
+          </button>
+        </div>
+      </div>
+    `;
+
+    notification.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 320px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid #d97706;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      animation: slideInRight 0.3s ease-out;
+      padding: var(--spacing-md);
+    `;
+
+    document.body.appendChild(notification);
+
+    // Add event handler
+    const joinBtn = notification.querySelector('.join-debate-btn');
+    joinBtn.addEventListener('click', () => {
+      this.showDebateModal(debate);
+      notification.remove();
+    });
+
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 8000);
+  }
   showEventNotification(event) {
     const notification = document.createElement('div');
     notification.className = 'political-event-notification';
@@ -444,8 +774,422 @@ export class PoliticalEventsPanel extends BaseComponent {
   }
 
   /**
-   * Show vote result modal
+   * Show debate modal
    */
+  showDebateModal(debate) {
+    const argumentsHtml = debate.arguments.map(arg => `
+      <div class="debate-argument">
+        <div class="argument-header">
+          <strong>${arg.party}</strong>
+          <span class="argument-strength">${(arg.strength * 100).toFixed(0)}% strength</span>
+        </div>
+        <p>${arg.argument}</p>
+      </div>
+    `).join('');
+
+    const modal = new Modal({
+      title: `Parliamentary Debate: ${debate.topic}`,
+      content: `
+        <div class="debate-modal">
+          <div class="debate-header">
+            <div class="debate-info">
+              <div class="debate-urgency debate-urgency--${debate.urgency}">
+                ${debate.urgency.toUpperCase()} PRIORITY
+              </div>
+              <div class="debate-interest">
+                Public Interest: ${(debate.publicInterest * 100).toFixed(0)}%
+              </div>
+            </div>
+          </div>
+
+          <div class="debate-description">
+            <p>The ${debate.initiator.name} has called for a parliamentary debate on this important issue.</p>
+          </div>
+
+          <div class="opposition-arguments">
+            <h4>Opposition Arguments:</h4>
+            ${argumentsHtml}
+          </div>
+
+          <div class="debate-response-options">
+            <h4>Choose Your Response:</h4>
+            <div class="response-options">
+              <div class="response-option" data-response="strong_defense">
+                <h5>🛡️ Strong Defense</h5>
+                <p>Vigorously defend current policies with detailed counterarguments</p>
+                <small>High impact, moderate risk</small>
+              </div>
+              <div class="response-option" data-response="compromise">
+                <h5>🤝 Seek Compromise</h5>
+                <p>Acknowledge concerns and propose middle-ground solutions</p>
+                <small>Moderate impact, low risk</small>
+              </div>
+              <div class="response-option" data-response="deflect">
+                <h5>🔄 Deflect & Redirect</h5>
+                <p>Shift focus to opposition's past failures or other issues</p>
+                <small>Variable impact, moderate risk</small>
+              </div>
+              <div class="response-option" data-response="weak_response">
+                <h5>😐 Minimal Response</h5>
+                <p>Provide only basic, non-committal answers</p>
+                <small>Low impact, high risk</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          .debate-modal {
+            max-width: 600px;
+            margin: 0 auto;
+          }
+          
+          .debate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+          }
+          
+          .debate-urgency {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 0.8rem;
+          }
+          
+          .debate-urgency--high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+          }
+          
+          .debate-urgency--medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #d97706;
+          }
+          
+          .debate-urgency--low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #16a34a;
+          }
+          
+          .debate-interest {
+            font-size: 0.9rem;
+            color: var(--text-light);
+          }
+          
+          .opposition-arguments {
+            margin-bottom: var(--spacing-lg);
+          }
+          
+          .debate-argument {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            background: rgba(0, 0, 0, 0.02);
+          }
+          
+          .argument-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+          }
+          
+          .argument-strength {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: var(--border-radius);
+          }
+          
+          .debate-response-options h4 {
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+          }
+          
+          .response-options {
+            display: grid;
+            gap: var(--spacing-sm);
+          }
+          
+          .response-option {
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-base);
+          }
+          
+          .response-option:hover {
+            border-color: var(--secondary-color);
+            background: rgba(49, 130, 206, 0.05);
+          }
+          
+          .response-option.selected {
+            border-color: var(--secondary-color);
+            background: rgba(49, 130, 206, 0.1);
+          }
+          
+          .response-option h5 {
+            margin: 0 0 var(--spacing-xs) 0;
+            color: var(--text-color);
+          }
+          
+          .response-option p {
+            margin: 0 0 var(--spacing-xs) 0;
+            color: var(--text-light);
+          }
+          
+          .response-option small {
+            font-style: italic;
+            opacity: 0.7;
+          }
+        </style>
+      `,
+      confirmText: 'Respond to Debate',
+      cancelText: 'Skip Debate',
+      showCancel: true,
+      onConfirm: () => {
+        const selectedOption = document.querySelector('.response-option.selected');
+        if (!selectedOption) {
+          this.showNotification('Please select a response option.', 'warning');
+          return false;
+        }
+
+        const responseType = selectedOption.getAttribute('data-response');
+        this.respondToDebate(debate.id, { type: responseType });
+        return true;
+      },
+    });
+
+    modal.show();
+
+    // Add option selection handlers
+    setTimeout(() => {
+      const options = document.querySelectorAll('.response-option');
+      options.forEach((option) => {
+        option.addEventListener('click', () => {
+          options.forEach((opt) => opt.classList.remove('selected'));
+          option.classList.add('selected');
+        });
+      });
+    }, 100);
+  }
+
+  /**
+   * Show policy proposal modal
+   */
+  showPolicyProposalModal(proposal) {
+    const costFormatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'compact'
+    }).format(proposal.cost);
+
+    const modal = new Modal({
+      title: `Opposition Policy Proposal: ${proposal.title}`,
+      content: `
+        <div class="policy-proposal-modal">
+          <div class="proposal-header">
+            <div class="proposal-area">${proposal.area.toUpperCase()}</div>
+            <div class="proposal-cost">Cost: ${costFormatted}</div>
+          </div>
+
+          <div class="proposal-description">
+            <p>${proposal.description}</p>
+          </div>
+
+          <div class="proposal-impact">
+            <h4>Projected Impact:</h4>
+            <div class="impact-grid">
+              ${Object.entries(proposal.impact).map(([key, value]) => `
+                <div class="impact-item">
+                  <span class="impact-label">${key}:</span>
+                  <span class="impact-value ${value > 0 ? 'positive' : 'negative'}">
+                    ${value > 0 ? '+' : ''}${value}${key.includes('percent') || key.includes('%') ? '%' : ''}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="proposal-source">
+            <p><strong>Proposed by:</strong> ${proposal.proposedBy.name}</p>
+          </div>
+        </div>
+
+        <style>
+          .policy-proposal-modal {
+            max-width: 500px;
+            margin: 0 auto;
+          }
+          
+          .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: rgba(49, 130, 206, 0.1);
+            border-radius: var(--border-radius);
+          }
+          
+          .proposal-area {
+            font-weight: 600;
+            color: var(--secondary-color);
+          }
+          
+          .proposal-cost {
+            font-weight: 600;
+            color: var(--text-color);
+          }
+          
+          .proposal-description {
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: var(--border-radius);
+          }
+          
+          .proposal-impact h4 {
+            margin-bottom: var(--spacing-sm);
+            color: var(--primary-color);
+          }
+          
+          .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+          }
+          
+          .impact-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm);
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+          }
+          
+          .impact-value.positive {
+            color: #16a34a;
+          }
+          
+          .impact-value.negative {
+            color: #dc2626;
+          }
+          
+          .proposal-source {
+            font-style: italic;
+            color: var(--text-light);
+          }
+        </style>
+      `,
+      confirmText: 'Consider Proposal',
+      cancelText: 'Dismiss',
+      showCancel: true,
+      onConfirm: () => {
+        this.showNotification('Opposition proposal noted for future consideration.', 'info');
+        return true;
+      },
+    });
+
+    modal.show();
+  }
+
+  /**
+   * Show debate outcome modal
+   */
+  showDebateOutcomeModal(debate, outcome) {
+    const outcomeTexts = {
+      player_victory: 'You successfully defended your position!',
+      opposition_victory: 'The opposition made compelling arguments.',
+      draw: 'The debate ended without a clear winner.'
+    };
+
+    const outcomeColors = {
+      player_victory: '#16a34a',
+      opposition_victory: '#dc2626',
+      draw: '#d97706'
+    };
+
+    const modal = new Modal({
+      title: 'Debate Concluded',
+      content: `
+        <div class="debate-outcome-modal">
+          <div class="outcome-header">
+            <h3 style="color: ${outcomeColors[outcome.outcome]};">
+              ${outcomeTexts[outcome.outcome]}
+            </h3>
+            <div class="outcome-score">
+              Performance Score: ${(outcome.score * 100).toFixed(0)}%
+            </div>
+          </div>
+
+          <div class="outcome-impact">
+            <h4>Political Impact:</h4>
+            <div class="impact-list">
+              ${outcome.impact.approval ? `
+                <div class="impact-item">
+                  Approval Rating: ${outcome.impact.approval > 0 ? '+' : ''}${outcome.impact.approval.toFixed(1)}%
+                </div>
+              ` : ''}
+              ${outcome.impact.support ? `
+                <div class="impact-item">
+                  Opposition Support: ${outcome.impact.support > 0 ? '+' : ''}${outcome.impact.support.toFixed(1)}%
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+
+        <style>
+          .debate-outcome-modal {
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+          }
+          
+          .outcome-header h3 {
+            margin-bottom: var(--spacing-sm);
+          }
+          
+          .outcome-score {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-light);
+          }
+          
+          .outcome-impact h4 {
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+          }
+          
+          .impact-list {
+            text-align: left;
+          }
+          
+          .impact-item {
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: var(--border-radius);
+          }
+        </style>
+      `,
+      confirmText: 'Continue',
+      showCancel: false,
+    });
+
+    modal.show();
+  }
   showVoteResultModal(vote, outcome) {
     const resultText = outcome.passed ? 'PASSED' : 'FAILED';
     const resultColor = outcome.passed ? '#16a34a' : '#dc2626';
@@ -619,15 +1363,15 @@ export class PoliticalEventsPanel extends BaseComponent {
   updatePoliticalStatusDisplay(gameState, politicalStatus) {
     // Update coalition stability display
     const coalitionElement = document.getElementById('coalition-stability');
-    if (coalitionElement) {
+    if (coalitionElement && politicalStatus.coalition !== undefined) {
       coalitionElement.textContent = `${politicalStatus.coalition.toFixed(1)}%`;
       coalitionElement.className = `status-value ${this.getStabilityClass(politicalStatus.coalition)}`;
     }
 
     // Update political pressure indicator
     const pressureElement = document.getElementById('political-pressure');
-    if (pressureElement) {
-      pressureElement.textContent = `${politicalStatus.politicalPressure}%`;
+    if (pressureElement && politicalStatus.politicalPressure !== undefined) {
+      pressureElement.textContent = `${politicalStatus.politicalPressure.toFixed(1)}%`;
       pressureElement.className = `pressure-value ${this.getPressureClass(politicalStatus.politicalPressure)}`;
     }
   }
@@ -653,29 +1397,70 @@ export class PoliticalEventsPanel extends BaseComponent {
   }
 
   /**
-   * Update active events list
+   * Respond to debate
    */
-  updateActiveEventsList() {
-    const eventsContainer = document.getElementById('active-political-events');
-    if (!eventsContainer) return;
+  respondToDebate(debateId, response) {
+    eventSystem.emit('opposition:debate_response', {
+      debateId,
+      response
+    });
+  }
 
-    if (this.activeEvents.length === 0) {
-      eventsContainer.innerHTML = '<li>No active political events</li>';
+  /**
+   * Update opposition actions list
+   */
+  updateOppositionActionsList() {
+    const actionsContainer = document.getElementById('active-political-events');
+    if (!actionsContainer) return;
+
+    const allItems = [...this.activeEvents, ...this.oppositionActions.slice(0, 5)];
+
+    if (allItems.length === 0) {
+      actionsContainer.innerHTML = '<li>No active political events</li>';
       return;
     }
 
-    eventsContainer.innerHTML = this.activeEvents.map((event) => `
-      <li class="political-event-item" data-event-id="${event.id}">
-        <div class="event-summary">
-          <span class="event-icon">${this.getSeverityIcon(event.severity)}</span>
-          <span class="event-title">${event.title}</span>
-          <span class="event-deadline">Due: Week ${event.deadline.week}</span>
-        </div>
-      </li>
-    `).join('');
+    actionsContainer.innerHTML = allItems.map((item) => {
+      if (item.type && ['criticism', 'policy_proposal', 'debate_call'].includes(item.type)) {
+        // Opposition action
+        const iconMap = {
+          criticism: '📢',
+          policy_proposal: '📋',
+          debate_call: '⚡'
+        };
+        
+        return `
+          <li class="opposition-action-item" data-action='${JSON.stringify(item)}'>
+            <div class="action-summary">
+              <span class="action-icon">${iconMap[item.type] || '🏛️'}</span>
+              <span class="action-title">${item.title || item.message}</span>
+              <span class="action-source">${item.proposedBy ? item.proposedBy.name : 'Opposition'}</span>
+            </div>
+          </li>
+        `;
+      } else {
+        // Regular political event
+        return `
+          <li class="political-event-item" data-event-id="${item.id}">
+            <div class="event-summary">
+              <span class="event-icon">${this.getSeverityIcon(item.severity)}</span>
+              <span class="event-title">${item.title}</span>
+              <span class="event-deadline">Due: Week ${item.deadline.week}</span>
+            </div>
+          </li>
+        `;
+      }
+    }).join('');
 
-    // Add click handlers for event items
-    eventsContainer.querySelectorAll('.political-event-item').forEach((item) => {
+    // Add click handlers
+    actionsContainer.querySelectorAll('.opposition-action-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        const actionData = JSON.parse(item.getAttribute('data-action'));
+        this.showOppositionActionDetail(actionData);
+      });
+    });
+
+    actionsContainer.querySelectorAll('.political-event-item').forEach((item) => {
       item.addEventListener('click', () => {
         const eventId = item.getAttribute('data-event-id');
         const event = this.activeEvents.find((e) => e.id === eventId);
@@ -684,6 +1469,36 @@ export class PoliticalEventsPanel extends BaseComponent {
         }
       });
     });
+  }
+
+  /**
+   * Show opposition action detail
+   */
+  showOppositionActionDetail(action) {
+    if (action.type === 'policy_proposal') {
+      this.showPolicyProposalModal(action);
+    } else if (action.type === 'debate_call') {
+      const debate = this.activeDebates.find(d => d.initiator.id === action.proposedBy.id);
+      if (debate) {
+        this.showDebateModal(debate);
+      }
+    } else {
+      // Show generic action modal
+      const modal = new Modal({
+        title: 'Opposition Action',
+        content: `
+          <div class="opposition-action-detail">
+            <h4>${action.title || 'Opposition Statement'}</h4>
+            <p>${action.message || action.description}</p>
+            ${action.proposedBy ? `<p><strong>Source:</strong> ${action.proposedBy.name}</p>` : ''}
+            ${action.timestamp ? `<p><small>Time: ${new Date(action.timestamp).toLocaleString()}</small></p>` : ''}
+          </div>
+        `,
+        confirmText: 'Close',
+        showCancel: false,
+      });
+      modal.show();
+    }
   }
 
   /**

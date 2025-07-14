@@ -5,6 +5,7 @@ import { politicalSystem } from './PoliticalSystem';
 import { politicalEvents } from './PoliticalEvents';
 import { winConditions } from './WinConditions';
 import { gameReset } from './GameReset';
+import { aiOpposition } from './AIOpposition';
 
 /**
  * GameEngine - Core game loop and state management for SP_Sim
@@ -19,6 +20,7 @@ export class GameEngine {
     this.politicalEvents = politicalEvents;
     this.winConditions = winConditions;
     this.gameReset = gameReset;
+    this.aiOpposition = aiOpposition;
 
     // Game state
     this.gameState = this.createInitialGameState();
@@ -266,10 +268,35 @@ export class GameEngine {
   }
 
   /**
+   * Handle opposition debate response
+   */
+  handleOppositionDebateResponse(data) {
+    const { debateId, response } = data;
+    const outcome = this.aiOpposition.handleDebateResponse(debateId, response);
+    
+    if (outcome && outcome.impact) {
+      // Apply debate impact to game state
+      if (outcome.impact.approval) {
+        this.updateGameState({
+          politics: {
+            ...this.gameState.politics,
+            approval: Math.max(0, Math.min(100, this.gameState.politics.approval + outcome.impact.approval))
+          }
+        });
+      }
+    }
+  }
+
+  /**
    * Get current game state (read-only copy)
    */
   getGameState() {
-    return JSON.parse(JSON.stringify(this.gameState));
+    const baseState = JSON.parse(JSON.stringify(this.gameState));
+    
+    // Add AI opposition status
+    baseState.aiOpposition = this.aiOpposition.getOppositionStatus();
+    
+    return baseState;
   }
 
   /**
@@ -315,6 +342,9 @@ export class GameEngine {
 
     // Reset achievements
     this.winConditions.resetAchievements();
+
+    // Reset AI opposition
+    this.aiOpposition.reset();
 
     // Set new game state
     this.gameState = newGameState;
@@ -507,8 +537,14 @@ export class GameEngine {
       // Political votes are handled by the political system
     });
 
+    // Listen for achievement unlocked events
     this.eventSystem.on('achievement:unlocked', (_event) => {
       // Achievements are handled by the win conditions system
+    });
+
+    // Listen for opposition events
+    this.eventSystem.on('opposition:debate_response', (event) => {
+      this.handleOppositionDebateResponse(event.data);
     });
   }
 

@@ -5,6 +5,7 @@
 
 import { gameEngine } from './core/GameEngine';
 import { eventSystem, EVENTS } from './core/EventSystem';
+import { aiOpposition } from './core/AIOpposition';
 import { Dashboard } from './ui/components/Dashboard';
 import { Navigation } from './ui/components/Navigation';
 import { Modal } from './ui/components/Modal';
@@ -22,6 +23,7 @@ class SPSimApp {
   constructor() {
     this.gameEngine = gameEngine;
     this.eventSystem = eventSystem;
+    this.aiOpposition = aiOpposition;
     this.dashboard = null;
     this.navigation = null;
     this.economicsScreen = null;
