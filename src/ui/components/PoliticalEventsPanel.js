@@ -66,7 +66,6 @@ export class PoliticalEventsPanel extends BaseComponent {
     this.coalitionStability = politicalStatus.coalition;
     this.lastGameState = gameState; // Store for event modals
     this.updatePoliticalStatusDisplay(gameState, politicalStatus);
-    this.updateActiveEventsList();
     this.updateOppositionActionsList();
   }
 
@@ -181,7 +180,7 @@ export class PoliticalEventsPanel extends BaseComponent {
   handleEventResolved(data) {
     const { event } = data;
     this.activeEvents = this.activeEvents.filter((e) => e.id !== event.id);
-    this.updateActiveEventsList();
+    this.updateOppositionActionsList();
   }
 
   /**
