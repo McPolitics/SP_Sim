@@ -22,17 +22,19 @@ export class StartingScreen extends BaseComponent {
    * Show the starting screen
    */
   show() {
-    if (this.isVisible) return;
+    if (this.isVisible) return false;
 
     // Check if this is truly a new game (no auto-save or existing progress)
     const hasExistingGame = this.checkForExistingGame();
     if (hasExistingGame) {
       // Skip starting screen if player has existing progress
       // Do not show starting screen
+      return false;
     }
 
     this.createStartingScreen();
     this.isVisible = true;
+    return true;
   }
 
   /**

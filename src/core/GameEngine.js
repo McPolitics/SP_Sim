@@ -44,6 +44,11 @@ export class GameEngine {
   initialize() {
     console.log('Initializing SP_Sim Game Engine...');
 
+    const storedSpeed = parseInt(localStorage.getItem('sp_sim_game_speed'), 10);
+    if (!Number.isNaN(storedSpeed)) {
+      this.setGameSpeed(storedSpeed);
+    }
+
     // Try to load auto-save
     const autoSave = this.saveSystem.loadAutoSave();
     if (autoSave) {
