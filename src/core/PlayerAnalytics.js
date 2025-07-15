@@ -10,7 +10,7 @@ export class PlayerAnalytics {
     this.playerMetrics = this.loadPlayerMetrics();
     this.retentionData = this.loadRetentionData();
     this.performanceData = this.loadPerformanceData();
-    
+
     this.initializeEventListeners();
     this.startSessionTracking();
   }
@@ -53,23 +53,23 @@ export class PlayerAnalytics {
       gamesCompleted: 0,
       gamesAbandoned: 0,
       retentionRate: 0,
-      
+
       // Decision making patterns
       decisionSpeed: [], // time taken per decision
       decisionTypes: {}, // count of each decision type
       policyPreferences: {}, // preferred policy types
-      
+
       // Performance metrics
       averageApproval: [],
       economicPerformance: [],
       crisisManagementScore: 0,
       learningProgression: 0,
-      
+
       // Behavioral patterns
       sessionTimes: [], // when player typically plays
       preferredDifficulty: 'normal',
       featureUsage: {}, // which features are used most
-      
+
       lastUpdated: Date.now(),
     };
   }
@@ -121,7 +121,7 @@ export class PlayerAnalytics {
   startSessionTracking() {
     this.updateRetentionMetrics();
     this.trackSessionStart();
-    
+
     // Track activity every 30 seconds
     this.activityInterval = setInterval(() => {
       this.trackActivity();
@@ -139,10 +139,10 @@ export class PlayerAnalytics {
   endSession() {
     this.sessionData.endTime = Date.now();
     this.sessionData.duration = this.sessionData.endTime - this.sessionData.startTime;
-    
+
     this.updatePlayerMetrics();
     this.saveAnalytics();
-    
+
     if (this.activityInterval) {
       clearInterval(this.activityInterval);
     }
@@ -168,13 +168,13 @@ export class PlayerAnalytics {
     };
 
     this.sessionData.decisions.push(decisionData);
-    
+
     // Update decision metrics
     if (!this.playerMetrics.decisionTypes[decisionData.type]) {
       this.playerMetrics.decisionTypes[decisionData.type] = 0;
     }
-    this.playerMetrics.decisionTypes[decisionData.type]++;
-    
+    this.playerMetrics.decisionTypes[decisionData.type] += 1;
+
     if (decisionData.timeTaken > 0) {
       this.playerMetrics.decisionSpeed.push(decisionData.timeTaken);
     }
@@ -197,12 +197,12 @@ export class PlayerAnalytics {
     };
 
     this.sessionData.policies.push(policyData);
-    
+
     // Update policy preferences
     if (!this.playerMetrics.policyPreferences[policyData.type]) {
       this.playerMetrics.policyPreferences[policyData.type] = 0;
     }
-    this.playerMetrics.policyPreferences[policyData.type]++;
+    this.playerMetrics.policyPreferences[policyData.type] += 1;
 
     eventSystem.emit('analytics:policy_tracked', { policy: policyData });
   }
@@ -239,10 +239,10 @@ export class PlayerAnalytics {
     };
 
     this.sessionData.crisisesHandled.push(crisisData);
-    
+
     // Update crisis management score
     const recentCrises = this.sessionData.crisisesHandled.slice(-10);
-    const successRate = recentCrises.filter(c => c.outcome === 'success').length / recentCrises.length;
+    const successRate = recentCrises.filter((c) => c.outcome === 'success').length / recentCrises.length;
     this.playerMetrics.crisisManagementScore = Math.round(successRate * 100);
 
     eventSystem.emit('analytics:crisis_tracked', { crisis: crisisData });
@@ -255,7 +255,7 @@ export class PlayerAnalytics {
     if (!this.playerMetrics.featureUsage[feature]) {
       this.playerMetrics.featureUsage[feature] = 0;
     }
-    this.playerMetrics.featureUsage[feature]++;
+    this.playerMetrics.featureUsage[feature] += 1;
 
     eventSystem.emit('analytics:feature_tracked', { feature });
   }
@@ -311,16 +311,16 @@ export class PlayerAnalytics {
       : 0;
 
     const avgSessionLength = this.playerMetrics.totalPlaytime / Math.max(1, this.playerMetrics.totalSessions);
-    
-    const completionRate = this.playerMetrics.gamesCompleted / 
-      Math.max(1, this.playerMetrics.gamesCompleted + this.playerMetrics.gamesAbandoned);
+
+    const completionRate = this.playerMetrics.gamesCompleted
+      / Math.max(1, this.playerMetrics.gamesCompleted + this.playerMetrics.gamesAbandoned);
 
     // Calculate overall score directly here to avoid circular dependency
     const overallScore = Math.round((
-      avgApproval * 0.3 +
-      this.playerMetrics.crisisManagementScore * 0.2 +
-      this.playerMetrics.learningProgression * 0.2 +
-      (completionRate * 100) * 0.3
+      avgApproval * 0.3
+      + this.playerMetrics.crisisManagementScore * 0.2
+      + this.playerMetrics.learningProgression * 0.2
+      + (completionRate * 100) * 0.3
     ));
 
     return {
@@ -340,7 +340,7 @@ export class PlayerAnalytics {
   getRetentionMetrics() {
     const daysSinceFirst = (Date.now() - this.retentionData.firstSession) / (1000 * 60 * 60 * 24);
     const daysSinceLast = (Date.now() - this.retentionData.lastSession) / (1000 * 60 * 60 * 24);
-    
+
     return {
       daysSinceFirstPlay: Math.floor(daysSinceFirst),
       daysSinceLastPlay: Math.floor(daysSinceLast),
@@ -391,8 +391,8 @@ export class PlayerAnalytics {
 
     // Feature usage insights
     const mostUsedFeature = Object.keys(this.playerMetrics.featureUsage)
-      .reduce((a, b) => this.playerMetrics.featureUsage[a] > this.playerMetrics.featureUsage[b] ? a : b, 'dashboard');
-    
+      .reduce((a, b) => (this.playerMetrics.featureUsage[a] > this.playerMetrics.featureUsage[b] ? a : b), 'dashboard');
+
     if (mostUsedFeature) {
       insights.push({
         type: 'strength',
@@ -410,15 +410,15 @@ export class PlayerAnalytics {
    */
   initializeEventListeners() {
     // Track game events
-    eventSystem.on(EVENTS.TURN_END, (event) => {
-      this.sessionData.turnsPlayed++;
+    eventSystem.on(EVENTS.TURN_END, (_event) => {
+      this.sessionData.turnsPlayed += 1;
     });
 
     eventSystem.on(EVENTS.APPROVAL_CHANGE, (event) => {
       this.trackApprovalChange(
         event.data.oldApproval,
         event.data.newApproval,
-        event.data.reason
+        event.data.reason,
       );
     });
 
@@ -433,7 +433,7 @@ export class PlayerAnalytics {
     eventSystem.on('game:end', (event) => {
       this.sessionData.gameEnded = true;
       this.sessionData.endCondition = event.data.endCondition;
-      this.playerMetrics.gamesCompleted++;
+      this.playerMetrics.gamesCompleted += 1;
     });
 
     // Track navigation usage
@@ -455,9 +455,9 @@ export class PlayerAnalytics {
   }
 
   trackSessionStart() {
-    this.playerMetrics.totalSessions++;
+    this.playerMetrics.totalSessions += 1;
     this.retentionData.lastSession = Date.now();
-    
+
     if (this.playerMetrics.totalSessions > 1) {
       this.retentionData.returningPlayer = true;
     }
@@ -466,7 +466,7 @@ export class PlayerAnalytics {
   trackActivity() {
     // Update session duration and engagement
     this.sessionData.duration = Date.now() - this.sessionData.startTime;
-    
+
     // Calculate engagement score based on activity
     const activityScore = Math.min(100, this.sessionData.decisions.length * 5 + this.sessionData.turnsPlayed * 2);
     this.retentionData.engagementScore = activityScore;
@@ -474,7 +474,7 @@ export class PlayerAnalytics {
 
   updateRetentionMetrics() {
     const daysSinceLast = (Date.now() - this.retentionData.lastSession) / (1000 * 60 * 60 * 24);
-    
+
     if (daysSinceLast > 7) {
       this.retentionData.churnRisk = 'high';
     } else if (daysSinceLast > 3) {
@@ -488,7 +488,7 @@ export class PlayerAnalytics {
     const sessionMinutes = this.sessionData.duration / (1000 * 60);
     this.playerMetrics.totalPlaytime += sessionMinutes;
     this.playerMetrics.averageSessionLength = this.playerMetrics.totalPlaytime / this.playerMetrics.totalSessions;
-    
+
     // Update learning progression based on performance improvement
     this.updateLearningProgression();
   }
@@ -499,10 +499,10 @@ export class PlayerAnalytics {
     if (recentApprovals.length >= 5) {
       const early = recentApprovals.slice(0, recentApprovals.length / 2);
       const recent = recentApprovals.slice(recentApprovals.length / 2);
-      
+
       const earlyAvg = early.reduce((a, b) => a + b, 0) / early.length;
       const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
-      
+
       this.playerMetrics.learningProgression = Math.max(0, Math.min(100, (recentAvg - earlyAvg) + 50));
     }
   }
@@ -512,14 +512,14 @@ export class PlayerAnalytics {
       ? this.playerMetrics.averageApproval.reduce((a, b) => a + b, 0) / this.playerMetrics.averageApproval.length
       : 0;
 
-    const completionRate = this.playerMetrics.gamesCompleted / 
-      Math.max(1, this.playerMetrics.gamesCompleted + this.playerMetrics.gamesAbandoned);
+    const completionRate = this.playerMetrics.gamesCompleted
+      / Math.max(1, this.playerMetrics.gamesCompleted + this.playerMetrics.gamesAbandoned);
 
     return Math.round((
-      avgApproval * 0.3 +
-      this.playerMetrics.crisisManagementScore * 0.2 +
-      this.playerMetrics.learningProgression * 0.2 +
-      (completionRate * 100) * 0.3
+      avgApproval * 0.3
+      + this.playerMetrics.crisisManagementScore * 0.2
+      + this.playerMetrics.learningProgression * 0.2
+      + (completionRate * 100) * 0.3
     ));
   }
 
@@ -544,17 +544,17 @@ export class PlayerAnalytics {
 
   updatePerformanceScore() {
     let score = 100;
-    
+
     // Deduct points for poor performance
     const avgLoadTime = this.performanceData.loadTimes.slice(-10).reduce((sum, item) => sum + item.value, 0) / 10;
     if (avgLoadTime > 3000) score -= 20; // > 3 seconds
-    
+
     const avgMemory = this.performanceData.memoryUsage.slice(-10).reduce((sum, item) => sum + item.value, 0) / 10;
     if (avgMemory > 100) score -= 15; // > 100MB
-    
+
     const avgFPS = this.performanceData.fps.slice(-10).reduce((sum, item) => sum + item.value, 0) / 10;
     if (avgFPS < 30) score -= 25; // < 30 FPS
-    
+
     this.performanceData.performanceScore = Math.max(0, score);
   }
 
@@ -572,7 +572,7 @@ export class PlayerAnalytics {
     localStorage.removeItem('sp_sim_player_metrics');
     localStorage.removeItem('sp_sim_retention_data');
     localStorage.removeItem('sp_sim_performance_data');
-    
+
     this.playerMetrics = this.loadPlayerMetrics();
     this.retentionData = this.loadRetentionData();
     this.performanceData = this.loadPerformanceData();

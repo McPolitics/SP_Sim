@@ -13,7 +13,7 @@ export class AnalyticsScreen extends BaseComponent {
     this.analyticsData = null;
     this.refreshInterval = null;
     this.charts = new Map();
-    
+
     this.initializeScreen();
     this.setupEventListeners();
     this.startDataRefresh();
@@ -363,13 +363,13 @@ export class AnalyticsScreen extends BaseComponent {
    */
   switchTab(tabName) {
     // Update tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
       btn.classList.remove('active');
     });
     document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
     // Update tab content
-    document.querySelectorAll('.tab-content').forEach(content => {
+    document.querySelectorAll('.tab-content').forEach((content) => {
       content.classList.remove('active');
     });
     document.getElementById(`${tabName}-tab`).classList.add('active');
@@ -386,7 +386,7 @@ export class AnalyticsScreen extends BaseComponent {
     this.updateOverviewMetrics();
     this.updateCharts();
     this.updateInsights();
-    
+
     console.log('Analytics data refreshed:', this.analyticsData);
   }
 
@@ -411,12 +411,12 @@ export class AnalyticsScreen extends BaseComponent {
     // Retention metrics
     this.updateElement('retention-rate', Math.round(retention.weeklyRetention));
     this.updateElement('churn-risk', retention.churnRisk);
-    
+
     // Performance stats
     this.updateElement('crisis-score', performance.crisisManagement);
     this.updateElement('learning-progress', performance.learningProgression);
     this.updateElement('completion-rate', performance.completionRate);
-    
+
     // Retention details
     this.updateElement('days-since-first', retention.daysSinceFirstPlay);
     this.updateElement('total-sessions', retention.totalSessions);
@@ -451,13 +451,11 @@ export class AnalyticsScreen extends BaseComponent {
     // Generate performance trend data
     const recentSessions = Math.min(10, this.analyticsData.player.totalSessions);
     const labels = Array.from({ length: recentSessions }, (_, i) => `S${i + 1}`);
-    
+
     // Simulate performance trend (in real implementation, this would be stored historical data)
     const performance = playerAnalytics.getPlayerPerformance();
     const baseScore = performance.overallScore;
-    const data = Array.from({ length: recentSessions }, (_, i) => {
-      return Math.max(0, baseScore + (Math.random() - 0.5) * 20);
-    });
+    const data = Array.from({ length: recentSessions }, (_, _i) => Math.max(0, baseScore + (Math.random() - 0.5) * 20));
 
     chart.options.labels = labels;
     chart.updateData([{ values: data, name: 'Performance Score' }], labels);
@@ -487,12 +485,10 @@ export class AnalyticsScreen extends BaseComponent {
     // Generate recent session lengths
     const sessionCount = Math.min(10, this.analyticsData.player.totalSessions);
     const labels = Array.from({ length: sessionCount }, (_, i) => `S${i + 1}`);
-    
+
     // Simulate session lengths (in real implementation, this would be stored data)
     const avgLength = this.analyticsData.player.averageSessionLength;
-    const data = Array.from({ length: sessionCount }, () => {
-      return Math.max(1, avgLength + (Math.random() - 0.5) * 10);
-    }).map((value, index) => ({ value, name: labels[index] }));
+    const data = Array.from({ length: sessionCount }, () => Math.max(1, avgLength + (Math.random() - 0.5) * 10)).map((value, index) => ({ value, name: labels[index] }));
 
     chart.options.labels = labels;
     chart.updateData(data, labels);
@@ -505,7 +501,7 @@ export class AnalyticsScreen extends BaseComponent {
     const chart = this.charts.get('decisions');
     if (!chart || !this.analyticsData) return;
 
-    const decisionTypes = this.analyticsData.player.decisionTypes;
+    const { decisionTypes } = this.analyticsData.player;
     const data = Object.entries(decisionTypes).map(([name, value]) => ({ value, name }));
 
     chart.updateData(data);
@@ -541,9 +537,9 @@ export class AnalyticsScreen extends BaseComponent {
     const container = document.getElementById('insights-list');
     if (!container || !this.analyticsData) return;
 
-    const insights = this.analyticsData.insights;
-    
-    container.innerHTML = insights.map(insight => `
+    const { insights } = this.analyticsData;
+
+    container.innerHTML = insights.map((insight) => `
       <div class="insight-card ${insight.priority}">
         <div class="insight-icon">${this.getInsightIcon(insight.type)}</div>
         <div class="insight-content">
@@ -566,7 +562,7 @@ export class AnalyticsScreen extends BaseComponent {
     const total = Object.values(usage).reduce((sum, count) => sum + count, 0);
 
     container.innerHTML = Object.entries(usage)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .map(([feature, count]) => {
         const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
         return `
@@ -593,7 +589,7 @@ export class AnalyticsScreen extends BaseComponent {
     const performance = playerAnalytics.getPlayerPerformance();
     const recommendations = this.generateRecommendations(performance);
 
-    container.innerHTML = recommendations.map(rec => `
+    container.innerHTML = recommendations.map((rec) => `
       <div class="recommendation-card">
         <div class="rec-icon">${rec.icon}</div>
         <div class="rec-content">
@@ -614,7 +610,7 @@ export class AnalyticsScreen extends BaseComponent {
 
     const achievements = this.calculateAchievements();
 
-    container.innerHTML = achievements.map(achievement => `
+    container.innerHTML = achievements.map((achievement) => `
       <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
         <div class="achievement-icon">${achievement.icon}</div>
         <div class="achievement-info">
@@ -696,7 +692,7 @@ export class AnalyticsScreen extends BaseComponent {
         description: 'Play for over 5 hours total',
         icon: '⏱️',
         unlocked: this.analyticsData?.player.totalPlaytime >= 300,
-        progress: Math.min(100, (this.analyticsData?.player.totalPlaytime || 0) / 300 * 100),
+        progress: Math.min(100, ((this.analyticsData?.player.totalPlaytime || 0) / 300) * 100),
       },
     ];
   }
@@ -731,7 +727,7 @@ export class AnalyticsScreen extends BaseComponent {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }
-    
+
     this.refreshTimeout = setTimeout(() => {
       this.refreshData();
     }, 2000);
@@ -744,27 +740,63 @@ export class AnalyticsScreen extends BaseComponent {
     const data = playerAnalytics.getAnalytics();
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `sp_sim_analytics_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     URL.revokeObjectURL(url);
     playerAnalytics.trackFeatureUsage('analytics-export');
   }
 
   /**
    * Clear analytics data
+   * Uses a custom confirmation modal instead of window.confirm
    */
   clearAnalytics() {
-    if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
-      playerAnalytics.clearAnalytics();
-      this.refreshData();
-      playerAnalytics.trackFeatureUsage('analytics-clear');
-    }
+    this.showConfirmationModal(
+      'Are you sure you want to clear all analytics data? This cannot be undone.',
+      () => {
+        playerAnalytics.clearAnalytics();
+        this.refreshData();
+        playerAnalytics.trackFeatureUsage('analytics-clear');
+      },
+    );
+  }
+
+  /**
+   * Show a custom confirmation modal
+   * @param {string} message
+   * @param {Function} onConfirm
+   */
+  showConfirmationModal(message, onConfirm) {
+    // Create modal elements
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.innerHTML = `
+      <div class="custom-modal-content">
+        <p>${message}</p>
+        <div class="custom-modal-actions">
+          <button class="btn btn--danger" id="modal-confirm">Confirm</button>
+          <button class="btn btn--secondary" id="modal-cancel">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Handle confirm
+    modal.querySelector('#modal-confirm').onclick = () => {
+      document.body.removeChild(modal);
+      if (typeof onConfirm === 'function') onConfirm();
+    };
+
+    // Handle cancel
+    modal.querySelector('#modal-cancel').onclick = () => {
+      document.body.removeChild(modal);
+    };
   }
 
   /**
@@ -787,10 +819,10 @@ export class AnalyticsScreen extends BaseComponent {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }
-    
+
     // Clear charts
     this.charts.clear();
-    
+
     super.destroy();
   }
 }
