@@ -481,13 +481,28 @@ export class GameEngine {
         year: 1,
       },
       events: {
-        recent: [],
+        recent: [{
+          id: Date.now(),
+          title: 'Game Initialized',
+          description: 'Welcome to SP_Sim! You have been elected as the new leader.',
+          type: 'system',
+          severity: 'neutral',
+          week: 1,
+          year: 1,
+          timestamp: now.toISOString(),
+        }],
         pending: [],
       },
       scandals: {
         active: [],
         resolved: [],
       },
+      achievements: {
+        unlocked: [],
+        progress: {},
+      },
+      gameEnded: false,
+      endCondition: null,
     };
   }
 

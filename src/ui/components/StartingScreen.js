@@ -545,16 +545,19 @@ export class StartingScreen extends BaseComponent {
     // Create loading overlay
     this.showLoadingProgress();
 
-    // Start the game with selected difficulty and options
+    // Start the game with selected difficulty and options after a brief loading animation
     setTimeout(() => {
+      // Start the game reset process
       gameReset.startNewGame({
         difficulty: this.selectedDifficulty,
         options: this.gameOptions,
       });
 
-      // Hide starting screen
-      this.hide();
-    }, 2000); // Simulate loading time
+      // Hide starting screen after a short delay to allow loading animation to complete
+      setTimeout(() => {
+        this.hide();
+      }, 500);
+    }, 1500); // Reduced loading time for better UX
   }
 
   /**
