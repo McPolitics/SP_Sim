@@ -92,6 +92,11 @@ class SPSimApp {
 
     // Initial UI update
     this.updateUI();
+    
+    // Force update after a short delay to ensure game state is ready
+    setTimeout(() => {
+      this.updateUI();
+    }, 100);
   }
 
   /**
@@ -253,28 +258,30 @@ class SPSimApp {
    */
   showPolicyScreen() {
     if (this.policyScreen) {
-      // Create policy screen container if it doesn't exist
-      let policyContainer = document.querySelector('#screen-policies');
-      if (!policyContainer) {
-        policyContainer = document.createElement('div');
-        policyContainer.id = 'screen-policies';
-        policyContainer.className = 'screen screen--active';
+      // Get policy screen container
+      const policyContainer = document.querySelector('#screen-policies');
+      if (policyContainer) {
+        // Make sure the screen is active
+        policyContainer.classList.add('screen--active');
 
-        const mainContent = document.querySelector('.main-content');
-        if (mainContent) {
-          mainContent.appendChild(policyContainer);
+        // Find the policy-screen div inside
+        let policyScreenDiv = policyContainer.querySelector('.policy-screen');
+        if (!policyScreenDiv) {
+          policyScreenDiv = document.createElement('div');
+          policyScreenDiv.className = 'policy-screen';
+          policyContainer.appendChild(policyScreenDiv);
         }
-      }
 
-      // Render policy screen content
-      policyContainer.innerHTML = this.policyScreen.render();
+        // Render policy screen content
+        policyScreenDiv.innerHTML = this.policyScreen.render();
 
-      // Setup interactivity
-      this.policyScreen.setupInteractivity();
+        // Setup interactivity
+        this.policyScreen.setupInteractivity();
 
-      // Update with current game state
-      if (this.gameEngine && this.gameEngine.getState) {
-        this.policyScreen.update(this.gameEngine.getState());
+        // Update with current game state
+        if (this.gameEngine && this.gameEngine.getGameState) {
+          this.policyScreen.update(this.gameEngine.getGameState());
+        }
       }
     }
   }
