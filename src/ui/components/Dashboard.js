@@ -232,8 +232,8 @@ export class Dashboard extends BaseComponent {
       const approvalPressure = Math.max(0, 50 - politics.approval); // Pressure increases as approval drops below 50%
       const oppositionPressure = oppositionSupport * 0.5; // Opposition support creates pressure
       const electionYear = politics.nextElection ? politics.nextElection.year : DEFAULT_ELECTION_CYCLE_YEARS;
-      const timeToElection = Math.max(1, (electionYear - gameState.time.year) * 52 + (politics.nextElection?.week || 1) - gameState.time.week);
-      const timePressure = Math.max(0, 52 - timeToElection) * 0.5; // Pressure increases as election approaches
+      const timeToElection = Math.max(1, (electionYear - gameState.time.year) * WEEKS_PER_YEAR + (politics.nextElection?.week || 1) - gameState.time.week);
+      const timePressure = Math.max(0, WEEKS_PER_YEAR - timeToElection) * TIME_PRESSURE_MULTIPLIER; // Pressure increases as election approaches
 
       const totalPressure = Math.min(100, approvalPressure + oppositionPressure + timePressure);
       this.politicalPressureElement.textContent = this.formatPercentage(totalPressure);
