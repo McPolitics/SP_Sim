@@ -556,8 +556,8 @@ export class StartingScreen extends BaseComponent {
       // Hide starting screen after a short delay to allow loading animation to complete
       setTimeout(() => {
         this.hide();
-      }, 500);
-    }, 1500); // Reduced loading time for better UX
+      }, SCREEN_HIDE_DELAY);
+    }, LOADING_ANIMATION_DURATION); // Reduced loading time for better UX
   }
 
   /**
