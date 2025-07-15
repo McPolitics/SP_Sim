@@ -1293,6 +1293,36 @@ body {
   }
 }
 
+// Manual dark theme class
+.dark-theme {
+  --primary-color: #2d3748;
+  --primary-light: #4a5568;
+  --background-color: #1a202c;
+  --background-alt: #2d3748;
+  --surface-color: #2d3748;
+  --surface-elevated: #4a5568;
+  --text-color: #f7fafc;
+  --text-light: #a0aec0;
+  --text-muted: #718096;
+  --border-color: #4a5568;
+  --border-light: #4a5568;
+}
+
+// Manual light theme class
+.light-theme {
+  --primary-color: #1a202c;
+  --primary-light: #2d3748;
+  --background-color: #f7fafc;
+  --background-alt: #edf2f7;
+  --surface-color: #ffffff;
+  --surface-elevated: #ffffff;
+  --text-color: #1a202c;
+  --text-light: #718096;
+  --text-muted: #a0aec0;
+  --border-color: #e2e8f0;
+  --border-light: #f7fafc;
+}
+
 // Timeline Component Styles
 .timeline-container {
   background: var(--surface-color);
