@@ -589,34 +589,34 @@ export class GameEngine {
    * Handle policy implementation
    */
   handlePolicyImplementation(data) {
-    const { policy, gameState } = data;
-    
+    const { policy } = data;
+
     console.log('Implementing policy:', policy.name);
-    
+
     // Check if we have enough political capital
     const politicalCapital = this.calculatePoliticalCapital();
     const policyCost = policy.baseCost / 1000000; // Convert to millions for political capital calculation
     const requiredCapital = Math.floor(policyCost / 10); // 1 capital per 10M cost
-    
+
     if (politicalCapital < requiredCapital) {
       this.eventSystem.emit(EVENTS.UI_NOTIFICATION, {
         message: `Not enough political capital to implement ${policy.name}. Need ${requiredCapital}, have ${politicalCapital}.`,
-        type: 'warning'
+        type: 'warning',
       });
       return;
     }
-    
+
     // Add policy to active policies in game state
     if (!this.gameState.policies) {
       this.gameState.policies = {
         active: [],
         completed: [],
-        failed: []
+        failed: [],
       };
     }
-    
+
     const activePolicy = {
-      id: policy.id + '_' + Date.now(), // Make unique
+      id: `${policy.id}_${Date.now()}`, // Make unique
       name: policy.name,
       category: policy.category,
       description: policy.description,
@@ -626,88 +626,90 @@ export class GameEngine {
       progress: 0,
       status: 'active',
       effects: policy.effects,
-      baseCost: policy.baseCost
+      baseCost: policy.baseCost,
     };
-    
+
     this.gameState.policies.active.push(activePolicy);
-    
+
     // Apply immediate effects (if any)
     if (policy.effects) {
       // Apply initial economic impacts
       if (policy.effects.economy) {
-        Object.keys(policy.effects.economy).forEach(indicator => {
+        Object.keys(policy.effects.economy).forEach((indicator) => {
           const effect = policy.effects.economy[indicator];
           const minEffect = Array.isArray(effect) ? effect[0] : effect;
           const maxEffect = Array.isArray(effect) ? effect[1] : effect;
           const actualEffect = minEffect + Math.random() * (maxEffect - minEffect);
-          
+
           if (this.gameState.economy[indicator] !== undefined) {
             this.gameState.economy[indicator] += actualEffect;
           }
         });
       }
-      
+
       // Apply approval effects
       if (policy.effects.approval) {
         const effect = policy.effects.approval;
         const minEffect = Array.isArray(effect) ? effect[0] : effect;
         const maxEffect = Array.isArray(effect) ? effect[1] : effect;
         const actualEffect = minEffect + Math.random() * (maxEffect - minEffect);
-        
-        this.gameState.politics.approval = Math.max(0, Math.min(100, 
-          this.gameState.politics.approval + actualEffect));
+
+        this.gameState.politics.approval = Math.max(0, Math.min(
+          100,
+          this.gameState.politics.approval + actualEffect,
+        ));
       }
     }
-    
+
     // Add implementation event to recent events
     this.gameState.events.recent.push({
       type: 'policy',
       message: `Implemented policy: ${policy.name}`,
       timestamp: Date.now(),
-      policy: activePolicy
+      policy: activePolicy,
     });
-    
+
     // Keep only last 10 events
     if (this.gameState.events.recent.length > 10) {
       this.gameState.events.recent = this.gameState.events.recent.slice(-10);
     }
-    
+
     // Emit success notification
     this.eventSystem.emit(EVENTS.UI_NOTIFICATION, {
       message: `Successfully implemented ${policy.name}!`,
-      type: 'success'
+      type: 'success',
     });
-    
+
     // Emit policy implemented event
     this.eventSystem.emit('policy:implemented', {
       policy: activePolicy,
-      gameState: this.gameState
+      gameState: this.gameState,
     });
-    
+
     // Update UI
     this.eventSystem.emit(EVENTS.UI_UPDATE, {
       gameState: this.gameState,
-      type: 'policy_implemented'
+      type: 'policy_implemented',
     });
   }
-  
+
   /**
    * Calculate current political capital
    */
   calculatePoliticalCapital() {
-    const approval = this.gameState.politics.approval;
+    const { approval } = this.gameState.politics;
     const coalitionSupport = this.gameState.politics.coalition?.reduce((sum, party) => sum + party.support, 0) || 0;
-    
+
     // Base capital from approval (0-50 points)
     const approvalCapital = Math.floor(approval / 2);
-    
+
     // Bonus from coalition support (0-50 points)
     const coalitionCapital = Math.floor(coalitionSupport / 2);
-    
+
     // Reduce by number of active policies (each policy costs ongoing capital)
     const activePolicies = this.gameState.policies?.active?.length || 0;
     const policyCost = activePolicies * 5;
-    
+
     return Math.max(0, approvalCapital + coalitionCapital - policyCost);
   }
 

@@ -92,7 +92,7 @@ class SPSimApp {
 
     // Initial UI update
     this.updateUI();
-    
+
     // Force update after a short delay to ensure game state is ready
     setTimeout(() => {
       this.updateUI();
