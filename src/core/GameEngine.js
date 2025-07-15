@@ -7,6 +7,8 @@ import { winConditions } from './WinConditions';
 import { gameReset } from './GameReset';
 import { aiOpposition } from './AIOpposition';
 import { modalManager } from '../ui/components/ModalManager';
+import { monetizationFramework } from './MonetizationFramework';
+import { policyImplementationEngine } from './PolicyImplementationEngine';
 
 /**
  * GameEngine - Core game loop and state management for SP_Sim
@@ -22,6 +24,8 @@ export class GameEngine {
     this.winConditions = winConditions;
     this.gameReset = gameReset;
     this.aiOpposition = aiOpposition;
+    this.monetizationFramework = monetizationFramework;
+    this.policyImplementationEngine = policyImplementationEngine;
 
     // Game state
     this.gameState = this.createInitialGameState();
@@ -44,6 +48,12 @@ export class GameEngine {
    */
   initialize() {
     console.log('Initializing SP_Sim Game Engine...');
+
+    // Initialize monetization framework first
+    this.monetizationFramework.initialize();
+
+    // Initialize policy implementation engine
+    this.policyImplementationEngine.initialize();
 
     const storedSpeed = parseInt(localStorage.getItem('sp_sim_game_speed'), 10);
     if (!Number.isNaN(storedSpeed)) {
@@ -601,111 +611,75 @@ export class GameEngine {
   }
 
   /**
-   * Handle policy implementation
+   * Handle policy implementation - Updated to use PolicyImplementationEngine
    */
   handlePolicyImplementation(data) {
     const { policy } = data;
 
-    console.log('Implementing policy:', policy.name);
+    console.log('Policy implementation requested:', policy.name);
 
-    // Check if we have enough political capital
-    const politicalCapital = this.calculatePoliticalCapital();
-    const policyCost = policy.baseCost / 1000000; // Convert to millions for political capital calculation
-    const requiredCapital = Math.floor(policyCost / 10); // 1 capital per 10M cost
+    // Use the new policy implementation engine
+    const result = this.policyImplementationEngine.implementPolicy(policy, this.gameState);
 
-    if (politicalCapital < requiredCapital) {
+    if (result.success) {
+      // Update game state with new policy
+      if (!this.gameState.policies) {
+        this.gameState.policies = {
+          active: [],
+          completed: [],
+          failed: [],
+        };
+      }
+
+      // Add to active policies
+      this.gameState.policies.active.push(result.implementation);
+
+      // Add implementation event to recent events
+      this.gameState.events.recent.push({
+        type: 'policy',
+        message: `Started implementing policy: ${policy.name}`,
+        timestamp: Date.now(),
+        policy: result.implementation,
+      });
+
+      // Keep only last 10 events
+      if (this.gameState.events.recent.length > 10) {
+        this.gameState.events.recent = this.gameState.events.recent.slice(-10);
+      }
+
+      // Show success notification
       this.eventSystem.emit(EVENTS.UI_NOTIFICATION, {
-        message: `Not enough political capital to implement ${policy.name}. Need ${requiredCapital}, have ${politicalCapital}.`,
+        message: result.message,
+        type: 'success',
+      });
+
+      // Emit policy implemented event
+      this.eventSystem.emit('policy:implemented', {
+        policy: result.implementation,
+        gameState: this.gameState,
+      });
+
+      // Track analytics
+      this.monetizationFramework.trackFeatureUsage('policy_implementation', {
+        category: policy.category,
+        complexity: policy.complexity,
+        tier: this.monetizationFramework.subscriptionTier,
+      });
+    } else {
+      // Handle implementation failure
+      this.eventSystem.emit(EVENTS.UI_NOTIFICATION, {
+        message: result.message,
         type: 'warning',
       });
-      return;
+
+      // Emit policy rejected event with upgrade prompt if applicable
+      this.eventSystem.emit('policy:rejected', {
+        policy,
+        reason: result.reason,
+        message: result.message,
+        upgradePrompt: result.upgradePrompt,
+      });
     }
-
-    // Add policy to active policies in game state
-    if (!this.gameState.policies) {
-      this.gameState.policies = {
-        active: [],
-        completed: [],
-        failed: [],
-      };
-    }
-
-    const activePolicy = {
-      id: `${policy.id}_${Date.now()}`, // Make unique
-      name: policy.name,
-      category: policy.category,
-      description: policy.description,
-      implementedWeek: this.gameState.time.week,
-      implementedYear: this.gameState.time.year,
-      duration: policy.duration,
-      progress: 0,
-      status: 'active',
-      effects: policy.effects,
-      baseCost: policy.baseCost,
-    };
-
-    this.gameState.policies.active.push(activePolicy);
-
-    // Apply immediate effects (if any)
-    if (policy.effects) {
-      // Apply initial economic impacts
-      if (policy.effects.economy) {
-        Object.keys(policy.effects.economy).forEach((indicator) => {
-          const effect = policy.effects.economy[indicator];
-          const minEffect = Array.isArray(effect) ? effect[0] : effect;
-          const maxEffect = Array.isArray(effect) ? effect[1] : effect;
-          const actualEffect = minEffect + Math.random() * (maxEffect - minEffect);
-
-          if (this.gameState.economy[indicator] !== undefined) {
-            this.gameState.economy[indicator] += actualEffect;
-          }
-        });
-      }
-
-      // Apply approval effects
-      if (policy.effects.approval) {
-        const effect = policy.effects.approval;
-        const minEffect = Array.isArray(effect) ? effect[0] : effect;
-        const maxEffect = Array.isArray(effect) ? effect[1] : effect;
-        const actualEffect = minEffect + Math.random() * (maxEffect - minEffect);
-
-        this.gameState.politics.approval = Math.max(0, Math.min(
-          100,
-          this.gameState.politics.approval + actualEffect,
-        ));
-      }
-    }
-
-    // Add implementation event to recent events
-    this.gameState.events.recent.push({
-      type: 'policy',
-      message: `Implemented policy: ${policy.name}`,
-      timestamp: Date.now(),
-      policy: activePolicy,
-    });
-
-    // Keep only last 10 events
-    if (this.gameState.events.recent.length > 10) {
-      this.gameState.events.recent = this.gameState.events.recent.slice(-10);
-    }
-
-    // Emit success notification
-    this.eventSystem.emit(EVENTS.UI_NOTIFICATION, {
-      message: `Successfully implemented ${policy.name}!`,
-      type: 'success',
-    });
-
-    // Emit policy implemented event
-    this.eventSystem.emit('policy:implemented', {
-      policy: activePolicy,
-      gameState: this.gameState,
-    });
-
-    // Update UI
-    this.eventSystem.emit(EVENTS.UI_UPDATE, {
-      gameState: this.gameState,
-      type: 'policy_implemented',
-    });
   }
 
   /**
