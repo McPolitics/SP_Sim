@@ -19,7 +19,7 @@ export class SettingsScreen extends BaseComponent {
       animationSpeed: localStorage.getItem('sp_sim_animation_speed') || 'normal',
       language: localStorage.getItem('sp_sim_language') || 'en',
       autoAdvanceTurn: localStorage.getItem('sp_sim_auto_advance_turn') === 'true',
-      difficultyAdjustments: localStorage.getItem('sp_sim_difficulty_adjust') !== 'false',
+      difficultyAdjustments: localStorage.getItem('sp_sim_difficulty_adjustments') !== 'false',
     };
   }
 
