@@ -1,6 +1,7 @@
 import { BaseComponent } from './BaseComponent';
 import { eventSystem } from '../../core/EventSystem';
 import { Modal } from './Modal';
+import { gameEngine } from '../../core/GameEngine';
 
 /**
  * PolicyScreen - Comprehensive policy management interface
@@ -254,7 +255,7 @@ export class PolicyScreen extends BaseComponent {
             </div>
             <div class="stat-item">
               <span class="stat-label">Political Capital</span>
-              <span class="stat-value">${this.gameState ? this.calculatePoliticalCapital() : '0'}</span>
+              <span class="stat-value">${this.gameState ? this.getPoliticalCapital() : '0'}</span>
             </div>
           </div>
         </div>
@@ -632,15 +633,11 @@ export class PolicyScreen extends BaseComponent {
   }
 
   /**
-   * Calculate political capital
+   * Get political capital from game engine
    */
-  calculatePoliticalCapital() {
+  getPoliticalCapital() {
     if (!this.gameState) return 0;
-
-    const approval = this.gameState.politics?.approval || 50;
-    const coalitionSupport = this.gameState.politics?.coalition?.reduce((sum, party) => sum + party.support, 0) || 50;
-
-    return Math.floor((approval + coalitionSupport) / 2);
+    return gameEngine.calculatePoliticalCapital();
   }
 
   /**
