@@ -6,11 +6,13 @@
 import { gameEngine } from './core/GameEngine';
 import { eventSystem, EVENTS } from './core/EventSystem';
 import { aiOpposition } from './core/AIOpposition';
+import { playerAnalytics } from './core/PlayerAnalytics';
 import { Dashboard } from './ui/components/Dashboard';
 import { Navigation } from './ui/components/Navigation';
 import { Modal } from './ui/components/Modal';
 import { EconomicsScreen } from './ui/components/EconomicsScreen';
 import { PolicyScreen } from './ui/components/PolicyScreen';
+import { AnalyticsScreen } from './ui/components/AnalyticsScreen';
 import { DebugPanel } from './ui/components/DebugPanel';
 import { Timeline } from './ui/components/Timeline';
 import { PlayerGuide } from './ui/components/PlayerGuide';
@@ -26,10 +28,12 @@ class SPSimApp {
     this.gameEngine = gameEngine;
     this.eventSystem = eventSystem;
     this.aiOpposition = aiOpposition;
+    this.playerAnalytics = playerAnalytics;
     this.dashboard = null;
     this.navigation = null;
     this.economicsScreen = null;
     this.policyScreen = null;
+    this.analyticsScreen = null;
     this.debugPanel = null;
     this.timeline = null;
     this.playerGuide = null;
@@ -115,6 +119,9 @@ class SPSimApp {
     // Initialize political events panel
     this.politicalEventsPanel = new PoliticalEventsPanel();
 
+    // Initialize analytics screen
+    this.analyticsScreen = new AnalyticsScreen();
+
     // Initialize settings screen
     this.settingsScreen = new SettingsScreen();
 
@@ -198,6 +205,16 @@ class SPSimApp {
       if (targetScreen) {
         targetScreen.classList.add('screen--active');
         this.economicsScreen.show();
+      } else {
+        this.createScreenPlaceholder(screenId);
+      }
+    } else if (screenId === 'analytics' && this.analyticsScreen) {
+      // Show analytics screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
+        // Track analytics navigation
+        this.playerAnalytics.trackFeatureUsage('analytics');
       } else {
         this.createScreenPlaceholder(screenId);
       }
