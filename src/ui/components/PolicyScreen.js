@@ -2,6 +2,9 @@ import { BaseComponent } from './BaseComponent';
 import { eventSystem } from '../../core/EventSystem';
 import { Modal } from './Modal';
 import { gameEngine } from '../../core/GameEngine';
+import { monetizationFramework } from '../../core/MonetizationFramework';
+import { policyImplementationEngine } from '../../core/PolicyImplementationEngine';
+import { MonetizationModal } from './MonetizationModal';
 
 /**
  * PolicyScreen - Comprehensive policy management interface
@@ -16,6 +19,7 @@ export class PolicyScreen extends BaseComponent {
     this.selectedCategory = 'economic';
     this.currentDraft = null;
     this.gameState = null;
+    this.monetizationModal = new MonetizationModal();
     this.setupEventListeners();
   }
 
@@ -257,6 +261,16 @@ export class PolicyScreen extends BaseComponent {
               <span class="stat-label">Political Capital</span>
               <span class="stat-value">${this.gameState ? this.getPoliticalCapital() : '0'}</span>
             </div>
+            <div class="stat-item">
+              <span class="stat-label">Implementation Capacity</span>
+              <span class="stat-value">${this.getImplementationCapacity()}%</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Subscription</span>
+              <span class="stat-value subscription-tier tier-${monetizationFramework.subscriptionTier}">
+                ${monetizationFramework.subscriptionTier.charAt(0).toUpperCase() + monetizationFramework.subscriptionTier.slice(1)}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -276,6 +290,15 @@ export class PolicyScreen extends BaseComponent {
               <button class="btn btn--secondary import-template-btn">
                 📥 Use Template
               </button>
+              ${monetizationFramework.subscriptionTier === 'free' ? `
+                <button class="btn btn--premium upgrade-btn">
+                  ⭐ Upgrade to Premium
+                </button>
+              ` : `
+                <button class="btn btn--success subscription-btn">
+                  👑 ${monetizationFramework.subscriptionTier.charAt(0).toUpperCase() + monetizationFramework.subscriptionTier.slice(1)} Member
+                </button>
+              `}
             </div>
 
             <div class="quick-stats">
@@ -504,6 +527,124 @@ export class PolicyScreen extends BaseComponent {
         .category-environmental { background: rgba(34, 197, 94, 0.2); color: #059669; }
         .category-foreign { background: rgba(168, 85, 247, 0.2); color: #7c3aed; }
 
+        .tier-free { color: #6b7280; }
+        .tier-premium { color: #3b82f6; }
+        .tier-educational { color: #10b981; }
+        .tier-enterprise { color: #8b5cf6; }
+
+        .btn--premium {
+          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          color: white;
+          border: none;
+        }
+
+        .btn--premium:hover {
+          background: linear-gradient(135deg, #1d4ed8, #1e40af);
+          transform: translateY(-1px);
+          box-shadow: var(--shadow-md);
+        }
+
+        .btn--success {
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          border: none;
+        }
+
+        .active-policy-card {
+          border-left: 4px solid var(--secondary-color);
+        }
+
+        .policy-progress {
+          margin: var(--spacing-sm) 0;
+        }
+
+        .progress-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: var(--spacing-xs);
+        }
+
+        .progress-label {
+          font-size: 0.875rem;
+          color: var(--text-light);
+        }
+
+        .progress-percentage {
+          font-weight: 600;
+          color: var(--secondary-color);
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 8px;
+          background: #e2e8f0;
+          border-radius: var(--border-radius);
+          overflow: hidden;
+          margin-bottom: var(--spacing-xs);
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, var(--secondary-color), #34d399);
+          transition: width var(--transition-base);
+        }
+
+        .progress-details {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.8rem;
+          color: var(--text-light);
+        }
+
+        .policy-opposition {
+          margin: var(--spacing-sm) 0;
+          padding: var(--spacing-xs) var(--spacing-sm);
+          background: rgba(0, 0, 0, 0.02);
+          border-radius: var(--border-radius);
+        }
+
+        .opposition-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .opposition-label {
+          font-size: 0.875rem;
+          color: var(--text-light);
+        }
+
+        .opposition-level {
+          font-weight: 600;
+          padding: var(--spacing-xs) var(--spacing-sm);
+          border-radius: var(--border-radius);
+          font-size: 0.8rem;
+        }
+
+        .resistance-low {
+          background: rgba(34, 197, 94, 0.2);
+          color: #16a34a;
+        }
+
+        .resistance-medium {
+          background: rgba(245, 158, 11, 0.2);
+          color: #d97706;
+        }
+
+        .resistance-high {
+          background: rgba(239, 68, 68, 0.2);
+          color: #dc2626;
+        }
+
+        .upgrade-hint {
+          margin-top: var(--spacing-md);
+          padding: var(--spacing-md);
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+          border-radius: var(--border-radius);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
         .policy-description {
           color: var(--text-light);
           margin: 0 0 var(--spacing-sm) 0;
@@ -641,20 +782,36 @@ export class PolicyScreen extends BaseComponent {
   }
 
   /**
+   * Get implementation capacity percentage
+   */
+  getImplementationCapacity() {
+    const capacityStatus = policyImplementationEngine.getCapacityStatus();
+    return Math.round(capacityStatus.percentage);
+  }
+
+  /**
    * Render active policies
    */
   renderActivePolicies() {
-    if (this.activePolicies.length === 0) {
+    // Get active policies from policy implementation engine
+    const activePolicies = policyImplementationEngine.getActivePolicies();
+
+    if (activePolicies.length === 0) {
       return `
         <div class="empty-state">
           <div class="empty-state-icon">📋</div>
           <h3>No Active Policies</h3>
           <p>You haven't implemented any policies yet. Start by creating a policy or using a template.</p>
+          ${monetizationFramework.subscriptionTier === 'free' ? `
+            <div class="upgrade-hint">
+              <p><strong>💡 Tip:</strong> Premium members get access to advanced policy templates and unlimited implementations!</p>
+            </div>
+          ` : ''}
         </div>
       `;
     }
 
-    return this.activePolicies.map((policy) => this.renderPolicyCard(policy, 'active')).join('');
+    return activePolicies.map((policy) => this.renderActivePolicyCard(policy)).join('');
   }
 
   /**
@@ -696,8 +853,78 @@ export class PolicyScreen extends BaseComponent {
   }
 
   /**
-   * Render individual policy card
+   * Render active policy card with implementation details
    */
+  renderActivePolicyCard(policy) {
+    return `
+      <div class="policy-card active-policy-card" data-policy-id="${policy.id}" data-type="active">
+        <div class="policy-card-header">
+          <h4 class="policy-title">${policy.name}</h4>
+          <span class="policy-category-badge category-${policy.category}">
+            ${policy.category.charAt(0).toUpperCase() + policy.category.slice(1)}
+          </span>
+        </div>
+        
+        <div class="policy-progress">
+          <div class="progress-info">
+            <span class="progress-label">Implementation Progress</span>
+            <span class="progress-percentage">${Math.round(policy.progress)}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${policy.progress}%"></div>
+          </div>
+          <div class="progress-details">
+            <span class="current-phase">Phase: ${policy.currentPhase.name}</span>
+            <span class="time-remaining">~${Math.round(policy.timeRemaining)} weeks remaining</span>
+          </div>
+        </div>
+        
+        <div class="policy-opposition">
+          <div class="opposition-info">
+            <span class="opposition-label">Opposition Resistance</span>
+            <span class="opposition-level resistance-${this.getResistanceLevel(policy.opposition)}">
+              ${policy.opposition}% ${this.getResistanceText(policy.opposition)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="policy-actions-row">
+          <div class="policy-meta">
+            <small>Progress: ${Math.round(policy.progress)}% | Phase: ${policy.currentPhase.name}</small>
+          </div>
+          <div class="policy-actions">
+            <button class="btn btn--sm btn--secondary" data-action="view-details" data-policy-id="${policy.id}">
+              📊 Details
+            </button>
+            ${policy.progress < 100 ? `
+              <button class="btn btn--sm btn--danger" data-action="cancel" data-policy-id="${policy.id}">
+                ❌ Cancel
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Get resistance level for styling
+   */
+  getResistanceLevel(resistance) {
+    if (resistance <= 30) return 'low';
+    if (resistance <= 60) return 'medium';
+    return 'high';
+  }
+
+  /**
+   * Get resistance text description
+   */
+  getResistanceText(resistance) {
+    if (resistance <= 30) return 'Low';
+    if (resistance <= 60) return 'Moderate';
+    return 'High';
+  }
+
   renderPolicyCard(policy, type) {
     const costFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -904,6 +1131,27 @@ export class PolicyScreen extends BaseComponent {
 
     container.querySelector('.import-template-btn')?.addEventListener('click', () => {
       this.showTemplateSelectionModal();
+    });
+
+    container.querySelector('.upgrade-btn')?.addEventListener('click', () => {
+      this.monetizationModal.showUpgradeModal({
+        feature: 'policy_management',
+        upgradePrompt: {
+          title: 'Unlock Advanced Policy Features',
+          description: 'Get access to advanced policy templates, unlimited implementations, and detailed analytics.',
+          benefits: [
+            'Advanced economic policy templates',
+            'Unlimited active policies',
+            'Policy impact forecasting',
+            'Implementation timeline optimization',
+            'Opposition response analysis',
+          ],
+        },
+      });
+    });
+
+    container.querySelector('.subscription-btn')?.addEventListener('click', () => {
+      this.monetizationModal.showSubscriptionStatus();
     });
   }
 

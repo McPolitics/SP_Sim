@@ -1,6 +1,7 @@
 import { BaseComponent } from './BaseComponent';
 import { eventSystem } from '../../core/EventSystem';
 import { Modal } from './Modal';
+import { monetizationFramework } from '../../core/MonetizationFramework';
 
 /**
  * PoliticalEventsPanel - Displays and handles political events and decisions
