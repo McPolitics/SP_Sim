@@ -56,12 +56,24 @@ class SPSimApp {
       // Initialize starting screen first
       this.startingScreen = new StartingScreen();
 
+      // Always initialize UI components so they're ready when game starts
+      this.initializeUI();
+
       // Show starting screen for new players
       const showStartingScreen = this.startingScreen.show();
 
       if (!showStartingScreen) {
         // Existing player - proceed with normal initialization
         this.initializeGameForExistingPlayer();
+      } else {
+        // Initialize game engine but don't start it yet
+        this.gameEngine.initialize();
+        // Setup global event listeners
+        this.setupEventListeners();
+        // Setup error handling
+        this.setupErrorHandling();
+        this.isInitialized = true;
+        console.log('✅ SP_Sim initialized successfully (with starting screen)');
       }
       // If starting screen is shown, game initialization will happen after difficulty selection
     } catch (error) {
@@ -973,7 +985,7 @@ class SPSimApp {
           const saveId = btn.getAttribute('data-save-id');
           const saveName = btn.closest('.save-item').querySelector('.save-name').textContent;
 
-          if (deleteBtns.confim(`Are you sure you want to delete "${saveName}"?`)) {
+          if (window.confirm(`Are you sure you want to delete "${saveName}"?`)) {
             const success = this.gameEngine.saveSystem.deleteSave(saveId);
             if (success) {
               btn.closest('.save-item').remove();
@@ -1218,13 +1230,34 @@ class SPSimApp {
    */
   handleNewGameFromStartingScreen(data) {
     if (!this.isInitialized) {
-      // Initialize the game engine and UI for the first time
+      // This shouldn't happen anymore, but failsafe
       this.initializeGameForExistingPlayer();
-    } else {
-      // Reset existing game state
-      this.gameEngine.resetGameState(data.newGameState);
-      this.updateUI();
     }
+
+    // Forcibly hide starting screen
+    if (this.startingScreen) {
+      this.startingScreen.hide();
+    }
+
+    // Also remove any remaining starting screen elements
+    const startingScreenElements = document.querySelectorAll('#starting-screen, .starting-screen');
+    startingScreenElements.forEach((element) => element.remove());
+
+    // Reset game state with new data
+    if (data.newGameState) {
+      this.gameEngine.resetGameState(data.newGameState);
+    }
+
+    // Start the game engine
+    this.gameEngine.start();
+
+    // Force immediate UI update
+    this.updateUI();
+
+    // Update UI again after a short delay to ensure all components are ready
+    setTimeout(() => {
+      this.updateUI();
+    }, 100);
   }
 }
 

@@ -29,7 +29,9 @@ export class Dashboard extends BaseComponent {
 
     // Political panel elements
     this.coalitionSupportElement = document.getElementById('coalition-support');
+    this.coalitionStabilityElement = document.getElementById('coalition-stability');
     this.oppositionElement = document.getElementById('opposition');
+    this.politicalPressureElement = document.getElementById('political-pressure');
     this.independentsElement = document.getElementById('independents');
     this.nextVoteElement = document.getElementById('next-vote');
 
@@ -62,6 +64,13 @@ export class Dashboard extends BaseComponent {
       this.update(event.data.gameState);
     });
 
+    // Listen for game start/reset events
+    eventSystem.on(EVENTS.GAME_START, (event) => {
+      if (event.data && event.data.gameState) {
+        this.update(event.data.gameState);
+      }
+    });
+
     // Game control buttons
     if (this.pauseBtn) {
       this.addEventListener(this.pauseBtn, 'click', () => {
@@ -92,11 +101,20 @@ export class Dashboard extends BaseComponent {
    * Update dashboard with current game state
    */
   update(gameState) {
-    this.updateHeader(gameState);
-    this.updateEconomicPanel(gameState);
-    this.updatePoliticalPanel(gameState);
-    this.updateGlobalPanel(gameState);
-    this.updateEvents(gameState);
+    if (!gameState) {
+      console.warn('Dashboard update called with no game state');
+      return;
+    }
+
+    try {
+      this.updateHeader(gameState);
+      this.updateEconomicPanel(gameState);
+      this.updatePoliticalPanel(gameState);
+      this.updateGlobalPanel(gameState);
+      this.updateEvents(gameState);
+    } catch (error) {
+      console.error('Error updating dashboard:', error);
+    }
   }
 
   /**
@@ -181,9 +199,54 @@ export class Dashboard extends BaseComponent {
       this.coalitionSupportElement.textContent = this.formatPercentage(coalitionSupport);
     }
 
+    if (this.coalitionStabilityElement) {
+      // Calculate coalition stability based on support distribution and approval
+      const coalitionSupport = politics.coalition.reduce((sum, party) => sum + party.support, 0);
+      const minPartySupport = Math.min(...politics.coalition.map((party) => party.support));
+      const maxPartySupport = Math.max(...politics.coalition.map((party) => party.support));
+      const balanceRatio = coalitionSupport > 0 ? minPartySupport / maxPartySupport : 0;
+      const approvalFactor = politics.approval / 100;
+      const stability = Math.min(100, (balanceRatio * 50 + approvalFactor * 50));
+
+      this.coalitionStabilityElement.textContent = this.formatPercentage(stability);
+
+      // Add color coding for stability
+      this.coalitionStabilityElement.className = '';
+      if (stability >= 70) {
+        this.coalitionStabilityElement.classList.add('text-success');
+      } else if (stability >= 40) {
+        // Default color
+      } else {
+        this.coalitionStabilityElement.classList.add('text-danger');
+      }
+    }
+
     if (this.oppositionElement) {
       const oppositionSupport = politics.opposition.reduce((sum, party) => sum + party.support, 0);
       this.oppositionElement.textContent = this.formatPercentage(oppositionSupport);
+    }
+
+    if (this.politicalPressureElement) {
+      // Calculate political pressure based on opposition strength, approval, and time to election
+      const oppositionSupport = politics.opposition.reduce((sum, party) => sum + party.support, 0);
+      const approvalPressure = Math.max(0, 50 - politics.approval); // Pressure increases as approval drops below 50%
+      const oppositionPressure = oppositionSupport * 0.5; // Opposition support creates pressure
+      const electionYear = politics.nextElection ? politics.nextElection.year : DEFAULT_ELECTION_CYCLE_YEARS;
+      const timeToElection = Math.max(1, (electionYear - gameState.time.year) * WEEKS_PER_YEAR + (politics.nextElection?.week || 1) - gameState.time.week);
+      const timePressure = Math.max(0, WEEKS_PER_YEAR - timeToElection) * TIME_PRESSURE_MULTIPLIER; // Pressure increases as election approaches
+
+      const totalPressure = Math.min(100, approvalPressure + oppositionPressure + timePressure);
+      this.politicalPressureElement.textContent = this.formatPercentage(totalPressure);
+
+      // Add color coding for pressure
+      this.politicalPressureElement.className = '';
+      if (totalPressure >= 70) {
+        this.politicalPressureElement.classList.add('text-danger');
+      } else if (totalPressure >= 40) {
+        this.politicalPressureElement.classList.add('text-warning');
+      } else {
+        this.politicalPressureElement.classList.add('text-success');
+      }
     }
 
     if (this.independentsElement) {
