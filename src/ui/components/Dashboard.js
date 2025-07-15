@@ -5,6 +5,12 @@ import { eventSystem, EVENTS } from '../../core/EventSystem';
  * Dashboard - Main game interface component
  * Handles display of economic, political, and global indicators
  */
+
+// Constants for calculations
+const WEEKS_PER_YEAR = 52;
+const DEFAULT_ELECTION_CYCLE_YEARS = 4; // Default election cycle in years
+const TIME_PRESSURE_MULTIPLIER = 0.5; // Multiplier for time pressure calculation
+
 export class Dashboard extends BaseComponent {
   constructor() {
     super();

@@ -6,6 +6,10 @@ import { gameReset } from '../../core/GameReset';
  * StartingScreen - Initial screen for new players
  * Provides game introduction, difficulty selection, and tutorial options
  */
+
+// Constants for UI behavior
+const SCREEN_HIDE_DELAY = 500; // Delay before hiding the starting screen after game start
+const LOADING_ANIMATION_DURATION = 2000; // Duration of loading animation in milliseconds
 export class StartingScreen extends BaseComponent {
   constructor() {
     super();
