@@ -24,14 +24,8 @@ export class StartingScreen extends BaseComponent {
   show() {
     if (this.isVisible) return false;
 
-    // Check if this is truly a new game (no auto-save or existing progress)
-    const hasExistingGame = this.checkForExistingGame();
-    if (hasExistingGame) {
-      // Skip starting screen if player has existing progress
-      // Do not show starting screen
-      return false;
-    }
-
+    // Always show the starting screen on initial page load to give users choice
+    // This provides better UX by allowing users to choose between new game and continue
     this.createStartingScreen();
     this.isVisible = true;
     return true;

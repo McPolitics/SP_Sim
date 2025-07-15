@@ -19,6 +19,7 @@ import { PlayerGuide } from './ui/components/PlayerGuide';
 import { StartingScreen } from './ui/components/StartingScreen';
 import { PoliticalEventsPanel } from './ui/components/PoliticalEventsPanel';
 import { SettingsScreen } from './ui/components/SettingsScreen';
+import { PoliticsScreen } from './ui/components/PoliticsScreen';
 
 /**
  * Main application class
@@ -40,6 +41,7 @@ class SPSimApp {
     this.startingScreen = null;
     this.politicalEventsPanel = null;
     this.settingsScreen = null;
+    this.politicsScreen = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -130,6 +132,9 @@ class SPSimApp {
     // Initialize settings screen
     this.settingsScreen = new SettingsScreen();
 
+    // Initialize politics screen
+    this.politicsScreen = new PoliticsScreen();
+
     // Initialize debug panel (only in debug mode)
     // eslint-disable-next-line no-undef
     if (typeof __ENABLE_DEBUG__ !== 'undefined' && __ENABLE_DEBUG__) {
@@ -204,6 +209,19 @@ class SPSimApp {
     // Handle specific screens that need special initialization
     if (screenId === 'policies' && this.policyScreen) {
       this.showPolicyScreen();
+    } else if (screenId === 'politics' && this.politicsScreen) {
+      // Show politics screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
+        this.politicsScreen.show();
+        // Update politics screen with current game state
+        if (this.gameEngine && this.gameEngine.getGameState) {
+          this.politicsScreen.update(this.gameEngine.getGameState());
+        }
+      } else {
+        this.createScreenPlaceholder(screenId);
+      }
     } else if (screenId === 'economy' && this.economicsScreen) {
       // Show target screen
       const targetScreen = document.querySelector(`#screen-${screenId}`);

@@ -31,13 +31,13 @@ describe('StartingScreen', () => {
     expect(screenElement).toBeTruthy();
   });
 
-  test('should not show starting screen if existing game data exists', () => {
+  test('should always show starting screen to allow user choice', () => {
     // Simulate existing save data
     localStorage.setItem('sp_sim_autosave', JSON.stringify({ test: 'data' }));
     
     const shown = startingScreen.show();
-    expect(shown).toBe(false);
-    expect(startingScreen.isVisible).toBe(false);
+    expect(shown).toBe(true); // Changed: now always shows
+    expect(startingScreen.isVisible).toBe(true);
   });
 
   test('should hide starting screen when hide() is called', () => {
