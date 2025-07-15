@@ -701,8 +701,8 @@ export class SettingsScreen extends BaseComponent {
 
   setupEventListeners() {
     // Tab switching
-    const tabBtns = document.querySelectorAll('.settings-screen .tab-btn');
-    const tabContents = document.querySelectorAll('.settings-screen .tab-content');
+    const tabBtns = this.element.querySelectorAll('.tab-btn');
+    const tabContents = this.element.querySelectorAll('.tab-content');
 
     tabBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
