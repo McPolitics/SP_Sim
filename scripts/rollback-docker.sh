@@ -114,7 +114,7 @@ rollback_to_version() {
     # Deploy with target version
     log "Deploying rollback version: $target_tag"
     export TAG="$target_tag"
-    docker-compose up -d --remove-orphans
+    docker compose up -d --remove-orphans
     
     # Wait for container to start
     sleep 10
