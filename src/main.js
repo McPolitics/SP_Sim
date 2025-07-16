@@ -22,6 +22,8 @@ import { StartingScreen } from './ui/components/StartingScreen';
 import { PoliticalEventsPanel } from './ui/components/PoliticalEventsPanel';
 import { SettingsScreen } from './ui/components/SettingsScreen';
 import { PoliticsScreen } from './ui/components/PoliticsScreen';
+import { CrisisManagementScreen } from './ui/components/CrisisManagementScreen';
+import { GlobalRelationsScreen } from './ui/components/GlobalRelationsScreen';
 
 /**
  * Main application class
@@ -46,6 +48,8 @@ class SPSimApp {
     this.politicalEventsPanel = null;
     this.settingsScreen = null;
     this.politicsScreen = null;
+    this.crisisManagementScreen = null;
+    this.globalRelationsScreen = null;
     this.currentScreen = 'dashboard';
     this.isInitialized = false;
   }
@@ -151,6 +155,12 @@ class SPSimApp {
     // Initialize politics screen
     this.politicsScreen = new PoliticsScreen();
 
+    // Initialize crisis management screen
+    this.crisisManagementScreen = new CrisisManagementScreen();
+
+    // Initialize global relations screen
+    this.globalRelationsScreen = new GlobalRelationsScreen();
+
     // Initialize debug panel (only in debug mode)
     // eslint-disable-next-line no-undef
     if (typeof __ENABLE_DEBUG__ !== 'undefined' && __ENABLE_DEBUG__) {
@@ -254,6 +264,32 @@ class SPSimApp {
         targetScreen.classList.add('screen--active');
         // Track analytics navigation
         this.playerAnalytics.trackFeatureUsage('analytics');
+      } else {
+        this.createScreenPlaceholder(screenId);
+      }
+    } else if (screenId === 'crisis' && this.crisisManagementScreen) {
+      // Show crisis management screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
+        this.crisisManagementScreen.show();
+        // Update crisis screen with current game state
+        if (this.gameEngine && this.gameEngine.getGameState) {
+          this.crisisManagementScreen.update(this.gameEngine.getGameState());
+        }
+      } else {
+        this.createScreenPlaceholder(screenId);
+      }
+    } else if (screenId === 'global' && this.globalRelationsScreen) {
+      // Show global relations screen
+      const targetScreen = document.querySelector(`#screen-${screenId}`);
+      if (targetScreen) {
+        targetScreen.classList.add('screen--active');
+        this.globalRelationsScreen.show();
+        // Update global relations screen with current game state
+        if (this.gameEngine && this.gameEngine.getGameState) {
+          this.globalRelationsScreen.update(this.gameEngine.getGameState());
+        }
       } else {
         this.createScreenPlaceholder(screenId);
       }
