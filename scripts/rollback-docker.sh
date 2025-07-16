@@ -105,7 +105,7 @@ rollback_to_version() {
     log "Stopping current containers..."
     validate_deploy_path "$DEPLOY_PATH"
     cd "$DEPLOY_PATH"
-    docker-compose down || {
+    docker compose down || {
         warn "Docker compose down failed, attempting manual container stop"
         docker stop "$CONTAINER_NAME" 2>/dev/null || true
         docker rm "$CONTAINER_NAME" 2>/dev/null || true
