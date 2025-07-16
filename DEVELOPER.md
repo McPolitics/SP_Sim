@@ -221,6 +221,124 @@ npm run build
 - Document API contracts and data structures
 - Include examples in documentation
 
+## Docker Deployment
+
+SP_Sim supports containerized deployment using Docker for both development and production environments.
+
+### Prerequisites
+
+- Docker 20.10+ and Docker Compose v2+
+- For VPS deployment: SSH access and Docker installed on target server
+
+### Development with Docker
+
+Build and run the development environment:
+
+```bash
+# Build the full Docker image (includes Node.js build process)
+docker compose -f docker-compose.dev.yml build
+
+# Start the development container
+docker compose -f docker-compose.dev.yml up -d
+
+# Access the application at http://localhost:3000
+```
+
+### Production Deployment
+
+#### Simple Single-Container Deployment
+
+```bash
+# Ensure you have built the project
+npm run build
+
+# Build and run production container
+docker build -t sp_sim .
+docker run -d --name sp_sim -p 80:80 sp_sim
+
+# Check health
+curl http://localhost/health
+```
+
+#### Production with Load Balancer
+
+```bash
+# Use production docker-compose with nginx reverse proxy
+TAG=latest docker compose -f docker-compose.prod.yml up -d
+
+# The application will be available on port 80
+```
+
+### VPS Deployment via CI/CD
+
+The repository includes automated VPS deployment via GitHub Actions. Set up the following secrets:
+
+- `VPS_HOST`: Your VPS hostname/IP
+- `VPS_USERNAME`: SSH username  
+- `VPS_SSH_KEY`: Private SSH key for authentication
+- `VPS_DEPLOY_PATH`: Deployment directory (e.g., `/opt/sp_sim`)
+- `VPS_SITE_URL`: Public URL for health checks
+
+The deployment process:
+1. Builds and pushes Docker image to GitHub Container Registry
+2. Deploys to VPS using Docker Compose
+3. Runs comprehensive health checks
+4. Automatically rolls back on failure
+
+### Docker Configuration Files
+
+- `Dockerfile` - Optimized for CI/CD (uses pre-built assets)
+- `Dockerfile.full` - Complete build process from source
+- `docker-compose.yml` - Simple production deployment
+- `docker-compose.prod.yml` - Production with nginx reverse proxy
+- `docker-compose.dev.yml` - Development environment
+
+### Deployment Scripts
+
+Located in `scripts/`:
+
+- `deploy-docker.sh` - Automated VPS deployment
+- `health-check-docker.sh` - Comprehensive health verification  
+- `rollback-docker.sh` - Emergency rollback capabilities
+
+```bash
+# Example manual deployment to VPS
+export TAG=latest
+export VPS_DEPLOY_PATH=/opt/sp_sim
+export VPS_SITE_URL=https://your-domain.com
+
+./scripts/deploy-docker.sh
+```
+
+### Container Health Monitoring
+
+The containers include built-in health checks and the repository provides a comprehensive health check script:
+
+```bash
+# Run all health checks
+./scripts/health-check-docker.sh all
+
+# Check specific aspects
+./scripts/health-check-docker.sh container  # Container status
+./scripts/health-check-docker.sh http      # HTTP endpoints
+./scripts/health-check-docker.sh content   # Content integrity
+```
+
+### Emergency Rollback
+
+If a deployment fails, use the rollback script:
+
+```bash
+# Rollback to previous version
+./scripts/rollback-docker.sh previous
+
+# Rollback to specific version
+./scripts/rollback-docker.sh version v1.2.3
+
+# Interactive rollback mode
+./scripts/rollback-docker.sh interactive
+```
+
 ## Next Steps
 
 1. Review the [Development Roadmap](./ROADMAP.md)

@@ -55,6 +55,8 @@ SP_Sim puts you in the shoes of a political leader where every decision matters.
 
 ## Quick Start
 
+### Development Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/McPolitics/SP_Sim.git
@@ -68,6 +70,38 @@ npm run dev
 
 # Build for production
 npm run build
+```
+
+### Docker Setup
+
+For containerized development and deployment:
+
+```bash
+# Development with Docker
+docker compose -f docker-compose.dev.yml up --build
+
+# Production deployment (after building)
+npm run build
+docker compose up -d
+
+# Or use the production setup with nginx
+TAG=latest docker compose -f docker-compose.prod.yml up -d
+```
+
+The application will be available at:
+- **Development**: http://localhost:3000  
+- **Production**: http://localhost (port 80)
+
+### Health Check
+
+Verify the deployment is working:
+
+```bash
+# Check application health
+curl http://localhost/health
+
+# Or use the comprehensive health check script
+./scripts/health-check-docker.sh all
 ```
 
 ## Game Design Philosophy

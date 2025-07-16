@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.full
+      target: production
+    container_name: sp_sim_dev
+    ports:
+      - "3000:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - sp_sim_dev_network
+    environment:
+      - NODE_ENV=development
+
+networks:
+  sp_sim_dev_network:
+    driver: bridge
