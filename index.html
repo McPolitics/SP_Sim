@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP_Sim - Political Economy Simulation</title>
+    <meta name="description" content="A single-player political economy simulation game where you manage a nation through complex challenges.">
+    <link rel="icon" type="image/svg+xml" href="/SP_Sim/favicon.svg">
+  <script type="module" crossorigin src="/SP_Sim/assets/main-Bpm8HnKg.js"></script>
+  <link rel="modulepreload" crossorigin href="/SP_Sim/assets/core-zjjlKKET.js">
+  <link rel="modulepreload" crossorigin href="/SP_Sim/assets/ui-sAtPpvWF.js">
+  <link rel="stylesheet" crossorigin href="/SP_Sim/assets/main-C8Tgqeei.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <h1 class="header__title">SP_Sim</h1>
+            <nav class="navigation">
+                <ul class="navigation__menu">
+                    <li class="navigation__item"><a href="#dashboard" class="navigation__link navigation__link--active" data-screen="dashboard">Dashboard</a></li>
+                    <li class="navigation__item"><a href="#economy" class="navigation__link" data-screen="economy">Economy</a></li>
+                    <li class="navigation__item"><a href="#politics" class="navigation__link" data-screen="politics">Politics</a></li>
+                    <li class="navigation__item"><a href="#policies" class="navigation__link" data-screen="policies">Policies</a></li>
+                    <li class="navigation__item"><a href="#global" class="navigation__link" data-screen="global">Global Relations</a></li>
+                    <li class="navigation__item"><a href="#crisis" class="navigation__link" data-screen="crisis">Crisis Management</a></li>
+                    <li class="navigation__item"><a href="#analytics" class="navigation__link" data-screen="analytics">Analytics</a></li>
+                    <li class="navigation__item"><a href="#settings" class="navigation__link" data-screen="settings">Settings</a></li>
+                    <li class="navigation__item"><a href="#help" class="navigation__link" data-screen="help">Help Guide</a></li>
+                </ul>
+            </nav>
+            <div class="header__info">
+                <span id="game-time">Week 1, Year 1</span>
+                <span id="approval-rating">Approval: --</span>
+                <span id="next-election">Next Election: --</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div id="screen-dashboard" class="screen screen--active">
+                <div class="dashboard">
+                    <div class="dashboard__panels">
+                        <div class="panel economic-panel">
+                            <h2 class="panel__title">Economic Indicators</h2>
+                            <div class="panel__content">
+                                <div class="metric">
+                                    <label>GDP Growth:</label>
+                                    <span id="gdp-growth">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Unemployment:</label>
+                                    <span id="unemployment">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Inflation:</label>
+                                    <span id="inflation">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>National Debt:</label>
+                                    <span id="national-debt">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel political-panel">
+                            <h2 class="panel__title">Political Status</h2>
+                            <div class="panel__content">
+                                <div class="metric">
+                                    <label>Coalition Support:</label>
+                                    <span id="coalition-support">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Coalition Stability:</label>
+                                    <span id="coalition-stability">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Opposition:</label>
+                                    <span id="opposition">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Political Pressure:</label>
+                                    <span id="political-pressure">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Next Vote:</label>
+                                    <span id="next-vote">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel global-panel">
+                            <h2 class="panel__title">Global Relations</h2>
+                            <div class="panel__content">
+                                <div class="metric">
+                                    <label>Int'l Standing:</label>
+                                    <span id="intl-standing">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Trade Balance:</label>
+                                    <span id="trade-balance">--</span>
+                                </div>
+                                <div class="metric">
+                                    <label>Diplomatic Relations:</label>
+                                    <span id="diplomatic-relations">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="events-section">
+                        <div class="panel events-panel">
+                            <h2 class="panel__title">Recent Events</h2>
+                            <div class="panel__content">
+                                <ul id="recent-events" class="events-list">
+                                    <li>Game initialized - Welcome to SP_Sim!</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="panel decisions-panel">
+                            <h2 class="panel__title">Pending Decisions</h2>
+                            <div class="panel__content">
+                                <ul id="pending-decisions" class="decisions-list">
+                                    <li>No pending decisions</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="panel political-events-panel">
+                            <h2 class="panel__title">🏛️ Political Events</h2>
+                            <div class="panel__content">
+                                <ul id="active-political-events" class="political-events-list">
+                                    <li>No active political events</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Economy Screen -->
+            <div id="screen-economy" class="screen">
+                <div class="economics-screen">
+                    <!-- Economics content will be dynamically generated by EconomicsScreen component -->
+                </div>
+            </div>
+
+            <!-- Politics Screen -->
+            <div id="screen-politics" class="screen">
+                <div class="panel">
+                    <h2 class="panel__title">Politics</h2>
+                    <div class="panel__content">
+                        <p>This screen is under development and will be available in a future update.</p>
+                        <p>Screen: <strong>Politics</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policies Screen -->
+            <div id="screen-policies" class="screen">
+                <div class="policy-screen">
+                    <!-- Policy content will be dynamically generated by PolicyScreen component -->
+                </div>
+            </div>
+
+            <!-- Global Relations Screen -->
+            <div id="screen-global" class="screen">
+                <div class="panel">
+                    <h2 class="panel__title">Global Relations</h2>
+                    <div class="panel__content">
+                        <p>This screen is under development and will be available in a future update.</p>
+                        <p>Screen: <strong>Global Relations</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crisis Management Screen -->
+            <div id="screen-crisis" class="screen">
+                <div class="panel">
+                    <h2 class="panel__title">Crisis Management</h2>
+                    <div class="panel__content">
+                        <p>This screen is under development and will be available in a future update.</p>
+                        <p>Screen: <strong>Crisis Management</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Screen -->
+            <div id="screen-analytics" class="screen">
+                <div id="analytics-screen" class="analytics-screen">
+                    <!-- Analytics content will be dynamically generated by AnalyticsScreen component -->
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div id="screen-settings" class="screen">
+                <div class="settings-screen">
+                    <!-- Settings content will be dynamically generated by SettingsScreen component -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="game-controls">
+                <button id="pause-btn" class="btn btn--secondary">Pause</button>
+                <button id="next-turn-btn" class="btn btn--primary">Next Turn</button>
+                <button id="save-btn" class="btn btn--secondary">Save Game</button>
+                <button id="load-btn" class="btn btn--secondary">Load Game</button>
+                <button id="reset-btn" class="btn btn--secondary">Reset Game</button>
+            </div>
+        </footer>
+    </div>
+
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="/SP_Sim/assets/polyfills-legacy-jyrDDjqv.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="/SP_Sim/assets/main-legacy-CXUuxFB1.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+</body>
+</html>
