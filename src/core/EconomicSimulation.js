@@ -86,6 +86,61 @@ export class EconomicSimulation {
   }
 
   /**
+   * Enhanced economic turn processing with multiple factor integration
+   */
+  processEconomicTurn(gameState, policyEffects = {}, externalPressures = {}, cycleEffects = {}, confidenceEffects = {}) {
+    // Store previous state for delta calculations
+    const previousState = { ...this.metrics };
+
+    // Update business cycle first
+    this.updateBusinessCycle();
+
+    // Calculate sector interactions
+    this.updateSectorInteractions();
+
+    // Update core metrics with all effects
+    this.updateGDPWithEffects(policyEffects, externalPressures, cycleEffects, confidenceEffects);
+    this.updateUnemploymentWithEffects(policyEffects, externalPressures, cycleEffects);
+    this.updateInflationWithEffects(policyEffects, externalPressures, cycleEffects);
+    this.updateConfidenceWithEffects(confidenceEffects);
+
+    // Update derived metrics
+    this.updateProductivity(gameState);
+    this.updateInterestRates(gameState);
+    this.updateConsumerSpending(gameState);
+    this.updateGovernmentFinances(gameState);
+
+    // Apply any active policies
+    this.applyActivePolicies();
+
+    // Check for automatic events
+    this.checkEconomicEvents();
+
+    // Calculate deltas
+    const deltas = {
+      gdpGrowthDelta: this.metrics.gdpGrowth - previousState.gdpGrowth,
+      unemploymentDelta: this.metrics.unemployment - previousState.unemployment,
+      inflationDelta: this.metrics.inflation - previousState.inflation,
+      confidenceDelta: this.metrics.confidence - previousState.confidence,
+    };
+
+    // Return enhanced economic state
+    return {
+      ...this.metrics,
+      sectors: { ...this.sectors },
+      cycle: { ...this.cycle },
+      deltas,
+      previousState,
+      appliedEffects: {
+        policyEffects,
+        externalPressures,
+        cycleEffects,
+        confidenceEffects,
+      },
+    };
+  }
+
+  /**
    * Update business cycle
    */
   updateBusinessCycle() {
@@ -189,6 +244,53 @@ export class EconomicSimulation {
   }
 
   /**
+   * Update GDP with multiple effect factors
+   */
+  updateGDPWithEffects(policyEffects, externalPressures, cycleEffects, confidenceEffects) {
+    // Base sector-weighted growth
+    let weightedGrowth = 0;
+    Object.keys(this.sectors).forEach((sectorName) => {
+      const sector = this.sectors[sectorName];
+      weightedGrowth += sector.share * (sector.currentGrowth || sector.growth);
+    });
+
+    // Apply productivity effects
+    const productivityEffect = (this.metrics.productivity - 1.0) * 0.5;
+    weightedGrowth += productivityEffect;
+
+    // Apply policy effects
+    if (policyEffects.gdpGrowthEffect) {
+      weightedGrowth += policyEffects.gdpGrowthEffect;
+    }
+
+    // Apply external pressures
+    if (externalPressures.globalGrowthEffect) {
+      weightedGrowth += externalPressures.globalGrowthEffect;
+    }
+    if (externalPressures.tradeEffect) {
+      weightedGrowth += externalPressures.tradeEffect;
+    }
+
+    // Apply cycle effects
+    if (cycleEffects.gdpEffect) {
+      weightedGrowth += cycleEffects.gdpEffect;
+    }
+
+    // Apply confidence effects
+    if (confidenceEffects.level) {
+      const confidenceEffect = ((confidenceEffects.level - 50) / 100) * 0.5;
+      weightedGrowth += confidenceEffect;
+    }
+
+    // Smooth update to prevent wild swings
+    this.metrics.gdpGrowth = this.smoothUpdate(this.metrics.gdpGrowth, weightedGrowth, 0.3);
+
+    // Update actual GDP
+    const weeklyGrowthRate = this.metrics.gdpGrowth / 52 / 100;
+    this.metrics.gdp *= (1 + weeklyGrowthRate);
+  }
+
+  /**
    * Update unemployment rate
    */
   updateUnemployment() {
@@ -220,6 +322,43 @@ export class EconomicSimulation {
   }
 
   /**
+   * Update unemployment with enhanced effects
+   */
+  updateUnemploymentWithEffects(policyEffects, externalPressures, cycleEffects) {
+    // Okun's Law: unemployment inversely related to GDP growth
+    let targetUnemployment = 6.0 - (this.metrics.gdpGrowth - 2.0) * 0.4;
+
+    // Apply policy effects
+    if (policyEffects.unemploymentEffect) {
+      targetUnemployment += policyEffects.unemploymentEffect;
+    }
+
+    // Apply external pressures
+    if (externalPressures.globalGrowthEffect) {
+      // Global recession increases unemployment
+      targetUnemployment -= externalPressures.globalGrowthEffect * 0.5;
+    }
+
+    // Apply cycle effects
+    if (cycleEffects.unemploymentEffect) {
+      targetUnemployment += cycleEffects.unemploymentEffect;
+    }
+
+    // Sector-specific unemployment effects
+    const manufactUnemployment = this.calculateSectorUnemployment('manufacturing');
+    const servicesUnemployment = this.calculateSectorUnemployment('services');
+    const avgSectorUnemployment = (manufactUnemployment + servicesUnemployment) / 2;
+
+    targetUnemployment = (targetUnemployment + avgSectorUnemployment) / 2;
+
+    // Unemployment is sticky - changes slowly
+    this.metrics.unemployment = this.smoothUpdate(this.metrics.unemployment, targetUnemployment, 0.15);
+
+    // Ensure realistic bounds
+    this.metrics.unemployment = Math.max(2.0, Math.min(25.0, this.metrics.unemployment));
+  }
+
+  /**
    * Update inflation rate
    */
   updateInflation() {
@@ -239,6 +378,52 @@ export class EconomicSimulation {
     const adjustedTarget = Math.max(0, targetInflation + volatility);
 
     this.metrics.inflation = this.smoothUpdate(this.metrics.inflation, adjustedTarget, 0.25);
+  }
+
+  /**
+   * Update inflation with enhanced effects
+   */
+  updateInflationWithEffects(policyEffects, externalPressures, cycleEffects) {
+    // Base inflation target
+    let targetInflation = 2.4;
+
+    // Phillips Curve: low unemployment tends to increase inflation
+    const phillipsEffect = (6.0 - this.metrics.unemployment) * 0.1;
+    targetInflation += phillipsEffect;
+
+    // GDP growth effects on inflation
+    if (this.metrics.gdpGrowth > 3.0) {
+      targetInflation += (this.metrics.gdpGrowth - 3.0) * 0.2;
+    }
+
+    // Apply policy effects
+    if (policyEffects.inflationEffect) {
+      targetInflation += policyEffects.inflationEffect;
+    }
+
+    // Apply external pressures (commodity prices, etc.)
+    if (externalPressures.commodityPriceEffect) {
+      targetInflation -= externalPressures.commodityPriceEffect; // Higher oil prices = higher inflation
+    }
+
+    // Apply cycle effects
+    if (cycleEffects.inflationEffect) {
+      targetInflation += cycleEffects.inflationEffect;
+    }
+
+    // Supply chain effects
+    const supplyChainEffect = this.calculateSupplyChainInflation();
+    targetInflation += supplyChainEffect;
+
+    // Monetary policy effects (simplified)
+    const monetaryEffect = (this.metrics.interestRate - 3.5) * -0.1;
+    targetInflation += monetaryEffect;
+
+    // Smooth update
+    this.metrics.inflation = this.smoothUpdate(this.metrics.inflation, targetInflation, 0.2);
+
+    // Ensure realistic bounds
+    this.metrics.inflation = Math.max(-2.0, Math.min(15.0, this.metrics.inflation));
   }
 
   /**
@@ -276,6 +461,53 @@ export class EconomicSimulation {
     confidenceChange += (Math.random() - 0.5) * 2;
 
     this.metrics.confidence = Math.max(0, Math.min(100, this.metrics.confidence + confidenceChange));
+  }
+
+  /**
+   * Update confidence with enhanced factors
+   */
+  updateConfidenceWithEffects(confidenceEffects) {
+    let targetConfidence = 50; // Base neutral
+
+    // Economic performance effects
+    if (this.metrics.gdpGrowth > 2) targetConfidence += (this.metrics.gdpGrowth - 2) * 8;
+    if (this.metrics.gdpGrowth < 0) targetConfidence += this.metrics.gdpGrowth * 15; // Negative growth hurts confidence more
+
+    if (this.metrics.unemployment < 5) targetConfidence += (5 - this.metrics.unemployment) * 3;
+    if (this.metrics.unemployment > 8) targetConfidence -= (this.metrics.unemployment - 8) * 4;
+
+    if (this.metrics.inflation > 4) targetConfidence -= (this.metrics.inflation - 4) * 3;
+    if (this.metrics.inflation < 0) targetConfidence -= Math.abs(this.metrics.inflation) * 5; // Deflation concern
+
+    // Apply direct confidence effects
+    if (confidenceEffects.level) {
+      targetConfidence = (targetConfidence + confidenceEffects.level) / 2; // Blend with external confidence
+    }
+
+    // Business cycle effects on confidence
+    switch (this.cycle.phase) {
+      case 'expansion':
+        targetConfidence += 5;
+        break;
+      case 'peak':
+        targetConfidence += 2;
+        break;
+      case 'contraction':
+        targetConfidence -= 8;
+        break;
+      case 'trough':
+        targetConfidence -= 5;
+        break;
+      default:
+        // No change for unknown phases
+        break;
+    }
+
+    // Smooth update
+    this.metrics.confidence = this.smoothUpdate(this.metrics.confidence, targetConfidence, 0.25);
+
+    // Ensure bounds
+    this.metrics.confidence = Math.max(0, Math.min(100, this.metrics.confidence));
   }
 
   /**
@@ -678,6 +910,130 @@ export class EconomicSimulation {
     }
 
     return forecast;
+  }
+
+  /**
+   * Update productivity based on various factors
+   */
+  updateProductivity(gameState) {
+    let productivityGrowth = 0.001; // Base 0.1% per turn
+
+    // Investment in education and infrastructure increases productivity
+    if (gameState.policies) {
+      const educationPolicies = gameState.policies.active?.filter((p) => p.category === 'education') || [];
+      const infraPolicies = gameState.policies.active?.filter((p) => p.category === 'infrastructure') || [];
+
+      productivityGrowth += educationPolicies.length * 0.0005;
+      productivityGrowth += infraPolicies.length * 0.0003;
+    }
+
+    // High unemployment can reduce productivity (unused human capital)
+    if (this.metrics.unemployment > 8) {
+      productivityGrowth -= (this.metrics.unemployment - 8) * 0.0001;
+    }
+
+    // Technology and innovation effects (simplified)
+    const innovationEffect = (this.metrics.gdpGrowth > 3) ? 0.0002 : 0;
+    productivityGrowth += innovationEffect;
+
+    this.metrics.productivity *= (1 + productivityGrowth);
+    this.metrics.productivity = Math.max(0.5, Math.min(3.0, this.metrics.productivity));
+  }
+
+  /**
+   * Update interest rates based on economic conditions
+   */
+  updateInterestRates(gameState) {
+    // Taylor Rule: adjust rates based on inflation and output gap
+    const inflationGap = this.metrics.inflation - 2.4; // Target 2.4%
+    const outputGap = this.metrics.gdpGrowth - 2.5; // Potential growth 2.5%
+
+    const taylorRate = 2.0 + inflationGap + (0.5 * outputGap); // Simplified Taylor Rule
+
+    // Central bank independence and political pressure
+    let targetRate = taylorRate;
+    if (gameState.politics && gameState.politics.approval < 40) {
+      // Political pressure for lower rates during unpopular periods
+      targetRate -= 0.5;
+    }
+
+    // Smooth adjustment
+    this.metrics.interestRate = this.smoothUpdate(this.metrics.interestRate, targetRate, 0.1);
+
+    // Ensure realistic bounds
+    this.metrics.interestRate = Math.max(0, Math.min(15, this.metrics.interestRate));
+  }
+
+  /**
+   * Update consumer spending patterns
+   */
+  updateConsumerSpending(gameState) {
+    // Base consumer spending as share of GDP
+    let targetSpending = 0.65;
+
+    // Unemployment reduces consumer spending
+    const unemploymentEffect = -(this.metrics.unemployment - 6) * 0.01;
+    targetSpending += unemploymentEffect;
+
+    // Confidence affects spending
+    const confidenceEffect = ((this.metrics.confidence - 50) / 100) * 0.05;
+    targetSpending += confidenceEffect;
+
+    // Interest rates affect spending (higher rates = less spending)
+    const interestEffect = -(this.metrics.interestRate - 3.5) * 0.01;
+    targetSpending += interestEffect;
+
+    // Income distribution effects (simplified)
+    if (gameState.demographics && gameState.demographics.income) {
+      const middleClassShare = gameState.demographics.income.middle / 100;
+      const middleClassEffect = (middleClassShare - 0.45) * 0.1; // Middle class drives consumption
+      targetSpending += middleClassEffect;
+    }
+
+    this.metrics.consumerSpending = this.smoothUpdate(this.metrics.consumerSpending, targetSpending, 0.1);
+    this.metrics.consumerSpending = Math.max(0.4, Math.min(0.8, this.metrics.consumerSpending));
+  }
+
+  /**
+   * Update government finances
+   */
+  updateGovernmentFinances(gameState) {
+    // Tax revenue based on GDP and tax rates
+    const baseRevenue = this.metrics.gdp * 0.001; // Weekly revenue as fraction of GDP
+    let actualRevenue = baseRevenue;
+
+    // Tax compliance affected by approval and economic conditions
+    if (gameState.politics) {
+      const complianceRate = 0.85 + (gameState.politics.approval - 50) / 1000; // 85% base + approval effect
+      actualRevenue *= complianceRate;
+    }
+
+    // Economic cycle affects revenue
+    if (this.metrics.gdpGrowth < 0) {
+      actualRevenue *= (1 + this.metrics.gdpGrowth / 100); // Reduce revenue during recession
+    }
+
+    // Update government finances
+    if (!gameState.economy.government) {
+      gameState.economy.government = {
+        revenue: 0,
+        spending: 0,
+        debt: 1000000000000, // $1T baseline debt
+        deficit: 0,
+      };
+    }
+
+    gameState.economy.government.revenue = actualRevenue;
+
+    // Government spending (simplified)
+    const baseSpending = (this.metrics.gdp * this.metrics.governmentSpending) / 52; // Weekly spending
+    gameState.economy.government.spending = baseSpending;
+
+    // Calculate deficit/surplus
+    gameState.economy.government.deficit = gameState.economy.government.spending - gameState.economy.government.revenue;
+
+    // Update debt
+    gameState.economy.government.debt += gameState.economy.government.deficit;
   }
 }
 

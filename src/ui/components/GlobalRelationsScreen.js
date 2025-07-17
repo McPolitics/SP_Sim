@@ -651,48 +651,51 @@ export class GlobalRelationsScreen extends BaseComponent {
   }
 
   renderTradeTab() {
-    return `
+    return (
+      `
       <div class="trade-section">
-        <div class="trade-overview">
-          <div class="global-panel">
-            <h3>📊 Trade Overview</h3>
-            <div class="trade-stats">
-              <div class="trade-stat">
-                <span class="stat-value">$${this.calculateTotalTrade()}B</span>
-                <span class="stat-label">Total Trade Volume</span>
-              </div>
-              <div class="trade-stat">
-                <span class="stat-value">${this.tradeAgreements.length}</span>
-                <span class="stat-label">Active Agreements</span>
-              </div>
-              <div class="trade-stat">
-                <span class="stat-value">${this.calculateTradePartners()}</span>
-                <span class="stat-label">Trading Partners</span>
-              </div>
-            </div>
+      <div class="trade-overview">
+        <div class="global-panel">
+        <h3>📊 Trade Overview</h3>
+        <div class="trade-stats">
+          <div class="trade-stat">
+          <span class="stat-value">$${this.calculateTotalTrade()}B</span>
+          <span class="stat-label">Total Trade Volume</span>
+          </div>
+          <div class="trade-stat">
+          <span class="stat-value">${this.tradeAgreements.length}</span>
+          <span class="stat-label">Active Agreements</span>
+          </div>
+          <div class="trade-stat">
+          <span class="stat-value">${this.calculateTradePartners()}</span>
+          <span class="stat-label">Trading Partners</span>
           </div>
         </div>
-
-        <div class="trade-agreements">
-          <h3>📋 Trade Agreements</h3>
-          ${this.tradeAgreements.length > 0
-    ? this.tradeAgreements.map((agreement) => this.renderTradeAgreement(agreement)).join('')
-    : (
-      '<div class="empty-state">'
-      + '<div class="empty-state-icon">📋</div>'
-      + '<h3>No Trade Agreements</h3>'
-      + '<p>No active trade agreements. Consider negotiating new deals to boost economic growth.</p>'
-      + '</div>'
-    )
-}
-        </div>
-
-        <div class="trade-opportunities">
-          <h3>🌟 Trade Opportunities</h3>
-          ${this.renderTradeOpportunities()}
         </div>
       </div>
-    `;
+
+      <div class="trade-agreements">
+        <h3>📋 Trade Agreements</h3>
+        ${
+      this.tradeAgreements.length > 0
+        ? this.tradeAgreements.map((agreement) => this.renderTradeAgreement(agreement)).join('')
+        : (
+          '<div class="empty-state">'
+          + '<div class="empty-state-icon">📋</div>'
+          + '<h3>No Trade Agreements</h3>'
+          + '<p>No active trade agreements. Consider negotiating new deals to boost economic growth.</p>'
+          + '</div>'
+        )
+      }
+      </div>
+
+      <div class="trade-opportunities">
+        <h3>🌟 Trade Opportunities</h3>
+        ${this.renderTradeOpportunities()}
+      </div>
+      </div>
+      `
+    );
   }
 
   renderTradeAgreement(agreement) {
