@@ -103,6 +103,54 @@ export class AIOpposition {
   }
 
   /**
+   * Analyze current game state to inform AI decisions
+   */
+  analyzeGameState(gameState) {
+    // Basic gameState validation
+    if (!gameState || !gameState.politics || !gameState.economy) {
+      console.warn('AIOpposition: Invalid gameState provided to analyzeGameState');
+      return;
+    }
+
+    const playerApproval = gameState.politics.approval;
+    const economicHealth = this.calculateEconomicHealth(gameState);
+    const timeToElection = this.calculateTimeToElection(gameState);
+
+    // Determine weakness level
+    let weakness = 'low';
+    if (playerApproval < 40) {
+      weakness = 'high';
+    } else if (playerApproval < 60) {
+      weakness = 'medium';
+    }
+
+    // Determine opportunity type
+    let opportunity = 'normal';
+    if (economicHealth < 0.4) {
+      opportunity = 'crisis';
+    } else if (timeToElection < 20) {
+      opportunity = 'election';
+    }
+
+    // Store analysis results for strategy updates
+    this.lastAnalysis = {
+      playerApproval,
+      economicHealth,
+      timeToElection,
+      analysisTime: Date.now(),
+      weakness,
+      opportunity,
+    };
+
+    // Emit analysis completed event
+    this.eventSystem.emit('ai:analysis_complete', {
+      analysis: this.lastAnalysis,
+      strategy: this.strategy,
+      aggressiveness: this.aggressiveness,
+    });
+  }
+
+  /**
    * Update AI strategy based on current game state
    */
   updateStrategy(gameState) {

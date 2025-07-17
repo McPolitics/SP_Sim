@@ -1,4 +1,6 @@
 import { GameEngine } from '../../src/core/GameEngine.js';
+import { Modal } from '../../src/ui/components/Modal';
+import { modalManager } from '../../src/ui/components/ModalManager';
 
 describe('GameEngine', () => {
   let gameEngine;
@@ -172,10 +174,9 @@ describe('GameEngine', () => {
     expect(result.g).toBe(5); // added
   });
 
-  test('resetGame should cleanup modals', () => {
-    const modal = new (require('../../src/ui/components/Modal').Modal)();
+  test('should cleanup modals on game reset', () => {
+    const modal = new Modal();
     modal.show();
-    const { modalManager } = require('../../src/ui/components/ModalManager');
     const spy = jest.spyOn(modalManager, 'cleanup');
 
     gameEngine.resetGame(gameEngine.createInitialGameState());

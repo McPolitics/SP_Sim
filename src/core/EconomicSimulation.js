@@ -1035,6 +1035,210 @@ export class EconomicSimulation {
     // Update debt
     gameState.economy.government.debt += gameState.economy.government.deficit;
   }
+
+  /**
+   * Update sector interactions and interdependencies
+   */
+  updateSectorInteractions() {
+    // Manufacturing-Services linkages
+    const manufacturingGrowth = this.sectors.manufacturing.currentGrowth || this.sectors.manufacturing.growth;
+    const servicesGrowth = this.sectors.services.currentGrowth || this.sectors.services.growth;
+    const agricultureGrowth = this.sectors.agriculture.currentGrowth || this.sectors.agriculture.growth;
+
+    // Manufacturing affects services (business services demand)
+    if (manufacturingGrowth > 2.5) {
+      this.sectors.services.growth += 0.1; // Strong manufacturing boosts services
+    } else if (manufacturingGrowth < 0) {
+      this.sectors.services.growth -= 0.05; // Manufacturing decline hurts services
+    }
+
+    // Services affects manufacturing (financial services, logistics)
+    if (servicesGrowth > 2.0) {
+      this.sectors.manufacturing.growth += 0.05; // Strong services supports manufacturing
+    } else if (servicesGrowth < -1.0) {
+      this.sectors.manufacturing.growth -= 0.1; // Services decline hurts manufacturing
+    }
+
+    // Agriculture affects both (food costs, raw materials)
+    if (agricultureGrowth < -2.0) {
+      // Agricultural decline increases costs for other sectors
+      this.sectors.manufacturing.growth -= 0.03;
+      this.sectors.services.growth -= 0.02;
+    } else if (agricultureGrowth > 3.0) {
+      // Agricultural boom reduces costs
+      this.sectors.manufacturing.growth += 0.02;
+      this.sectors.services.growth += 0.01;
+    }
+
+    // Supply chain interdependencies
+    const supplyChainStress = this.calculateSupplyChainStress();
+    if (supplyChainStress > 0.5) {
+      // High supply chain stress affects all sectors
+      Object.keys(this.sectors).forEach((sectorName) => {
+        this.sectors[sectorName].growth -= supplyChainStress * 0.1;
+      });
+    }
+
+    // Labor mobility between sectors
+    this.updateLaborMobility();
+  }
+
+  /**
+   * Calculate sector-specific unemployment rates
+   */
+  calculateSectorUnemployment(sectorName) {
+    const sector = this.sectors[sectorName];
+    if (!sector) return this.metrics.unemployment;
+
+    // Base unemployment adjusted for sector performance
+    let sectorUnemployment = this.metrics.unemployment;
+
+    // Sector growth affects sector unemployment
+    const sectorGrowth = sector.currentGrowth || sector.growth;
+    if (sectorGrowth > 2.0) {
+      sectorUnemployment -= (sectorGrowth - 2.0) * 0.3; // Strong growth reduces unemployment
+    } else if (sectorGrowth < 0) {
+      sectorUnemployment += Math.abs(sectorGrowth) * 0.5; // Negative growth increases unemployment
+    }
+
+    // Sector-specific factors
+    switch (sectorName) {
+      case 'manufacturing':
+        // Manufacturing more sensitive to economic cycles
+        if (this.cycle.phase === 'recession') {
+          sectorUnemployment += 1.5;
+        } else if (this.cycle.phase === 'expansion') {
+          sectorUnemployment -= 0.8;
+        }
+        break;
+      case 'services': {
+        // Services more stable but affected by consumer confidence
+        const confidenceEffect = ((this.metrics.confidence - 50) / 100) * -0.5;
+        sectorUnemployment += confidenceEffect;
+        break;
+      }
+      case 'agriculture':
+        // Agriculture affected by seasonal factors and weather
+        sectorUnemployment += (Math.random() - 0.5) * 1.0; // Weather volatility
+        break;
+      default:
+        break;
+    }
+
+    // Ensure realistic bounds
+    return Math.max(1.0, Math.min(30.0, sectorUnemployment));
+  }
+
+  /**
+   * Calculate supply chain inflation pressures
+   */
+  calculateSupplyChainInflation() {
+    let supplyChainEffect = 0;
+
+    // Manufacturing sector stress affects supply chains
+    const manufacturingGrowth = this.sectors.manufacturing.currentGrowth || this.sectors.manufacturing.growth;
+    if (manufacturingGrowth < -1.0) {
+      supplyChainEffect += Math.abs(manufacturingGrowth) * 0.1; // Manufacturing decline creates bottlenecks
+    }
+
+    // Global trade effects (simplified)
+    if (this.metrics.netExports < -0.05) {
+      supplyChainEffect += 0.2; // High imports create supply chain vulnerabilities
+    }
+
+    // Productivity effects on supply chains
+    if (this.metrics.productivity < 0.95) {
+      supplyChainEffect += (0.95 - this.metrics.productivity) * 0.5; // Low productivity strains supply chains
+    }
+
+    // Transportation and logistics costs (approximated by oil price effects)
+    const transportationStress = Math.random() * 0.3; // Simplified transportation cost volatility
+    supplyChainEffect += transportationStress;
+
+    // Geopolitical supply chain disruption risk
+    if (Math.random() < 0.02) { // 2% chance of minor disruption
+      supplyChainEffect += 0.1 + Math.random() * 0.2;
+    }
+
+    return Math.max(0, Math.min(2.0, supplyChainEffect)); // Cap at 2% inflation effect
+  }
+
+  /**
+   * Calculate overall supply chain stress level
+   */
+  calculateSupplyChainStress() {
+    let stress = 0;
+
+    // Sector performance imbalances create stress
+    const sectorGrowths = Object.values(this.sectors).map((s) => s.currentGrowth || s.growth);
+    const growthVariance = this.calculateVariance(sectorGrowths);
+    stress += growthVariance * 0.1;
+
+    // High inflation indicates supply-demand imbalances
+    if (this.metrics.inflation > 3.5) {
+      stress += (this.metrics.inflation - 3.5) * 0.2;
+    }
+
+    // Low confidence indicates supply chain concerns
+    if (this.metrics.confidence < 40) {
+      stress += (40 - this.metrics.confidence) * 0.01;
+    }
+
+    return Math.max(0, Math.min(1.0, stress));
+  }
+
+  /**
+   * Update labor mobility between sectors
+   */
+  updateLaborMobility() {
+    // Simplified labor mobility model
+    const sectorPerformance = {};
+    Object.keys(this.sectors).forEach((sectorName) => {
+      const sector = this.sectors[sectorName];
+      sectorPerformance[sectorName] = sector.currentGrowth || sector.growth;
+    });
+
+    // Find best and worst performing sectors
+    const sortedSectors = Object.entries(sectorPerformance)
+      .sort(([, a], [, b]) => b - a);
+
+    const bestSector = sortedSectors[0];
+    const worstSector = sortedSectors[sortedSectors.length - 1];
+
+    // Small labor movement from worst to best performing sector
+    if (bestSector[1] - worstSector[1] > 2.0) {
+      const mobilityRate = 0.001; // 0.1% of sector share can move per turn
+      const movement = Math.min(mobilityRate, this.sectors[worstSector[0]].share * 0.1);
+
+      this.sectors[worstSector[0]].share -= movement;
+      this.sectors[bestSector[0]].share += movement;
+
+      // Ensure sectors don't go below minimum thresholds
+      Object.keys(this.sectors).forEach((sectorName) => {
+        const minShare = sectorName === 'agriculture' ? 0.02 : 0.05;
+        if (this.sectors[sectorName].share < minShare) {
+          this.sectors[sectorName].share = minShare;
+        }
+      });
+
+      // Renormalize to ensure shares sum to 1
+      const totalShare = Object.values(this.sectors).reduce((sum, sector) => sum + sector.share, 0);
+      Object.keys(this.sectors).forEach((sectorName) => {
+        this.sectors[sectorName].share /= totalShare;
+      });
+    }
+  }
+
+  /**
+   * Calculate variance of an array of numbers
+   */
+  calculateVariance(numbers) {
+    if (numbers.length === 0) return 0;
+
+    const mean = numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
+    const squaredDifferences = numbers.map((num) => (num - mean) ** 2);
+    return squaredDifferences.reduce((sum, diff) => sum + diff, 0) / numbers.length;
+  }
 }
 
 // Create and export global economic simulation instance
