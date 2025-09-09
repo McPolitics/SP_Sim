@@ -53,7 +53,7 @@
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "sass": "^1.89.2",
-    "vite": "^7.0.4",
+    "vite": "^7.1.5",
     "vite-bundle-analyzer": "^1.1.0"
   }
 }
